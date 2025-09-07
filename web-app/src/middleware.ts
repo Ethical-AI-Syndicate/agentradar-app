@@ -4,12 +4,13 @@ export function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || '';
   const url = request.nextUrl.clone();
 
-  console.log(`[Middleware] Host: ${hostname}, Path: ${url.pathname}`);
+  console.log(`[Middleware] Host: ${hostname}, Path: ${url.pathname}, Full URL: ${url.toString()}`);
 
   let response: NextResponse;
 
   // Handle admin subdomain
   if (hostname === 'admin.agentradar.app' || hostname.startsWith('admin.')) {
+    console.log(`[Middleware] Detected admin subdomain: ${hostname}`);
     // If already on admin path, continue normally
     if (url.pathname.startsWith('/admin')) {
       console.log(`[Middleware] Already on admin path, continuing`);
