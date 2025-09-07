@@ -284,14 +284,14 @@ function SearchPageContent() {
                       <div>
                         <Label htmlFor="province">Province</Label>
                         <Select
-                          onValueChange={(value) => setValue('province', value)}
+                          onValueChange={(value) => setValue('province', value === 'all' ? undefined : value)}
                           disabled={loading}
                         >
                           <SelectTrigger className="mt-1">
                             <SelectValue placeholder="Any" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">Any Province</SelectItem>
+                            <SelectItem value="all">Any Province</SelectItem>
                             {provinces.map((province) => (
                               <SelectItem key={province} value={province}>
                                 {province}
@@ -304,14 +304,14 @@ function SearchPageContent() {
                       <div>
                         <Label htmlFor="propertyType">Property Type</Label>
                         <Select
-                          onValueChange={(value) => setValue('propertyType', value)}
+                          onValueChange={(value) => setValue('propertyType', value === 'all' ? undefined : value)}
                           disabled={loading}
                         >
                           <SelectTrigger className="mt-1">
                             <SelectValue placeholder="Any" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">Any Type</SelectItem>
+                            <SelectItem value="all">Any Type</SelectItem>
                             {propertyTypes.map((type) => (
                               <SelectItem key={type} value={type}>
                                 {type}
@@ -346,14 +346,14 @@ function SearchPageContent() {
                       <div>
                         <Label htmlFor="bedrooms">Bedrooms</Label>
                         <Select
-                          onValueChange={(value) => setValue('bedrooms', parseInt(value))}
+                          onValueChange={(value) => setValue('bedrooms', value === 'all' ? undefined : parseInt(value))}
                           disabled={loading}
                         >
                           <SelectTrigger className="mt-1">
                             <SelectValue placeholder="Any" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">Any</SelectItem>
+                            <SelectItem value="all">Any</SelectItem>
                             {[1, 2, 3, 4, 5].map((num) => (
                               <SelectItem key={num} value={num.toString()}>
                                 {num}+ bed{num > 1 ? 's' : ''}
@@ -366,14 +366,14 @@ function SearchPageContent() {
                       <div>
                         <Label htmlFor="bathrooms">Bathrooms</Label>
                         <Select
-                          onValueChange={(value) => setValue('bathrooms', parseInt(value))}
+                          onValueChange={(value) => setValue('bathrooms', value === 'all' ? undefined : parseInt(value))}
                           disabled={loading}
                         >
                           <SelectTrigger className="mt-1">
                             <SelectValue placeholder="Any" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">Any</SelectItem>
+                            <SelectItem value="all">Any</SelectItem>
                             {[1, 2, 3, 4, 5].map((num) => (
                               <SelectItem key={num} value={num.toString()}>
                                 {num}+ bath{num > 1 ? 's' : ''}

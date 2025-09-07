@@ -78,9 +78,9 @@ export default function AdminUsers() {
   
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState('');
-  const [tierFilter, setTierFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [tierFilter, setTierFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   const fetchUsers = async () => {
     try {
@@ -93,9 +93,9 @@ export default function AdminUsers() {
       });
       
       if (searchQuery) params.append('search', searchQuery);
-      if (roleFilter) params.append('role', roleFilter);
-      if (tierFilter) params.append('subscriptionTier', tierFilter);
-      if (statusFilter) params.append('isActive', statusFilter);
+      if (roleFilter && roleFilter !== 'all') params.append('role', roleFilter);
+      if (tierFilter && tierFilter !== 'all') params.append('subscriptionTier', tierFilter);
+      if (statusFilter && statusFilter !== 'all') params.append('isActive', statusFilter);
 
       const response = await apiClient.get(`/admin/users?${params}`);
       const data: UsersResponse = response.data;
@@ -217,7 +217,7 @@ export default function AdminUsers() {
                 <SelectValue placeholder="All Roles" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Roles</SelectItem>
+                <SelectItem value="all">All Roles</SelectItem>
                 <SelectItem value="USER">User</SelectItem>
                 <SelectItem value="ADMIN">Admin</SelectItem>
               </SelectContent>
@@ -228,7 +228,7 @@ export default function AdminUsers() {
                 <SelectValue placeholder="All Tiers" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Tiers</SelectItem>
+                <SelectItem value="all">All Tiers</SelectItem>
                 <SelectItem value="FREE">Free</SelectItem>
                 <SelectItem value="SOLO_AGENT">Solo Agent</SelectItem>
                 <SelectItem value="PROFESSIONAL">Professional</SelectItem>

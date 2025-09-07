@@ -82,9 +82,9 @@ export default function AdminSupport() {
   });
   
   // Filters
-  const [statusFilter, setStatusFilter] = useState('');
-  const [priorityFilter, setPriorityFilter] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [priorityFilter, setPriorityFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
 
   const fetchTickets = async () => {
     try {
@@ -96,9 +96,9 @@ export default function AdminSupport() {
         limit: pagination.limit.toString(),
       });
       
-      if (statusFilter) params.append('status', statusFilter);
-      if (priorityFilter) params.append('priority', priorityFilter);
-      if (categoryFilter) params.append('category', categoryFilter);
+      if (statusFilter && statusFilter !== 'all') params.append('status', statusFilter);
+      if (priorityFilter && priorityFilter !== 'all') params.append('priority', priorityFilter);
+      if (categoryFilter && categoryFilter !== 'all') params.append('category', categoryFilter);
 
       const response = await apiClient.get(`/admin/support/tickets?${params}`);
       const data: TicketsResponse = response.data;
@@ -217,7 +217,7 @@ export default function AdminSupport() {
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Status</SelectItem>
+                <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="OPEN">Open</SelectItem>
                 <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
                 <SelectItem value="PENDING_USER">Pending User</SelectItem>
@@ -231,7 +231,7 @@ export default function AdminSupport() {
                 <SelectValue placeholder="All Priority" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Priority</SelectItem>
+                <SelectItem value="all">All Priority</SelectItem>
                 <SelectItem value="LOW">Low</SelectItem>
                 <SelectItem value="MEDIUM">Medium</SelectItem>
                 <SelectItem value="HIGH">High</SelectItem>
@@ -244,7 +244,7 @@ export default function AdminSupport() {
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
+                <SelectItem value="all">All Categories</SelectItem>
                 <SelectItem value="billing">Billing</SelectItem>
                 <SelectItem value="technical">Technical</SelectItem>
                 <SelectItem value="feature_request">Feature Request</SelectItem>
