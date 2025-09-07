@@ -60,7 +60,7 @@ export default function ForgotPasswordPage() {
               Check your email
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
-              We've sent password reset instructions to your email address.
+              We&apos;ve sent password reset instructions to your email address.
             </p>
           </div>
 
@@ -68,7 +68,7 @@ export default function ForgotPasswordPage() {
             <CardContent className="pt-6">
               <div className="text-center space-y-4">
                 <p className="text-sm text-gray-600">
-                  Didn't receive an email? Check your spam folder or try again.
+                  Didn&apos;t receive an email? Check your spam folder or try again.
                 </p>
                 <Button asChild variant="outline" className="w-full">
                   <Link href="/login">
@@ -97,7 +97,7 @@ export default function ForgotPasswordPage() {
             Reset your password
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your email address and we&apos;ll send you a link to reset your password.
           </p>
         </div>
 
@@ -105,7 +105,7 @@ export default function ForgotPasswordPage() {
           <CardHeader>
             <CardTitle>Forgot Password</CardTitle>
             <CardDescription>
-              We'll send you a secure link to reset your password
+              We&apos;ll send you a secure link to reset your password
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -143,7 +143,7 @@ export default function ForgotPasswordPage() {
                     Sending Reset Link...
                   </>
                 ) : (
-                  'Send Reset Link'
+                  "Send Reset Link"
                 )}
               </Button>
 

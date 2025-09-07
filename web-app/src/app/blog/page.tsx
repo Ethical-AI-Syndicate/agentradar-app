@@ -12,22 +12,11 @@ import {
   Clock,
   ArrowRight,
   TrendingUp,
-  Target,
-  Lightbulb,
-  Award,
   BarChart3,
-  Map,
-  Home,
-  DollarSign,
-  Users,
   Eye,
   MessageCircle,
-  Share,
-  Bookmark,
-  Filter,
   Tag,
   ChevronRight,
-  Star,
   BookOpen,
   Video,
   Download,
@@ -218,7 +207,7 @@ export default function BlogPage() {
           </h1>
           <p className="text-xl text-gray-600 mb-8 leading-relaxed">
             Stay ahead of the market with expert analysis, proven strategies, and actionable insights 
-            from Canada's leading real estate intelligence platform.
+            from Canada&apos;s leading real estate intelligence platform.
           </p>
           
           {/* Newsletter Signup */}
@@ -538,7 +527,7 @@ export default function BlogPage() {
             Ready to Apply These Insights?
           </h2>
           <p className="text-xl text-blue-100 mb-8">
-            Turn market knowledge into profitable opportunities with AgentRadar's 
+            Turn market knowledge into profitable opportunities with AgentRadar&apos;s 
             AI-powered real estate intelligence platform.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

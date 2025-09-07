@@ -3,19 +3,17 @@
 import { useState, useEffect } from 'react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Bell, 
   Plus, 
-  Filter,
   Search,
   MapPin,
   Calendar,
   DollarSign,
   Eye,
-  Settings,
   Trash2,
   CheckCircle,
   Clock,

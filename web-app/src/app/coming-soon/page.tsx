@@ -1,24 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Clock, Mail, Bell } from 'lucide-react';
+import { ArrowLeft, Clock, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 
-interface ComingSoonProps {
-  title: string;
-  description: string;
-  backLink?: string;
-  estimatedLaunch?: string;
-}
-
-export default function ComingSoonPage({ 
-  title = "Coming Soon", 
-  description = "This feature is currently in development.",
-  backLink = "/",
-  estimatedLaunch = "Q1 2026"
-}: ComingSoonProps) {
+export default function ComingSoonPage() {
+  const title = "Coming Soon";
+  const description = "This feature is currently in development.";
+  const backLink = "/";
+  const estimatedLaunch = "Q1 2026";
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="max-w-md w-full space-y-8">
@@ -51,7 +43,7 @@ export default function ComingSoonPage({
               </Button>
             </div>
             <p className="text-xs text-gray-500 text-center mt-3">
-              We'll send you one email when this feature is ready
+              We&apos;ll send you one email when this feature is ready
             </p>
           </CardContent>
         </Card>

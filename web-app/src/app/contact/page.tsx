@@ -9,7 +9,6 @@ import { Footer } from "@/components/footer"
 import { 
   Mail, 
   Phone, 
-  MapPin,
   Clock,
   MessageSquare,
   Zap,
@@ -178,7 +177,7 @@ export default function ContactPage() {
             </h1>
             <p className="text-xl text-gray-600 mb-8 leading-relaxed">
               Get expert guidance, personalized demos, and dedicated support from our real estate intelligence specialists. 
-              We're here to help you discover opportunities before your competition.
+              We&apos;re here to help you discover opportunities before your competition.
             </p>
             <div className="flex items-center justify-center gap-8 text-sm text-gray-500">
               <div className="flex items-center gap-2">
@@ -202,7 +201,7 @@ export default function ContactPage() {
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Choose How You'd Like to Connect</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Choose How You&apos;d Like to Connect</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Multiple ways to reach our team of real estate technology experts
             </p>
@@ -258,7 +257,7 @@ export default function ContactPage() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Send Us a Message</h2>
             <p className="text-xl text-gray-600">
-              Tell us about your needs and we'll get back to you with a personalized solution
+              Tell us about your needs and we&apos;ll get back to you with a personalized solution
             </p>
           </div>
 

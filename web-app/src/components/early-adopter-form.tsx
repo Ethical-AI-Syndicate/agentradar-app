@@ -10,10 +10,7 @@ import { Separator } from "@/components/ui/separator"
 import { Card } from "@/components/ui/card"
 import { 
   User, 
-  Mail, 
-  Phone, 
   Building, 
-  MapPin, 
   Users,
   TrendingUp,
   Clock,
@@ -148,7 +145,7 @@ export function EarlyAdopterForm({ open, onOpenChange }: EarlyAdopterFormProps) 
             >
               <h2 className="text-3xl font-bold mb-2">Welcome to the Future! 🚀</h2>
               <p className="text-green-100 text-lg mb-6">
-                You're now part of an exclusive group of forward-thinking real estate professionals.
+                You&apos;re now part of an exclusive group of forward-thinking real estate professionals.
               </p>
             </motion.div>
 
@@ -162,11 +159,11 @@ export function EarlyAdopterForm({ open, onOpenChange }: EarlyAdopterFormProps) 
               <div className="space-y-3 text-left text-green-100">
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">1</div>
-                  <span>We'll email you your early adopter token within 24 hours</span>
+                  <span>We&apos;ll email you your early adopter token within 24 hours</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">2</div>
-                  <span>You'll get exclusive updates on our launch progress</span>
+                  <span>You&apos;ll get exclusive updates on our launch progress</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">3</div>
@@ -205,7 +202,7 @@ export function EarlyAdopterForm({ open, onOpenChange }: EarlyAdopterFormProps) 
               Claim Your Early Adopter Benefits
             </DialogTitle>
             <p className="text-blue-100 mt-2">
-              Join the exclusive group of agents building tomorrow's pipelines today
+              Join the exclusive group of agents building tomorrow&apos;s pipelines today
             </p>
           </DialogHeader>
           
@@ -261,7 +258,7 @@ export function EarlyAdopterForm({ open, onOpenChange }: EarlyAdopterFormProps) 
             >
               <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
                 <User className="w-5 h-5 text-blue-600" />
-                Let's Get Acquainted
+                Let&apos;s Get Acquainted
               </h3>
               
               <div className="grid grid-cols-2 gap-4">
@@ -501,7 +498,7 @@ export function EarlyAdopterForm({ open, onOpenChange }: EarlyAdopterFormProps) 
               <Separator />
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h4 className="font-semibold text-blue-900 mb-2">📧 What You'll Receive:</h4>
+                <h4 className="font-semibold text-blue-900 mb-2">📧 What You&apos;ll Receive:</h4>
                 <ul className="text-sm text-blue-800 space-y-1">
                   <li>• Early adopter token via email within 24 hours</li>
                   <li>• Exclusive updates on launch progress</li>

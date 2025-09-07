@@ -221,6 +221,12 @@ router.post('/alerts/:alertId/acknowledge', authenticateToken, requireAdmin, asy
     const { alertId } = req.params;
     const userId = (req as any).user.id;
     
+    if (!alertId) {
+      return res.status(400).json({
+        error: 'Alert ID is required'
+      });
+    }
+    
     console.log(`✅ Alert acknowledgment requested: ${alertId} by user ${userId}`);
     
     observabilityDashboard.acknowledgeAlert(alertId, userId);
@@ -251,6 +257,12 @@ router.post('/alerts/:alertId/resolve', authenticateToken, requireAdmin, async (
   try {
     const { alertId } = req.params;
     const userId = (req as any).user.id;
+    
+    if (!alertId) {
+      return res.status(400).json({
+        error: 'Alert ID is required'
+      });
+    }
     
     console.log(`✅ Alert resolution requested: ${alertId} by user ${userId}`);
     

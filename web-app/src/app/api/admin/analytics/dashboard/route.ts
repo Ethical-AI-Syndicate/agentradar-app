@@ -17,10 +17,10 @@ export async function GET(request: NextRequest) {
 
     const token = authHeader.substring(7);
     
-    let decoded: any;
+    let decoded: { id: string; role: string };
     try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    } catch (error) {
+      decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string; role: string };
+    } catch {
       return NextResponse.json(
         { error: 'Invalid token' },
         { status: 401 }

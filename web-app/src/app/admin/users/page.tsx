@@ -24,7 +24,6 @@ import {
   Users, 
   Search,
   UserPlus,
-  MoreHorizontal,
   Edit,
   Shield,
   Ban,
@@ -80,7 +79,7 @@ export default function AdminUsers() {
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [tierFilter, setTierFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter] = useState('all');
 
   const fetchUsers = async () => {
     try {
@@ -102,9 +101,9 @@ export default function AdminUsers() {
       
       setUsers(data.users);
       setPagination(data.pagination);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to fetch users:', err);
-      setError(err.response?.data?.message || 'Failed to load users');
+      setError((err as { response?: { data?: { message?: string } } }).response?.data?.message || 'Failed to load users');
     } finally {
       setLoading(false);
     }
@@ -131,7 +130,7 @@ export default function AdminUsers() {
         isActive: !currentStatus
       });
       fetchUsers(); // Refresh the list
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to update user status:', err);
     }
   };

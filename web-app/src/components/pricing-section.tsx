@@ -10,7 +10,6 @@ import {
   Star, 
   Crown, 
   Building, 
-  Zap,
   Users,
   ArrowRight,
   Gift
@@ -225,7 +224,7 @@ export function PricingSection() {
 
                 {/* Features */}
                 <div className="space-y-4">
-                  <h4 className="font-semibold text-gray-900">What's included:</h4>
+                  <h4 className="font-semibold text-gray-900">What&apos;s included:</h4>
                   <ul className="space-y-3">
                     {plan.features.map((feature, featureIndex) => (
                       <li key={featureIndex} className="flex items-start gap-3">

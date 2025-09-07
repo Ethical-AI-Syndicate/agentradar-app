@@ -312,7 +312,7 @@ export const analyticsApi = {
   // Get performance metrics
   getPerformanceMetrics: async (params?: {
     timeframe?: 'week' | 'month' | 'quarter' | 'year';
-  }): Promise<ApiResponse<any>> => {
+  }): Promise<ApiResponse<Record<string, unknown>>> => {
     const response = await apiClient.get('/analytics/performance', { params });
     return response.data;
   },

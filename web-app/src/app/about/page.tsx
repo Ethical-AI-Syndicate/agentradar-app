@@ -8,10 +8,8 @@ import {
   Zap, 
   Target, 
   Users, 
-  TrendingUp,
   CheckCircle,
   Award,
-  Globe,
   Heart,
   ArrowRight,
   Linkedin,
@@ -99,9 +97,9 @@ export default function AboutPage() {
               <span className="bg-gradient-to-r from-blue-600 to-orange-600 bg-clip-text text-transparent"> Intelligence</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-              We're on a mission to level the playing field in real estate by giving every agent, 
+              We&apos;re on a mission to level the playing field in real estate by giving every agent, 
               regardless of size or connections, access to the same market intelligence that was 
-              once reserved for the industry's elite.
+              once reserved for the industry&apos;s elite.
             </p>
           </div>
         </div>
@@ -139,13 +137,13 @@ export default function AboutPage() {
                 </p>
                 <p>
                   Our founder, Mike Holownych, experienced this firsthand. As an entrepreneur, 
-                  he watched million-dollar opportunities slip away simply because he didn't have 
+                  he watched million-dollar opportunities slip away simply because he didn&apos;t have 
                   access to the right information at the right time.
                 </p>
                 <p>
-                  <strong>That's when everything changed.</strong> We realized that this information wasn't secret—it 
+                  <strong>That&apos;s when everything changed.</strong> We realized that this information wasn&apos;t secret—it 
                   was just scattered across dozens of government databases, court filings, and municipal 
-                  records. The challenge wasn't access; it was aggregation and intelligence.
+                  records. The challenge wasn&apos;t access; it was aggregation and intelligence.
                 </p>
               </div>
             </div>
@@ -242,7 +240,7 @@ export default function AboutPage() {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Journey</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              From startup to industry leader, here's how we're revolutionizing real estate intelligence
+              From startup to industry leader, here&apos;s how we&apos;re revolutionizing real estate intelligence
             </p>
           </div>
           

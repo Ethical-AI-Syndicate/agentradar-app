@@ -8,7 +8,6 @@ import {
   Search,
   Bell,
   TrendingUp,
-  MapPin,
   DollarSign,
   Clock,
   Users,
@@ -30,12 +29,10 @@ import {
   Award,
   Calendar,
   Mail,
-  AlertTriangle,
   Database,
   PieChart,
   LineChart,
   Map,
-  Briefcase,
   Building,
   Home,
   Gavel,
@@ -629,7 +626,7 @@ export default function FeaturesPage() {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
             <p className="text-xl text-gray-600">
-              Common questions about AgentRadar's features and capabilities
+              Common questions about AgentRadar&apos;s features and capabilities
             </p>
           </div>
 

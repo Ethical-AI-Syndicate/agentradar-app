@@ -8,12 +8,10 @@ import {
   Search, 
   Bell, 
   MessageCircle, 
-  TrendingUp, 
   ArrowRight,
   FileText,
   Gavel,
   Building2,
-  Home,
   Clock,
   Target,
   CheckCircle
@@ -125,7 +123,7 @@ export function SolutionSection() {
               </span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              While other agents react to MLS listings, you'll be building relationships with sellers 
+              While other agents react to MLS listings, you&apos;ll be building relationships with sellers 
               6-12 months before they even think about listing their property.
             </p>
           </motion.div>
@@ -278,9 +276,9 @@ export function SolutionSection() {
           </div>
 
           <p className="text-lg text-gray-700 mb-8 max-w-3xl mx-auto">
-            Imagine calling a property owner who's dealing with a power of sale proceeding, 
-            and you're the <strong>first and only agent</strong> who knows about their situation. 
-            That's the power of intelligence-driven prospecting.
+            Imagine calling a property owner who&apos;s dealing with a power of sale proceeding, 
+            and you&apos;re the <strong>first and only agent</strong> who knows about their situation. 
+            That&apos;s the power of intelligence-driven prospecting.
           </p>
 
           <Button 

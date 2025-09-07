@@ -19,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { 
   ArrowLeft,
   Loader2,
@@ -29,7 +28,7 @@ import {
   AlertTriangle,
   Home
 } from 'lucide-react';
-import { alertsApi, type Alert as AlertType } from '@/lib/api';
+import { alertsApi } from '@/lib/api';
 import Link from 'next/link';
 
 const alertSchema = z.object({
@@ -113,8 +112,8 @@ export default function CreateAlertPage() {
       } else {
         setError(response.message || 'Failed to create alert');
       }
-    } catch (error) {
-      console.error('Alert creation error:', error);
+    } catch (err: unknown) {
+      console.error('Alert creation error:', err);
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
@@ -193,7 +192,7 @@ export default function CreateAlertPage() {
                         <div>
                           <Label htmlFor="type">Alert Type</Label>
                           <Select
-                            onValueChange={(value) => setValue('type', value as any)}
+                            onValueChange={(value) => setValue('type', value as 'POWER_OF_SALE' | 'FORECLOSURE' | 'ESTATE_SALE' | 'TAX_SALE')}
                             defaultValue="POWER_OF_SALE"
                             disabled={isLoading}
                           >
@@ -216,7 +215,7 @@ export default function CreateAlertPage() {
                         <div>
                           <Label htmlFor="priority">Priority</Label>
                           <Select
-                            onValueChange={(value) => setValue('priority', value as any)}
+                            onValueChange={(value) => setValue('priority', value as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT')}
                             defaultValue="MEDIUM"
                             disabled={isLoading}
                           >

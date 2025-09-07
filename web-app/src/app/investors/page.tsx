@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, TrendingUp, Users, DollarSign, Target, BarChart3, Globe, Zap, Mail, Calendar, Download, Shield, Award } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Users, DollarSign, BarChart3, Globe, Zap, Mail, Calendar, Download, Shield, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -72,7 +72,7 @@ export default function InvestorsPage() {
                   development applications to identify properties before the competition.
                 </p>
                 <p className="text-gray-700 leading-relaxed mt-4">
-                  We're seeking <strong>$500K - $1.2M in pre-seed funding</strong> to accelerate development, expand across Canada, 
+                  We&apos;re seeking <strong>$500K - $1.2M in pre-seed funding</strong> to accelerate development, expand across Canada, 
                   and build our team. This represents a unique opportunity to invest in the future of real estate technology 
                   with a proven founder and clear path to revenue.
                 </p>

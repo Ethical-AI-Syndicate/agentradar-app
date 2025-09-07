@@ -80,7 +80,7 @@ export default function TermsOfServicePage() {
               Terms of Service
             </h1>
             <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-              Clear, fair terms that govern your use of AgentRadar's real estate intelligence platform. 
+              Clear, fair terms that govern your use of AgentRadar&apos;s real estate intelligence platform. 
               These terms are designed to protect both you and our service.
             </p>
             <div className="flex items-center justify-center gap-4 text-sm text-gray-500">
@@ -137,7 +137,7 @@ export default function TermsOfServicePage() {
               
               <div className="prose prose-lg max-w-none">
                 <p className="text-gray-600 mb-4">
-                  By accessing or using AgentRadar ("the Service"), you agree to be bound by these Terms of Service 
+                  By accessing or using AgentRadar (&quot;the Service&quot;), you agree to be bound by these Terms of Service 
                   and all applicable laws and regulations. If you do not agree with any part of these terms, 
                   you may not use our service.
                 </p>
@@ -457,7 +457,7 @@ export default function TermsOfServicePage() {
                 <div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-3">Service Disclaimer</h3>
                   <p className="text-gray-600 mb-4">
-                    The Service is provided "as is" and "as available." We make no warranties, express 
+                    The Service is provided &quot;as is&quot; and &quot;as available.&quot; We make no warranties, express 
                     or implied, regarding the accuracy, completeness, or reliability of information provided.
                   </p>
                   

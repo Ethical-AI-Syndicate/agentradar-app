@@ -29,8 +29,9 @@ export async function POST(request: NextRequest) {
 
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-    } catch (err: any) {
-      console.error('Webhook signature verification failed:', err.message);
+    } catch (err: unknown) {
+      const errorMessage = (err as { message?: string })?.message || 'Unknown error';
+      console.error('Webhook signature verification failed:', errorMessage);
       return NextResponse.json(
         { error: 'Invalid signature' },
         { status: 400 }
@@ -67,8 +68,8 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ received: true });
-  } catch (error) {
-    console.error('Stripe webhook error:', error);
+  } catch (err: unknown) {
+    console.error('Stripe webhook error:', err);
     return NextResponse.json(
       { error: 'Webhook handler failed' },
       { status: 500 }
@@ -110,8 +111,8 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription) {
     });
 
     console.log(`Updated subscription for user ${userEmail}: ${subscriptionTier} (${status})`);
-  } catch (error) {
-    console.error('Error handling subscription change:', error);
+  } catch (err: unknown) {
+    console.error('Error handling subscription change:', err);
   }
 }
 
@@ -136,8 +137,8 @@ async function handleSubscriptionCancellation(subscription: Stripe.Subscription)
     });
 
     console.log(`Cancelled subscription for user ${userEmail}`);
-  } catch (error) {
-    console.error('Error handling subscription cancellation:', error);
+  } catch (err: unknown) {
+    console.error('Error handling subscription cancellation:', err);
   }
 }
 
@@ -160,8 +161,8 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
     });
 
     console.log(`Payment succeeded for user ${userEmail}`);
-  } catch (error) {
-    console.error('Error handling payment success:', error);
+  } catch (err: unknown) {
+    console.error('Error handling payment success:', err);
   }
 }
 
@@ -184,8 +185,8 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
     });
 
     console.log(`Payment failed for user ${userEmail}`);
-  } catch (error) {
-    console.error('Error handling payment failure:', error);
+  } catch (err: unknown) {
+    console.error('Error handling payment failure:', err);
   }
 }
 
@@ -200,8 +201,8 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     await handleSubscriptionChange(subscription);
 
     console.log(`Checkout completed for customer ${customerId}`);
-  } catch (error) {
-    console.error('Error handling checkout completion:', error);
+  } catch (err: unknown) {
+    console.error('Error handling checkout completion:', err);
   }
 }
 

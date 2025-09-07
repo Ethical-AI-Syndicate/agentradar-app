@@ -18,7 +18,8 @@ import propertyRoutes from './routes/properties';
 import earlyAdopterRoutes from './routes/early-adopters';
 import adminRoutes from './routes/admin';
 import preferencesRoutes from './routes/preferences';
-import monitoringRoutes from './routes/monitoring';
+// import monitoringRoutes from './routes/monitoring'; // Temporarily disabled
+import customerOnboardingRoutes from './routes/customer-onboarding';
 // import courtProcessingRoutes from './routes/courtProcessing'; // Temporarily disabled
 
 // Load environment variables
@@ -88,7 +89,8 @@ app.use('/api/properties', propertyRoutes);
 app.use('/api/early-adopters', earlyAdopterRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/preferences', preferencesRoutes);
-app.use('/api/monitoring', monitoringRoutes);
+// app.use('/api/monitoring', monitoringRoutes); // Temporarily disabled
+app.use('/api/customer-onboarding', customerOnboardingRoutes);
 // app.use('/api/court-processing', courtProcessingRoutes); // Temporarily disabled
 
 // API documentation endpoint
@@ -106,7 +108,8 @@ app.get('/api', (req, res) => {
       earlyAdopters: '/api/early-adopters',
       admin: '/api/admin',
       preferences: '/api/preferences',
-      monitoring: '/api/monitoring',
+      // monitoring: '/api/monitoring', // Temporarily disabled
+      customerOnboarding: '/api/customer-onboarding',
       // courtProcessing: '/api/court-processing' // Temporarily disabled
     },
     health: '/health'

@@ -17,10 +17,10 @@ export async function GET(request: NextRequest) {
 
     const token = authHeader.substring(7);
     
-    let decoded: any;
+    let decoded: { id: string; email: string };
     try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    } catch (error) {
+      decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string; email: string };
+    } catch {
       return NextResponse.json(
         { error: 'Invalid token' },
         { status: 401 }
@@ -50,7 +50,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Return user data (excluding password)
-    const { password: _, ...userWithoutPassword } = user;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userWithoutPassword } = user;
 
     return NextResponse.json({
       success: true,

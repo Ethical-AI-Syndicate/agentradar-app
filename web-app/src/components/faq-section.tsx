@@ -51,7 +51,7 @@ export function FAQSection() {
           answer: "Timing varies by opportunity type: Power of sale proceedings typically give you 6-12 months advance notice, estate sales 3-9 months, and development applications 12+ months. This gives you significant time to build relationships before properties hit the market."
         },
         {
-          question: "What if the information changes or opportunities don't materialize?",
+          question: "What if the information changes or opportunities don&apos;t materialize?",
           answer: "Legal proceedings can change, and not every filing results in a sale. We track updates and notify you of status changes. Our AI scoring considers the likelihood of each opportunity actually reaching market, helping you focus on the most promising leads."
         }
       ]
@@ -123,7 +123,7 @@ export function FAQSection() {
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               Find answers to the most common questions about AgentRadar. 
-              Can't find what you're looking for? We're here to help.
+              Can&apos;t find what you&apos;re looking for? We&apos;re here to help.
             </p>
           </motion.div>
         </div>

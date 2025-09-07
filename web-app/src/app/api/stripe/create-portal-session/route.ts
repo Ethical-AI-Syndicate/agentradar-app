@@ -22,10 +22,10 @@ export async function POST(request: NextRequest) {
 
     const token = authHeader.substring(7);
     
-    let decoded: any;
+    let decoded: { id: string; email: string; role?: string };
     try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    } catch (error) {
+      decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string; email: string; role?: string };
+    } catch {
       return NextResponse.json(
         { error: 'Invalid token' },
         { status: 401 }
@@ -63,10 +63,11 @@ export async function POST(request: NextRequest) {
       url: session.url,
     });
 
-  } catch (error: any) {
-    console.error('Stripe portal error:', error);
+  } catch (err: unknown) {
+    console.error('Stripe portal error:', err);
+    const errorMessage = (err as { message?: string })?.message || 'Unknown error';
     return NextResponse.json(
-      { error: 'Failed to create portal session', message: error.message },
+      { error: 'Failed to create portal session', message: errorMessage },
       { status: 500 }
     );
   }

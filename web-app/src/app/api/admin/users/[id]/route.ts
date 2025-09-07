@@ -13,19 +13,19 @@ function authenticateAdmin(request: NextRequest) {
   const token = authHeader.substring(7);
   
   try {
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string; role: string };
     if (decoded.role !== 'ADMIN') {
       return null;
     }
     return decoded;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = authenticateAdmin(request);
@@ -36,7 +36,7 @@ export async function GET(
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
     
     const userData = await prisma.user.findUnique({
       where: { id },
@@ -62,6 +62,7 @@ export async function GET(
     }
 
     // Remove password from response
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = userData;
 
     return NextResponse.json(userWithoutPassword);
@@ -77,7 +78,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = authenticateAdmin(request);
@@ -88,7 +89,7 @@ export async function PUT(
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
     const {
       firstName,
       lastName,

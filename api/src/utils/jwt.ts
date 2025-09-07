@@ -11,6 +11,9 @@ if (!JWT_SECRET) {
   throw new Error('JWT_SECRET environment variable must be set');
 }
 
+// Ensure JWT_SECRET is typed as string, not string | undefined
+const JWT_SECRET_VALIDATED = JWT_SECRET as string;
+
 if (JWT_SECRET === 'your-super-secret-jwt-key-change-in-production') {
   throw new Error('JWT_SECRET must be changed from default value for security');
 }
@@ -62,7 +65,7 @@ export interface TokenResponse {
  */
 export function generateAccessToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): string {
   try {
-    return jwt.sign(payload, JWT_SECRET!, { 
+    return jwt.sign(payload, JWT_SECRET_VALIDATED, { 
       expiresIn: JWT_EXPIRES_IN,
       issuer: 'agentradar-api',
       audience: 'agentradar-web'
@@ -79,7 +82,7 @@ export function generateAccessToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): s
 export function generateRefreshToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): string {
   try {
     const refreshPayload = { ...payload, type: 'refresh' };
-    return jwt.sign(refreshPayload, JWT_SECRET!, { 
+    return jwt.sign(refreshPayload, JWT_SECRET_VALIDATED, { 
       expiresIn: JWT_REFRESH_EXPIRES_IN,
       issuer: 'agentradar-api',
       audience: 'agentradar-web'
@@ -128,7 +131,7 @@ export function generateTokenPair(user: {
  */
 export function verifyToken(token: string): JwtPayload {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET!, {
+    const decoded = jwt.verify(token, JWT_SECRET_VALIDATED, {
       issuer: 'agentradar-api',
       audience: 'agentradar-web'
     });

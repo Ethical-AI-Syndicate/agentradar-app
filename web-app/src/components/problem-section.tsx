@@ -52,7 +52,7 @@ export function ProblemSection() {
               <span className="text-red-600">Changed</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Traditional prospecting methods are failing. While you're competing for MLS scraps, 
+              Traditional prospecting methods are failing. While you&apos;re competing for MLS scraps, 
               smart agents are building relationships with sellers months before they list.
             </p>
           </motion.div>
@@ -108,16 +108,16 @@ export function ProblemSection() {
             
             <div className="text-lg text-gray-700 space-y-4 text-left lg:text-center max-w-3xl mx-auto">
               <p className="italic">
-                "I saw the listing hit MLS at 9 AM. By 9:30 AM, there were already 12 agents who had called the seller. 
-                By noon, there were showings booked for the entire weekend."
+                &quot;I saw the listing hit MLS at 9 AM. By 9:30 AM, there were already 12 agents who had called the seller. 
+                By noon, there were showings booked for the entire weekend.&quot;
               </p>
               
               <p className="font-medium text-red-600">
-                The agents who win aren't the ones who respond fastest to MLS listings...
+                The agents who win aren&apos;t the ones who respond fastest to MLS listings...
               </p>
               
               <p className="text-xl font-semibold text-gray-900">
-                They're the ones who <span className="text-red-600">knew about the opportunity 6-12 months earlier</span> 
+                They&apos;re the ones who <span className="text-red-600">knew about the opportunity 6-12 months earlier</span> 
                 through public records most agents never see.
               </p>
             </div>

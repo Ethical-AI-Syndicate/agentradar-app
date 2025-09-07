@@ -81,7 +81,7 @@ export function FeaturesSection() {
     {
       icon: Users,
       title: "Team Collaboration",
-      description: "Share opportunities with your team and track who's working on what",
+      description: "Share opportunities with your team and track who&apos;s working on what",
       color: "text-pink-500",
       bgColor: "bg-pink-50"
     }

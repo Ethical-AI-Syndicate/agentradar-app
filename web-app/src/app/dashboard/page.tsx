@@ -12,19 +12,16 @@ import {
   Home, 
   TrendingUp, 
   MapPin, 
-  Calendar, 
   DollarSign,
   Search,
   Settings,
   LogOut,
-  User,
-  Loader2
+  User
 } from 'lucide-react';
 import { 
   alertsApi, 
   propertiesApi, 
   analyticsApi, 
-  formatCurrency, 
   formatRelativeTime,
   type Alert as AlertType,
   type SavedProperty,
@@ -90,8 +87,8 @@ export default function DashboardPage() {
           });
         }
 
-      } catch (error) {
-        console.error('Dashboard loading error:', error);
+      } catch (err: unknown) {
+        console.error('Dashboard loading error:', err);
         setError('Failed to load dashboard data');
         
         // Set fallback data
@@ -176,7 +173,7 @@ export default function DashboardPage() {
               Welcome back, {user?.firstName}!
             </h1>
             <p className="mt-1 text-sm text-gray-600">
-              Here's what's happening with your property investments today.
+              Here&apos;s what&apos;s happening with your property investments today.
             </p>
           </div>
 
@@ -252,7 +249,7 @@ export default function DashboardPage() {
                   <p className="text-gray-500">Loading alerts...</p>
                 ) : alerts.length > 0 ? (
                   <div className="space-y-4">
-                    {alerts.map((alert: any) => (
+                    {alerts.map((alert) => (
                       <Alert key={alert.id}>
                         <MapPin className="h-4 w-4" />
                         <AlertDescription>
@@ -294,7 +291,7 @@ export default function DashboardPage() {
                   Watched Properties
                 </CardTitle>
                 <CardDescription>
-                  Properties you're currently tracking
+                  Properties you&apos;re currently tracking
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -302,7 +299,7 @@ export default function DashboardPage() {
                   <p className="text-gray-500">Loading properties...</p>
                 ) : properties.length > 0 ? (
                   <div className="space-y-4">
-                    {properties.map((property: any) => (
+                    {properties.map((property) => (
                       <div key={property.id} className="p-4 border rounded-lg">
                         <div className="flex justify-between items-start">
                           <div>

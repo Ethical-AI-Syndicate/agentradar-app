@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Footer } from "@/components/footer"
@@ -219,7 +219,7 @@ export default function HelpCenterPage() {
               How can we help you?
             </h1>
             <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-              Find answers, get support, and master AgentRadar's real estate intelligence platform
+              Find answers, get support, and master AgentRadar&apos;s real estate intelligence platform
             </p>
             
             {/* Search Bar */}
@@ -528,7 +528,7 @@ export default function HelpCenterPage() {
             <h3 className="text-2xl font-bold text-red-900">Critical Issue or Outage?</h3>
           </div>
           <p className="text-red-800 mb-8">
-            If you're experiencing a platform outage or critical issue affecting your business, 
+            If you&apos;re experiencing a platform outage or critical issue affecting your business, 
             contact our emergency support line for immediate assistance.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

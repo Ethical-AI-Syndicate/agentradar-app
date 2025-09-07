@@ -64,8 +64,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               if (freshUser) {
                 setUser(freshUser);
               }
-            } catch (error) {
-              console.error('Failed to refresh user:', error);
+            } catch (err: unknown) {
+              console.error('Failed to refresh user:', err);
             }
           } else {
             // No cached user, fetch from API
@@ -73,8 +73,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             setUser(currentUser);
           }
         }
-      } catch (error) {
-        console.error('Auth initialization error:', error);
+      } catch (err: unknown) {
+        console.error('Auth initialization error:', err);
       } finally {
         setLoading(false);
       }
@@ -95,11 +95,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       } else {
         return { success: false, message: response.message || 'Login failed' };
       }
-    } catch (error: any) {
-      console.error('Login error:', error);
+    } catch (err: unknown) {
+      console.error('Login error:', err);
+      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
       return { 
         success: false, 
-        message: error.response?.data?.message || 'Login failed. Please try again.' 
+        message: errorMessage || 'Login failed. Please try again.' 
       };
     }
   };
@@ -116,11 +117,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       } else {
         return { success: false, message: response.message || 'Registration failed' };
       }
-    } catch (error: any) {
-      console.error('Registration error:', error);
+    } catch (err: unknown) {
+      console.error('Registration error:', err);
+      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
       return { 
         success: false, 
-        message: error.response?.data?.message || 'Registration failed. Please try again.' 
+        message: errorMessage || 'Registration failed. Please try again.' 
       };
     }
   };
@@ -128,8 +130,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const logout = async () => {
     try {
       await apiLogout();
-    } catch (error) {
-      console.error('Logout error:', error);
+    } catch (err: unknown) {
+      console.error('Logout error:', err);
     } finally {
       setUser(null);
     }
@@ -139,8 +141,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const currentUser = await getCurrentUser();
       setUser(currentUser);
-    } catch (error) {
-      console.error('Failed to refresh user:', error);
+    } catch (err: unknown) {
+      console.error('Failed to refresh user:', err);
       setUser(null);
     }
   };

@@ -54,6 +54,9 @@ model User {
   ticketMessages      SupportTicketMessage[] @relation("TicketMessages")
   adminActions        AdminAction[]        @relation("AdminActions")
   
+  // Customer onboarding relations
+  customerSupportTickets CustomerSupportTicket[]
+  
   @@map("users")
 }
 
@@ -521,4 +524,238 @@ model SystemSetting {
   updatedAt DateTime @updatedAt
   
   @@map("system_settings")
+}
+
+// =====================================================================
+// Phase 6.3: Customer Onboarding Automation Models
+// =====================================================================
+
+model BrokerageClient {
+  id                     String                    @id @default(cuid())
+  name                   String
+  domain                 String                    @unique
+  contactEmail           String
+  contactPhone           String?
+  billingEmail           String?
+  logoUrl                String?
+  website                String?
+  addressLine1           String?
+  addressLine2           String?
+  city                   String?
+  state                  String?
+  zipCode                String?
+  country                String                    @default("US")
+  licenseNumber          String?
+  subscriptionTier       SubscriptionTier          @default(PROFESSIONAL)
+  onboardingStatus       String                    @default("PENDING")
+  onboardingProgress     Int                       @default(0)
+  customizations         Json                      @default("{}")
+  settings               Json                      @default("{}")
+  isActive               Boolean                   @default(true)
+  trialStartDate         DateTime?
+  trialEndDate           DateTime?
+  subscriptionStartDate  DateTime?
+  lastActivityAt         DateTime?
+  createdAt              DateTime                  @default(now())
+  updatedAt              DateTime                  @updatedAt
+
+  // Relations
+  onboardingSteps        OnboardingStep[]
+  successMetrics         CustomerSuccessMetric[]
+  supportTickets         CustomerSupportTicket[]
+  communications         CustomerCommunication[]
+  whiteLabelConfig       WhiteLabelConfig?
+  healthScores           CustomerHealthScore[]
+  workflowExecutions     WorkflowExecution[]
+
+  @@map("brokerage_clients")
+}
+
+model OnboardingStep {
+  id                     String           @id @default(cuid())
+  brokerageClientId      String
+  stepName               String
+  stepType               String
+  stepOrder              Int
+  title                  String
+  description            String?
+  isRequired             Boolean          @default(true)
+  estimatedDuration      Int?
+  status                 String           @default("PENDING")
+  startedAt              DateTime?
+  completedAt            DateTime?
+  data                   Json             @default("{}")
+  validationRules        Json             @default("{}")
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+
+  // Relations
+  brokerageClient        BrokerageClient  @relation(fields: [brokerageClientId], references: [id], onDelete: Cascade)
+
+  @@map("onboarding_steps")
+}
+
+model CustomerSuccessMetric {
+  id                     String           @id @default(cuid())
+  brokerageClientId      String
+  metricType             String
+  metricName             String
+  value                  Decimal
+  unit                   String?
+  period                 String
+  recordedAt             DateTime         @default(now())
+  metadata               Json             @default("{}")
+
+  // Relations
+  brokerageClient        BrokerageClient  @relation(fields: [brokerageClientId], references: [id], onDelete: Cascade)
+
+  @@map("customer_success_metrics")
+}
+
+model CustomerSupportTicket {
+  id                        String           @id @default(cuid())
+  brokerageClientId         String?
+  userId                    String?
+  ticketNumber              String           @unique
+  subject                   String
+  description               String
+  category                  String
+  priority                  String           @default("MEDIUM")
+  status                    String           @default("OPEN")
+  assignedTo                String?
+  resolutionNotes           String?
+  customerSatisfactionScore Int?
+  firstResponseAt           DateTime?
+  resolvedAt                DateTime?
+  closedAt                  DateTime?
+  escalatedAt               DateTime?
+  metadata                  Json             @default("{}")
+  createdAt                 DateTime         @default(now())
+  updatedAt                 DateTime         @updatedAt
+
+  // Relations
+  brokerageClient           BrokerageClient? @relation(fields: [brokerageClientId], references: [id], onDelete: SetNull)
+  user                      User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("customer_support_tickets")
+}
+
+model OnboardingTemplate {
+  id                     String              @id @default(cuid())
+  name                   String
+  description            String?
+  subscriptionTier       SubscriptionTier
+  steps                  Json                @default("[]")
+  customizations         Json                @default("{}")
+  isActive               Boolean             @default(true)
+  version                Int                 @default(1)
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+
+  @@map("onboarding_templates")
+}
+
+model CustomerCommunication {
+  id                     String           @id @default(cuid())
+  brokerageClientId      String
+  communicationType      String
+  channel                String
+  subject                String?
+  content                String
+  recipientEmail         String?
+  recipientPhone         String?
+  status                 String           @default("PENDING")
+  sentAt                 DateTime?
+  deliveredAt            DateTime?
+  openedAt               DateTime?
+  clickedAt              DateTime?
+  metadata               Json             @default("{}")
+  createdAt              DateTime         @default(now())
+
+  // Relations
+  brokerageClient        BrokerageClient  @relation(fields: [brokerageClientId], references: [id], onDelete: Cascade)
+
+  @@map("customer_communications")
+}
+
+model WhiteLabelConfig {
+  id                     String           @id @default(cuid())
+  brokerageClientId      String           @unique
+  brandName              String
+  primaryColor           String?
+  secondaryColor         String?
+  logoUrl                String?
+  faviconUrl             String?
+  customDomain           String?
+  emailTemplate          Json             @default("{}")
+  dashboardConfig        Json             @default("{}")
+  featureFlags           Json             @default("{}")
+  customCss              String?
+  isActive               Boolean          @default(true)
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+
+  // Relations
+  brokerageClient        BrokerageClient  @relation(fields: [brokerageClientId], references: [id], onDelete: Cascade)
+
+  @@map("white_label_configs")
+}
+
+model CustomerHealthScore {
+  id                     String           @id @default(cuid())
+  brokerageClientId      String
+  overallScore           Int
+  adoptionScore          Int
+  engagementScore        Int
+  supportScore           Int
+  billingScore           Int
+  riskLevel              String           @default("LOW")
+  factors                Json             @default("{}")
+  recommendations        Json             @default("[]")
+  calculatedAt           DateTime         @default(now())
+  nextReviewAt           DateTime?
+
+  // Relations
+  brokerageClient        BrokerageClient  @relation(fields: [brokerageClientId], references: [id], onDelete: Cascade)
+
+  @@map("customer_health_scores")
+}
+
+model AutomatedWorkflow {
+  id                     String               @id @default(cuid())
+  name                   String
+  description            String?
+  triggerType            String
+  triggerConditions      Json                 @default("{}")
+  actions                Json                 @default("[]")
+  isActive               Boolean              @default(true)
+  lastTriggeredAt        DateTime?
+  executionCount         Int                  @default(0)
+  successCount           Int                  @default(0)
+  errorCount             Int                  @default(0)
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+
+  // Relations
+  executions             WorkflowExecution[]
+
+  @@map("automated_workflows")
+}
+
+model WorkflowExecution {
+  id                     String              @id @default(cuid())
+  workflowId             String
+  brokerageClientId      String?
+  status                 String              @default("RUNNING")
+  triggerData            Json                @default("{}")
+  executionLog           Json                @default("[]")
+  startedAt              DateTime            @default(now())
+  completedAt            DateTime?
+  errorMessage           String?
+
+  // Relations
+  workflow               AutomatedWorkflow   @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  brokerageClient        BrokerageClient?    @relation(fields: [brokerageClientId], references: [id], onDelete: Cascade)
+
+  @@map("workflow_executions")
 }

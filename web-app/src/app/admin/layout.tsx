@@ -13,8 +13,7 @@ import {
   Menu,
   X,
   Shield,
-  Home,
-  AlertTriangle
+  Home
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

@@ -175,7 +175,7 @@ export function SocialProofSection() {
 
                   {/* Testimonial Text */}
                   <blockquote className="text-gray-700 leading-relaxed mb-6 italic">
-                    "{testimonial.quote}"
+                    &quot;{testimonial.quote}&quot;
                   </blockquote>
 
                   {/* Author Info */}

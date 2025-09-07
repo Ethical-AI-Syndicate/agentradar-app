@@ -389,7 +389,7 @@ function SearchPageContent() {
                         <div className="flex items-center space-x-2">
                           <Label htmlFor="sortBy" className="text-sm">Sort by:</Label>
                           <Select
-                            onValueChange={(value) => setValue('sortBy', value as any)}
+                            onValueChange={(value) => setValue('sortBy', value as 'price' | 'date' | 'relevance')}
                             defaultValue="relevance"
                             disabled={loading}
                           >

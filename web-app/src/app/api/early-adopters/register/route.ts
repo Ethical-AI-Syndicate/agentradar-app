@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
       businessType,
       yearsExperience,
       currentListings,
-      averageListingPrice,
+      averageListingPrice: _averageListingPrice,
       targetMarkets,
       currentChallenges,
       preferredCommunication,
@@ -75,8 +75,8 @@ export async function POST(request: NextRequest) {
       tokenId: token.id
     });
 
-  } catch (error) {
-    console.error('Early adopter registration error:', error);
+  } catch (err: unknown) {
+    console.error('Early adopter registration error:', err);
     
     return NextResponse.json(
       { error: 'Internal server error' },

@@ -83,7 +83,7 @@ export function CTASection() {
 
             {/* Subheadline */}
             <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
-              While other agents chase MLS listings, you'll be building relationships with sellers 
+              While other agents chase MLS listings, you&apos;ll be building relationships with sellers 
               <strong className="text-orange-400"> 6-12 months earlier</strong> through exclusive property intelligence.
             </p>
           </motion.div>
@@ -183,12 +183,12 @@ export function CTASection() {
         >
           <Card className="bg-gradient-to-r from-red-900/50 to-orange-900/50 border-red-500/30 p-8 backdrop-blur-sm">
             <h3 className="text-2xl font-bold text-white mb-4">
-              Don't Let Your Competition Get There First
+              Don&apos;t Let Your Competition Get There First
             </h3>
             <p className="text-red-100 mb-6 leading-relaxed">
               Every day you wait is another day your competition could discover AgentRadar. 
               The agents who get early access will have an insurmountable advantage in their markets. 
-              This opportunity won't last long.
+              This opportunity won&apos;t last long.
             </p>
             <div className="flex items-center justify-center gap-4 text-sm text-red-200">
               <div className="flex items-center gap-2">

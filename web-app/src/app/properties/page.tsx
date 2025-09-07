@@ -4,16 +4,9 @@ import { useState, useEffect } from 'react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { 
   Search,
   Filter,
@@ -64,8 +57,8 @@ export default function PropertiesPage() {
           setError('Failed to load properties');
           setProperties([]);
         }
-      } catch (error) {
-        console.error('Properties loading error:', error);
+      } catch (err: unknown) {
+        console.error('Properties loading error:', err);
         setError('Failed to load properties');
         setProperties([]);
       } finally {
@@ -87,8 +80,8 @@ export default function PropertiesPage() {
             : prop
         ));
       }
-    } catch (error) {
-      console.error('Failed to toggle favorite:', error);
+    } catch (err: unknown) {
+      console.error('Failed to toggle favorite:', err);
     } finally {
       setActionLoading(null);
     }
@@ -103,8 +96,8 @@ export default function PropertiesPage() {
       if (response.success) {
         setProperties(properties.filter(prop => prop.id !== propertyId));
       }
-    } catch (error) {
-      console.error('Failed to delete property:', error);
+    } catch (err: unknown) {
+      console.error('Failed to delete property:', err);
     } finally {
       setActionLoading(null);
     }

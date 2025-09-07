@@ -11,10 +11,7 @@ import {
   Search,
   Bell,
   TrendingUp,
-  MapPin,
   DollarSign,
-  Clock,
-  Users,
   CheckCircle,
   ArrowRight,
   Eye,
@@ -677,7 +674,7 @@ export default function DemoPage() {
             Ready to Transform Your Real Estate Business?
           </h2>
           <p className="text-xl text-blue-100 mb-8">
-            Start your free trial today and discover opportunities your competition doesn't know exist.
+            Start your free trial today and discover opportunities your competition doesn&apos;t know exist.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <Button size="lg" variant="secondary" className="bg-white text-blue-600 hover:bg-gray-100">

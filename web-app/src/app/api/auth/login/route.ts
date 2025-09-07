@@ -68,6 +68,7 @@ export async function POST(request: NextRequest) {
 
     // Return user data (excluding password)
     const { password: _, ...userWithoutPassword } = user;
+    // password is intentionally unused to exclude it from response
 
     return NextResponse.json({
       success: true,

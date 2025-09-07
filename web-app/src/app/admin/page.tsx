@@ -58,9 +58,9 @@ export default function AdminDashboard() {
       setError(null);
       const response = await apiClient.get('/admin/analytics/dashboard');
       setAnalytics(response.data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to fetch analytics:', err);
-      setError(err.response?.data?.message || 'Failed to load dashboard data');
+      setError((err as { response?: { data?: { message?: string } } }).response?.data?.message || 'Failed to load dashboard data');
     } finally {
       setLoading(false);
     }
@@ -140,7 +140,7 @@ export default function AdminDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-600">Welcome back! Here's what's happening with AgentRadar.</p>
+          <p className="text-gray-600">Welcome back! Here&apos;s what&apos;s happening with AgentRadar.</p>
         </div>
         <Button onClick={fetchAnalytics} variant="outline" size="sm">
           <RefreshCw className="h-4 w-4 mr-2" />

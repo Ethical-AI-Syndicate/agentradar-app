@@ -14,12 +14,12 @@ function authenticateAdmin(request: NextRequest) {
   const token = authHeader.substring(7);
   
   try {
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string; role: string };
     if (decoded.role !== 'ADMIN') {
       return null;
     }
     return decoded;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -45,7 +45,8 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
     
     // Build where clause
-    const where: any = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const where: Record<string, any> = {};
     if (role) where.role = role;
     if (subscriptionTier) where.subscriptionTier = subscriptionTier;
     if (isActive !== null && isActive !== undefined) where.isActive = isActive === 'true';

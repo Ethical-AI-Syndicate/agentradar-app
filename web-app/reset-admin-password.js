@@ -7,7 +7,7 @@ async function resetAdminPassword() {
   try {
     const hashedPassword = await bcrypt.hash('admin123', 10);
     
-    const updated = await prisma.user.update({
+    const _updated = await prisma.user.update({
       where: { email: 'mike.holownych@agentradar.app' },
       data: { password: hashedPassword }
     });

@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { ArrowRight, Star, Users, MapPin, Clock } from "lucide-react"
@@ -63,7 +62,7 @@ export function HeroSection() {
               transition={{ duration: 0.8, delay: 0.3 }}
               className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6"
             >
-              Find Tomorrow's{" "}
+              Find Tomorrow&apos;s{" "}
               <span className="bg-gradient-to-r from-blue-400 to-orange-400 bg-clip-text text-transparent">
                 Listings Today
               </span>

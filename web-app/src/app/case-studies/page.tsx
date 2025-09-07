@@ -7,9 +7,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Footer } from "@/components/footer"
 import { 
-  TrendingUp,
-  DollarSign,
-  Clock,
   Target,
   Users,
   CheckCircle,
@@ -321,7 +318,7 @@ export default function CaseStudiesPage() {
                   <div className="flex items-start gap-4">
                     <Quote className="w-8 h-8 text-blue-600 flex-shrink-0 mt-1" />
                     <div>
-                      <p className="text-gray-700 italic mb-4 text-lg">"{featuredCase.testimonial}"</p>
+                      <p className="text-gray-700 italic mb-4 text-lg">&quot;{featuredCase.testimonial}&quot;</p>
                       <div className="flex items-center gap-4">
                         <div>
                           <div className="font-semibold text-gray-900">{featuredCase.client}</div>
@@ -525,7 +522,7 @@ export default function CaseStudiesPage() {
                 Share Your Success Story
               </h2>
               <p className="text-xl text-gray-600 mb-8">
-                Are you achieving great results with AgentRadar? We'd love to feature your success 
+                Are you achieving great results with AgentRadar? We&apos;d love to feature your success 
                 and help other agents learn from your experience.
               </p>
               
@@ -692,7 +689,7 @@ export default function CaseStudiesPage() {
                   <div className="mt-2 space-x-4">
                     <label className="flex items-center">
                       <input type="radio" name="video" value="yes" className="text-indigo-600" />
-                      <span className="ml-2 text-sm text-gray-700">Yes, I'm interested</span>
+                      <span className="ml-2 text-sm text-gray-700">Yes, I&apos;m interested</span>
                     </label>
                     <label className="flex items-center">
                       <input type="radio" name="video" value="no" className="text-indigo-600" />

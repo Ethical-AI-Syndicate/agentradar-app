@@ -44,7 +44,7 @@ export default function GettingStartedPage() {
               <h3 className="font-semibold text-orange-800">Development in Progress</h3>
             </div>
             <p className="text-orange-700 mb-4">
-              We're currently building comprehensive onboarding resources to help new users get started quickly and effectively with AgentRadar.
+              We&apos;re currently building comprehensive onboarding resources to help new users get started quickly and effectively with AgentRadar.
             </p>
             <p className="text-sm text-orange-600">
               <strong>Expected Launch:</strong> Q1 2026 • <strong>Current Status:</strong> Content Creation & Design
@@ -54,7 +54,7 @@ export default function GettingStartedPage() {
 
         {/* Preview of Planned Content */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">What's Coming</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">What&apos;s Coming</h2>
           <div className="grid md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>

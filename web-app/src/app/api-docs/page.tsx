@@ -3,55 +3,31 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
 import { Footer } from "@/components/footer"
-import { 
-  Code,
+import {
   Book,
   Zap,
   Shield,
-  Globe,
   Key,
   CheckCircle,
-  ArrowRight,
   Copy,
-  ExternalLink,
-  Search,
-  Filter,
   Download,
   Play,
   Terminal,
   FileText,
-  Users,
-  Clock,
-  Star,
-  AlertTriangle,
   Database,
-  Settings,
-  Layers,
-  Webhook,
-  RefreshCw,
-  BarChart3,
   MessageSquare,
   Mail,
   Phone,
-  Video,
   Github,
-  ChevronRight,
-  ChevronDown,
-  Cpu,
-  Gauge,
-  Lock,
-  Cloud,
-  PlusCircle,
-  MinusCircle
+  Gauge
 } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
 
 export default function ApiDocsPage() {
   const [activeEndpoint, setActiveEndpoint] = useState("properties")
-  const [expandedSection, setExpandedSection] = useState("")
+  // const [expandedSection, setExpandedSection] = useState("")
 
   const apiEndpoints = [
     {

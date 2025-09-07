@@ -6,8 +6,9 @@ const nextConfig: NextConfig = {
   // These were identified as HIGH SECURITY RISK in Phase 1 assessment
   // Now enforcing proper linting and type checking in builds
   
+  outputFileTracingRoot: path.join(__dirname, '../../'),
+  
   experimental: {
-    outputFileTracingRoot: path.join(__dirname, '../../'),
     // Enable modern optimizations for performance
     optimizePackageImports: [
       '@radix-ui/react-icons', 

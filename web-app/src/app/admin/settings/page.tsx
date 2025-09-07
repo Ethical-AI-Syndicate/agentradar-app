@@ -58,10 +58,10 @@ export default function AdminSettings() {
         newPassword: '',
         confirmPassword: ''
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       setMessage({ 
         type: 'error', 
-        text: error.response?.data?.error || 'Failed to update password' 
+        text: (error as { response?: { data?: { error?: string } } }).response?.data?.error || 'Failed to update password' 
       });
     } finally {
       setLoading(false);

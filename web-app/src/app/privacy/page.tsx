@@ -293,7 +293,7 @@ export default function PrivacyPolicyPage() {
                       <li className="flex items-start gap-2">
                         <AlertTriangle className="w-4 h-4 text-orange-500 mt-1 flex-shrink-0" />
                         <div>
-                          <strong>Legal Requirements:</strong> When required by law, court order, or to protect our rights and users' safety
+                          <strong>Legal Requirements:</strong> When required by law, court order, or to protect our rights and users&apos; safety
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
@@ -476,7 +476,7 @@ export default function PrivacyPolicyPage() {
                     <h3 className="text-xl font-semibold text-gray-900 mb-3">Policy Updates</h3>
                     <p className="text-gray-600 mb-4">
                       We may update this privacy policy to reflect changes in our practices or for legal reasons. 
-                      We'll notify you of significant changes via email or platform notification.
+                      We&apos;ll notify you of significant changes via email or platform notification.
                     </p>
                     <p className="text-sm text-gray-500">
                       Current version effective: {lastUpdated} • 

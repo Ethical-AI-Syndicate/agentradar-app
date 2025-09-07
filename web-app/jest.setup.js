@@ -8,7 +8,7 @@ jest.mock('framer-motion', () => ({
     {
       get: (target, prop) => {
         const Component = ({ children, ...props }) => {
-          const { initial, animate, transition, whileInView, viewport, ...otherProps } = props
+          const { initial: _initial, animate: _animate, transition: _transition, whileInView: _whileInView, viewport: _viewport, ...otherProps } = props
           return React.createElement(prop, otherProps, children)
         }
         Component.displayName = `motion.${String(prop)}`

@@ -105,9 +105,9 @@ export default function AdminSupport() {
       
       setTickets(data.tickets);
       setPagination(data.pagination);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to fetch tickets:', err);
-      setError(err.response?.data?.message || 'Failed to load support tickets');
+      setError((err as { response?: { data?: { message?: string } } }).response?.data?.message || 'Failed to load support tickets');
     } finally {
       setLoading(false);
     }
@@ -124,7 +124,7 @@ export default function AdminSupport() {
         priority
       });
       fetchTickets(); // Refresh the list
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to update ticket:', err);
     }
   };
