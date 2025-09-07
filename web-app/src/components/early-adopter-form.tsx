@@ -35,13 +35,16 @@ interface FormData {
   lastName: string
   email: string
   phone: string
-  company: string
-  location: string
-  teamSize: string
-  monthlyDeals: string
+  brokerageName: string
+  businessType: string
+  yearsExperience: string
+  currentListings: string
+  averageListingPrice: string
+  targetMarkets: string[]
   currentChallenges: string[]
-  primaryFocus: string
-  techComfort: string
+  preferredCommunication: string
+  bestContactTime: string
+  agreeToTerms: boolean
 }
 
 export function EarlyAdopterForm({ open, onOpenChange }: EarlyAdopterFormProps) {
@@ -54,16 +57,19 @@ export function EarlyAdopterForm({ open, onOpenChange }: EarlyAdopterFormProps) 
     lastName: "",
     email: "",
     phone: "",
-    company: "",
-    location: "",
-    teamSize: "",
-    monthlyDeals: "",
+    brokerageName: "",
+    businessType: "",
+    yearsExperience: "",
+    currentListings: "",
+    averageListingPrice: "",
+    targetMarkets: [],
     currentChallenges: [],
-    primaryFocus: "",
-    techComfort: ""
+    preferredCommunication: "",
+    bestContactTime: "",
+    agreeToTerms: false
   })
 
-  const updateFormData = (field: keyof FormData, value: string | string[]) => {
+  const updateFormData = (field: keyof FormData, value: string | string[] | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
@@ -86,11 +92,8 @@ export function EarlyAdopterForm({ open, onOpenChange }: EarlyAdopterFormProps) 
     setError(null)
     
     try {
-      // Try API backend - use environment variable with localhost fallback
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
-      const fullUrl = `${apiUrl}/api/early-adopters/register`
-      
-      const response = await fetch(fullUrl, {
+      // Call the Next.js API route
+      const response = await fetch('/api/early-adopters/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -100,7 +103,7 @@ export function EarlyAdopterForm({ open, onOpenChange }: EarlyAdopterFormProps) 
       
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error?.message || 'Registration failed')
+        throw new Error(errorData.error || 'Registration failed')
       }
       
       const result = await response.json()
@@ -109,7 +112,7 @@ export function EarlyAdopterForm({ open, onOpenChange }: EarlyAdopterFormProps) 
       setIsSubmitted(true)
     } catch (error) {
       console.error('Registration failed:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Connection failed. Please check that the API server is running and try again.'
+      const errorMessage = error instanceof Error ? error.message : 'Registration failed. Please try again.'
       setError(errorMessage)
     } finally {
       setIsSubmitting(false)
@@ -310,22 +313,22 @@ export function EarlyAdopterForm({ open, onOpenChange }: EarlyAdopterFormProps) 
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="company">Brokerage/Company *</Label>
+                  <Label htmlFor="brokerageName">Brokerage/Company *</Label>
                   <Input
-                    id="company"
-                    value={formData.company}
-                    onChange={(e) => updateFormData('company', e.target.value)}
+                    id="brokerageName"
+                    value={formData.brokerageName}
+                    onChange={(e) => updateFormData('brokerageName', e.target.value)}
                     placeholder="RE/MAX Toronto"
                     className="mt-1"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="location">Primary Market *</Label>
+                  <Label htmlFor="businessType">Business Type *</Label>
                   <Input
-                    id="location"
-                    value={formData.location}
-                    onChange={(e) => updateFormData('location', e.target.value)}
-                    placeholder="Toronto, ON"
+                    id="businessType"
+                    value={formData.businessType}
+                    onChange={(e) => updateFormData('businessType', e.target.value)}
+                    placeholder="Real Estate Agent"
                     className="mt-1"
                   />
                 </div>
@@ -348,34 +351,34 @@ export function EarlyAdopterForm({ open, onOpenChange }: EarlyAdopterFormProps) 
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Team Size</Label>
+                  <Label>Years of Experience</Label>
                   <div className="grid grid-cols-2 gap-2 mt-2">
-                    {['Solo Agent', '2-5 Agents', '6-20 Agents', '20+ Agents'].map((size) => (
+                    {['0-2 years', '3-5 years', '6-10 years', '10+ years'].map((years) => (
                       <Button
-                        key={size}
-                        variant={formData.teamSize === size ? "default" : "outline"}
+                        key={years}
+                        variant={formData.yearsExperience === years ? "default" : "outline"}
                         size="sm"
-                        onClick={() => updateFormData('teamSize', size)}
+                        onClick={() => updateFormData('yearsExperience', years)}
                         className="text-xs"
                       >
-                        {size}
+                        {years}
                       </Button>
                     ))}
                   </div>
                 </div>
                 
                 <div>
-                  <Label>Monthly Deals</Label>
+                  <Label>Current Listings</Label>
                   <div className="grid grid-cols-2 gap-2 mt-2">
-                    {['1-5', '6-15', '16-30', '30+'].map((deals) => (
+                    {['0-5', '6-15', '16-30', '30+'].map((listings) => (
                       <Button
-                        key={deals}
-                        variant={formData.monthlyDeals === deals ? "default" : "outline"}
+                        key={listings}
+                        variant={formData.currentListings === listings ? "default" : "outline"}
                         size="sm"
-                        onClick={() => updateFormData('monthlyDeals', deals)}
+                        onClick={() => updateFormData('currentListings', listings)}
                         className="text-xs"
                       >
-                        {deals}
+                        {listings}
                       </Button>
                     ))}
                   </div>
@@ -383,17 +386,41 @@ export function EarlyAdopterForm({ open, onOpenChange }: EarlyAdopterFormProps) 
               </div>
 
               <div>
-                <Label>Primary Focus (Select One)</Label>
-                <div className="grid grid-cols-2 gap-2 mt-2">
-                  {['Residential Sales', 'Investment Properties', 'Luxury Homes', 'Commercial'].map((focus) => (
+                <Label>Average Listing Price</Label>
+                <div className="grid grid-cols-3 gap-2 mt-2">
+                  {['Under $500K', '$500K-$1M', '$1M-$2M', '$2M+'].map((price) => (
                     <Button
-                      key={focus}
-                      variant={formData.primaryFocus === focus ? "default" : "outline"}
+                      key={price}
+                      variant={formData.averageListingPrice === price ? "default" : "outline"}
                       size="sm"
-                      onClick={() => updateFormData('primaryFocus', focus)}
+                      onClick={() => updateFormData('averageListingPrice', price)}
+                      className="text-xs"
+                    >
+                      {price}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <Label>Target Markets (Select All That Apply)</Label>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {['Residential Sales', 'Investment Properties', 'Luxury Homes', 'Commercial'].map((market) => (
+                    <Button
+                      key={market}
+                      variant={formData.targetMarkets.includes(market) ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        const markets = formData.targetMarkets
+                        if (markets.includes(market)) {
+                          updateFormData('targetMarkets', markets.filter(m => m !== market))
+                        } else {
+                          updateFormData('targetMarkets', [...markets, market])
+                        }
+                      }}
                       className="text-sm"
                     >
-                      {focus}
+                      {market}
                     </Button>
                   ))}
                 </div>
@@ -438,22 +465,34 @@ export function EarlyAdopterForm({ open, onOpenChange }: EarlyAdopterFormProps) 
               </h3>
               
               <div>
-                <Label>Technology Comfort Level</Label>
-                <div className="grid grid-cols-1 gap-2 mt-2">
-                  {[
-                    'I love trying new tech tools',
-                    'I use technology daily but prefer simple solutions', 
-                    'I need some help getting started with new tools',
-                    'I prefer minimal technology in my business'
-                  ].map((level) => (
+                <Label>Preferred Communication</Label>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {['Email', 'Phone', 'Text/SMS', 'Any'].map((comm) => (
                     <Button
-                      key={level}
-                      variant={formData.techComfort === level ? "default" : "outline"}
+                      key={comm}
+                      variant={formData.preferredCommunication === comm ? "default" : "outline"}
                       size="sm"
-                      onClick={() => updateFormData('techComfort', level)}
-                      className="text-left text-sm h-auto p-3 justify-start"
+                      onClick={() => updateFormData('preferredCommunication', comm)}
+                      className="text-sm"
                     >
-                      {level}
+                      {comm}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <Label>Best Time to Contact</Label>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {['Morning', 'Afternoon', 'Evening', 'Anytime'].map((time) => (
+                    <Button
+                      key={time}
+                      variant={formData.bestContactTime === time ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updateFormData('bestContactTime', time)}
+                      className="text-sm"
+                    >
+                      {time}
                     </Button>
                   ))}
                 </div>
@@ -473,9 +512,17 @@ export function EarlyAdopterForm({ open, onOpenChange }: EarlyAdopterFormProps) 
               </div>
 
               <div className="bg-gray-50 border rounded-lg p-4">
-                <p className="text-xs text-gray-600">
-                  By submitting this form, you agree to receive email communications from AgentRadar about our platform launch and real estate intelligence insights. We respect your privacy and will never share your information with third parties. You can unsubscribe at any time.
-                </p>
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.agreeToTerms}
+                    onChange={(e) => updateFormData('agreeToTerms', e.target.checked)}
+                    className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <p className="text-xs text-gray-600">
+                    I agree to receive email communications from AgentRadar about our platform launch and real estate intelligence insights. We respect your privacy and will never share your information with third parties. You can unsubscribe at any time. *
+                  </p>
+                </label>
               </div>
             </motion.div>
           )}
@@ -505,8 +552,8 @@ export function EarlyAdopterForm({ open, onOpenChange }: EarlyAdopterFormProps) 
               <Button
                 onClick={handleNext}
                 disabled={
-                  (step === 1 && (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.company || !formData.location)) ||
-                  (step === 2 && (!formData.teamSize || !formData.monthlyDeals || !formData.primaryFocus))
+                  (step === 1 && (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.brokerageName || !formData.businessType)) ||
+                  (step === 2 && (!formData.yearsExperience || !formData.currentListings || !formData.averageListingPrice || formData.targetMarkets.length === 0))
                 }
                 className="bg-gradient-to-r from-blue-600 to-orange-600 hover:from-blue-700 hover:to-orange-700"
               >
@@ -515,7 +562,7 @@ export function EarlyAdopterForm({ open, onOpenChange }: EarlyAdopterFormProps) 
             ) : (
               <Button
                 onClick={handleSubmit}
-                disabled={isSubmitting || !formData.techComfort}
+                disabled={isSubmitting || !formData.preferredCommunication || !formData.bestContactTime || !formData.agreeToTerms}
                 className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
               >
                 {isSubmitting ? (
