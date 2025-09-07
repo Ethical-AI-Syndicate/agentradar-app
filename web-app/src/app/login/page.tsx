@@ -91,13 +91,19 @@ export default function LoginPage() {
                 <Label htmlFor="email">Email Address</Label>
                 <Input
                   {...register('email')}
+                  id="email"
                   type="email"
                   placeholder="Enter your email"
                   className="mt-1"
                   disabled={isLoading}
+                  autoComplete="email"
+                  aria-describedby={errors.email ? 'email-error' : undefined}
+                  aria-invalid={errors.email ? 'true' : 'false'}
                 />
                 {errors.email && (
-                  <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                  <p id="email-error" className="mt-1 text-sm text-red-600" role="alert">
+                    {errors.email.message}
+                  </p>
                 )}
               </div>
 
@@ -106,24 +112,33 @@ export default function LoginPage() {
                 <div className="relative mt-1">
                   <Input
                     {...register('password')}
+                    id="password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Enter your password"
                     disabled={isLoading}
+                    autoComplete="current-password"
+                    aria-describedby={errors.password ? 'password-error' : 'password-toggle'}
+                    aria-invalid={errors.password ? 'true' : 'false'}
                   />
                   <button
                     type="button"
+                    id="password-toggle"
                     className="absolute inset-y-0 right-0 pr-3 flex items-center"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-pressed={showPassword}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-gray-400" />
+                      <EyeOff className="h-4 w-4 text-gray-400" aria-hidden="true" />
                     ) : (
-                      <Eye className="h-4 w-4 text-gray-400" />
+                      <Eye className="h-4 w-4 text-gray-400" aria-hidden="true" />
                     )}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                  <p id="password-error" className="mt-1 text-sm text-red-600" role="alert">
+                    {errors.password.message}
+                  </p>
                 )}
               </div>
 
