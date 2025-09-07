@@ -15,6 +15,7 @@ declare global {
         email: string;
         firstName: string;
         lastName: string;
+        role: string;
         subscriptionTier: string;
         isActive: boolean;
       };
@@ -53,6 +54,7 @@ export async function authenticateToken(
         email: true,
         firstName: true,
         lastName: true,
+        role: true,
         subscriptionTier: true,
         isActive: true
       }
@@ -136,6 +138,7 @@ export async function optionalAuthentication(
         email: true,
         firstName: true,
         lastName: true,
+        role: true,
         subscriptionTier: true,
         isActive: true
       }
@@ -193,8 +196,8 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction) {
     return;
   }
 
-  // For now, WHITE_LABEL tier acts as admin
-  if (req.user.subscriptionTier !== 'WHITE_LABEL') {
+  // Check for admin role or WHITE_LABEL subscription (legacy admin)
+  if (req.user.role !== 'ADMIN' && req.user.subscriptionTier !== 'WHITE_LABEL') {
     res.status(403).json({ 
       error: 'Insufficient permissions',
       message: 'Admin access required'

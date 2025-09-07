@@ -18,7 +18,7 @@ import propertyRoutes from './routes/properties';
 import earlyAdopterRoutes from './routes/early-adopters';
 import adminRoutes from './routes/admin';
 import preferencesRoutes from './routes/preferences';
-import courtProcessingRoutes from './routes/courtProcessing';
+// import courtProcessingRoutes from './routes/courtProcessing'; // Temporarily disabled
 
 // Load environment variables
 dotenv.config();
@@ -87,7 +87,7 @@ app.use('/api/properties', propertyRoutes);
 app.use('/api/early-adopters', earlyAdopterRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/preferences', preferencesRoutes);
-app.use('/api/court-processing', courtProcessingRoutes);
+// app.use('/api/court-processing', courtProcessingRoutes); // Temporarily disabled
 
 // API documentation endpoint
 app.get('/api', (req, res) => {
@@ -104,7 +104,7 @@ app.get('/api', (req, res) => {
       earlyAdopters: '/api/early-adopters',
       admin: '/api/admin',
       preferences: '/api/preferences',
-      courtProcessing: '/api/court-processing'
+      // courtProcessing: '/api/court-processing' // Temporarily disabled
     },
     health: '/health'
   });

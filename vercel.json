@@ -1,33 +1,11 @@
 {
   "version": 2,
-  "name": "agentradar",
-  "builds": [
-    {
-      "src": "web-app/package.json",
-      "use": "@vercel/next"
-    },
-    {
-      "src": "api/package.json", 
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/src/index.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/web-app/$1"
-    }
-  ],
+  "installCommand": "cd web-app && npm install --production=false",
+  "buildCommand": "cd web-app && npm run build",
+  "outputDirectory": "web-app/.next",
+  "framework": "nextjs",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./web-app",
   "env": {
     "NODE_ENV": "production"
-  },
-  "regions": ["iad1"],
-  "functions": {
-    "api/src/index.js": {
-      "maxDuration": 30
-    }
   }
 }

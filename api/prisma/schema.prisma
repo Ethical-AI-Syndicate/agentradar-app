@@ -20,6 +20,7 @@ model User {
   password  String
   phone     String?
   isActive  Boolean  @default(true)
+  role      UserRole @default(USER)
   
   // Subscription info
   subscriptionTier SubscriptionTier @default(FREE)
@@ -46,6 +47,12 @@ model User {
   userAlerts       UserAlert[]
   savedProperties  SavedProperty[]
   activityLogs     ActivityLog[]
+  
+  // Admin relations
+  supportTickets      SupportTicket[]      @relation("UserTickets")
+  assignedTickets     SupportTicket[]      @relation("TicketAssignee")
+  ticketMessages      SupportTicketMessage[] @relation("TicketMessages")
+  adminActions        AdminAction[]        @relation("AdminActions")
   
   @@map("users")
 }
@@ -282,6 +289,7 @@ model CourtCase {
   
   // Relations
   alerts Alert[] // Cases can trigger multiple alerts
+  processingQueue CaseProcessingQueue[] // Processing queue entries for this case
   
   @@index([court, publishDate])
   @@index([isProcessed, nerProcessed])
@@ -409,4 +417,108 @@ enum ProcessingStatus {
   COMPLETED
   FAILED
   CANCELLED
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum SupportTicketStatus {
+  OPEN
+  IN_PROGRESS
+  PENDING_USER
+  RESOLVED
+  CLOSED
+}
+
+enum SupportTicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+// Support Ticket System
+model SupportTicket {
+  id          String                 @id @default(cuid())
+  userId      String
+  title       String
+  description String
+  status      SupportTicketStatus    @default(OPEN)
+  priority    SupportTicketPriority  @default(MEDIUM)
+  category    String?                // billing, technical, feature_request
+  
+  // Admin assignment
+  assignedToId String?
+  assignedTo   User?   @relation("TicketAssignee", fields: [assignedToId], references: [id])
+  
+  // Resolution
+  resolution  String?
+  resolvedAt  DateTime?
+  resolvedBy  String?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user      User                   @relation("UserTickets", fields: [userId], references: [id], onDelete: Cascade)
+  messages  SupportTicketMessage[]
+  
+  @@map("support_tickets")
+}
+
+model SupportTicketMessage {
+  id         String  @id @default(cuid())
+  ticketId   String
+  userId     String
+  message    String
+  isFromAdmin Boolean @default(false)
+  
+  // Attachments
+  attachments String[] @default([])
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  
+  // Relations
+  ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user   User          @relation("TicketMessages", fields: [userId], references: [id])
+  
+  @@map("support_ticket_messages")
+}
+
+// Admin Action Logging
+model AdminAction {
+  id          String @id @default(cuid())
+  adminId     String
+  action      String  // create_user, update_subscription, etc.
+  targetType  String  // user, alert, ticket
+  targetId    String?
+  description String
+  metadata    Json?   // Additional action data
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  
+  // Relations
+  admin User @relation("AdminActions", fields: [adminId], references: [id])
+  
+  @@map("admin_actions")
+}
+
+// System Settings
+model SystemSetting {
+  id          String @id @default(cuid())
+  key         String @unique
+  value       String
+  description String?
+  category    String? // email, notifications, api
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("system_settings")
 }

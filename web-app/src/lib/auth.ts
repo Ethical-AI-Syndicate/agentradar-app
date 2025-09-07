@@ -69,6 +69,7 @@ export interface User {
   firstName: string;
   lastName: string;
   role: string;
+  subscriptionTier: string;
   subscription?: {
     plan: string;
     status: string;

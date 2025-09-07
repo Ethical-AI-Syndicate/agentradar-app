@@ -362,7 +362,7 @@ export default function HelpCenterPage() {
                   <p className="text-sm text-gray-600 mb-3">All systems operational</p>
                   <Link href="/status" className="text-sm text-blue-600 hover:text-blue-700">
                     View status page →
-                  </a>
+                  </Link>
                 </CardContent>
               </Card>
             </div>

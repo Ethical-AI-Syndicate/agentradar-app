@@ -6,84 +6,91 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **AgentRadar** - Multi-platform real estate intelligence system for identifying properties before they hit MLS. Built as a white-label platform for brokerages with web, mobile, and desktop applications.
 
-**Current Status**: **API Backend Completed** with production-ready authentication, intelligent alert system, user preferences, and comprehensive testing. Web MVP completed with all marketing pages. MCP integration ready (mock mode).
+**Current Status**: **API Backend Production-Ready** with comprehensive admin portal, authentication system, intelligent alert matching, and 93+ test suite. Web app complete with admin management interface. MCP integration operational in mock mode.
 
 ## Commands
 
-### API Development (Primary Active Component)
+### Root Level Development
 ```bash
-# Development
-npm run dev          # API server with nodemon on :4000
-npm run build        # TypeScript compilation  
-npm start           # Production server
+# Multi-platform development
+npm run dev:all          # Start all services (web, api, scrapers) concurrently
+npm run build:all         # Build all platform components
+npm run test             # Requires database setup first
 
-# Database Operations
-npm run db:generate     # Generate Prisma client
+# Claude Code Team Workflows
+npm run swarm                # Start Claude swarm orchestration
+npm run claude:start        # Begin Claude team session
+npm run claude:status       # Check session status
+npm run claude:checkpoint   # Save current progress
+npm run claude:lint         # Run Claude-aware linting
+
+# White-Label & Brokerage Tools
+npm run whitelabel:init     # Initialize white-label setup
+npm run brokerage:onboard   # Onboard new brokerage client
+```
+
+### API Development (Primary Component - Port 4000/4001)
+```bash
+# From api/ directory
+npm run dev              # Development server with nodemon
+npm run build            # TypeScript compilation
+npm start               # Production server
+
+# Database Operations (Prisma + PostgreSQL)
+npm run db:generate     # Regenerate Prisma client after schema changes
 npm run db:migrate      # Create and apply migration
-npm run db:push         # Push schema changes (dev)
-npm run db:studio       # Visual database editor
+npm run db:push         # Push schema changes (development)
+npm run db:studio       # Visual database editor on localhost:5555
 
-# Testing (Comprehensive Suite)  
-npm test                # Full test suite (93+ tests)
+# Comprehensive Testing (93+ tests covering all functionality)
+npm test                # Full test suite
 npm run test:watch      # Watch mode for development
-npm run test:coverage   # Coverage reporting
+npm run test:coverage   # Coverage reporting with HTML output
 npm run test:ci         # CI-ready testing
 
-# Single test patterns
+# Run specific tests
 npm test -- --testNamePattern="should register a new user"
 npm test -- auth.test.ts
+npm test -- admin.test.ts
 ```
 
-### Web Application (Complete)
+### Web Application (Next.js 15 - Port 3000)
 ```bash
-# From web-app directory
-npm run dev         # Next.js development server on :3000
-npm run build       # Production build
-npm run lint        # ESLint validation
+# From web-app/ directory
+npm run dev             # Next.js development server
+npm run build           # Production build
+npm run lint            # ESLint validation
+npm test               # Jest testing suite
 ```
 
-### MCP Integration (Mock Mode)
+### MCP Integration (Port 3001)
 ```bash
-# From mcp-integrations directory
-npm run dev         # MCP server development mode
-npm test           # MCP connection and tool tests
-npm run logs       # View server logs
+# From mcp-integrations/ directory
+npm run dev             # MCP server development mode with auto-restart
+npm test               # Test all 8 tools and connection
+npm run logs           # View server logs
 ```
 
 ## Architecture
 
-### Repository Structure
+### Multi-Platform Structure
 ```
 RealEstateAgent-IntelligenceFeed/
-├── api/                    # ✅ PRODUCTION-READY Node.js API
-│   ├── src/routes/         # Complete REST API endpoints
-│   │   ├── auth.ts         # JWT authentication (register, login, refresh, me)
-│   │   ├── alerts.ts       # Alert management (list, stats, personalized, CRUD)
-│   │   ├── preferences.ts  # User alert preferences (full CRUD)
-│   │   ├── admin.ts        # Admin operations
-│   │   ├── properties.ts   # Property management
-│   │   ├── users.ts        # User management
-│   │   └── early-adopters.ts # Early adopter registration
-│   ├── src/services/       # Business logic services
-│   │   └── alertMatcher.ts # Intelligent alert matching algorithm
-│   ├── src/middleware/     # Express middleware
-│   │   ├── auth.ts         # JWT authentication & authorization
-│   │   ├── errorHandler.ts # Centralized error handling
-│   │   └── notFound.ts     # 404 handling
-│   ├── src/__tests__/      # Comprehensive test suite (93+ tests)
-│   │   ├── auth.test.ts    # Authentication testing
-│   │   ├── alerts.test.ts  # Alert API testing
-│   │   ├── preferences.test.ts # Preferences testing
-│   │   ├── middleware.test.ts  # Middleware testing
-│   │   ├── alertMatcher.test.ts # Business logic testing
-│   │   └── setup.ts        # Test utilities and database setup
-│   ├── prisma/            # Database schema and migrations
-│   │   └── schema.prisma  # Complete schema (users, alerts, preferences)
-│   └── jest.config.js     # Jest testing configuration
-├── web-app/               # ✅ COMPLETE Next.js 14 application
-├── mcp-integrations/      # ✅ MCP server (mock mode, 8 tools)
-├── mobile/                # 📋 PLANNED React Native
-└── desktop/               # 📋 PLANNED Electron
+├── api/                    # ✅ PRODUCTION-READY Node.js + Express API
+│   ├── src/routes/         # Complete REST endpoints (auth, admin, alerts, users)
+│   ├── src/middleware/     # JWT auth, error handling, admin protection
+│   ├── src/services/       # Business logic (alertMatcher, admin operations)
+│   ├── src/__tests__/      # 93+ comprehensive tests
+│   ├── prisma/            # PostgreSQL schema with admin extensions
+│   └── dist/              # Compiled TypeScript output
+├── web-app/               # ✅ COMPLETE Next.js 15 + shadcn/ui
+│   ├── src/app/           # App Router with auth and admin portal
+│   ├── src/components/    # Reusable UI components
+│   └── src/lib/          # Utilities and API client
+├── mcp-integrations/     # ✅ MCP Server (8 tools, mock mode)
+├── mobile/               # 📋 PLANNED React Native + Expo
+├── desktop/              # 📋 PLANNED Electron
+└── scripts/              # Claude Code team workflow automation
 ```
 
 ### Technology Stack
@@ -97,28 +104,41 @@ RealEstateAgent-IntelligenceFeed/
 - **Validation**: Comprehensive input validation
 - **Logging**: Morgan HTTP logging with custom logger
 
-**Database Schema (Fully Implemented):**
-- `users` - Complete user management with subscription tiers
-- `alerts` - Property opportunities with intelligent scoring
-- `alert_preferences` - Sophisticated user preference system
-- `user_alerts` - Many-to-many relationship with bookmarking/viewing
-- `saved_properties` - User saved properties
-- `activity_logs` - User activity tracking
-- `early_adopter_tokens` - Early adopter program
+**Database Architecture (PostgreSQL + Prisma):**
+
+**Core Models:**
+- `User` - Complete user management with role-based access (USER/ADMIN)
+- `Alert` - Property opportunities with intelligent scoring algorithm
+- `AlertPreference` - 26 configurable user preferences
+- `UserAlert` - Many-to-many with bookmarking and viewing states
+
+**Admin System Models:**
+- `SupportTicket` - Customer support queue with priority/status management
+- `AdminAction` - Audit trail of all admin operations
+- `SystemSetting` - Configurable platform settings by category
+- `ActivityLog` - User activity tracking
+
+**Key Schema Features:**
+- Role-based authentication (UserRole enum: USER, ADMIN)
+- Subscription tiers (FREE, SOLO_AGENT, PROFESSIONAL, TEAM_ENTERPRISE, WHITE_LABEL)
+- Alert types (POWER_OF_SALE, ESTATE_SALE, DEVELOPMENT_APPLICATION, etc.)
 
 **Web Frontend (Complete):**
-- Next.js 14 with App Router, Tailwind CSS, shadcn/ui, TypeScript
+- Next.js 15 with App Router, Tailwind CSS, shadcn/ui, TypeScript
 
 ## Key API Features (Production-Ready)
 
-### Authentication System
-**Endpoints**: `/api/auth/*`
-- `POST /register` - User registration with validation
-- `POST /login` - JWT-based login 
-- `POST /refresh` - Token refresh
-- `GET /me` - Current user profile
-- **Security**: Bcrypt password hashing, JWT tokens, rate limiting
-- **Validation**: Email format, password strength, required fields
+### Authentication System (`/api/auth`)
+- JWT-based with refresh tokens and secure storage
+- Role-based middleware (`requireAdmin`, `requireSubscriptionTier`)
+- Comprehensive user registration/login with validation
+
+### Admin Portal System (`/api/admin`)
+- **User Management**: CRUD operations, role assignment, subscription management
+- **Support System**: Ticket management with assignment and resolution tracking
+- **Analytics**: Dashboard metrics, user growth, alert statistics
+- **System Settings**: Categorized configuration management
+- **Alert Management**: Batch operations and cleanup utilities
 
 ### Intelligent Alert System  
 **Endpoints**: `/api/alerts/*`
@@ -172,10 +192,11 @@ enum SubscriptionTier { FREE, SOLO_AGENT, PROFESSIONAL, TEAM_ENTERPRISE, WHITE_L
 
 ### Test Categories
 - **Authentication Tests** (16 tests): Registration, login, token handling, edge cases
+- **Admin System Tests** (15+ tests): User management, support tickets, system operations
 - **Alerts API Tests** (21 tests): CRUD operations, filtering, personalization, bookmarking  
 - **Preferences Tests** (14 tests): Settings management, validation, defaults
 - **Alert Matcher Tests** (13 tests): Scoring algorithm, user matching, daily limits
-- **Middleware Tests** (15+ tests): Auth middleware, error handling, rate limiting
+- **Middleware Tests** (15+ tests): Auth middleware, admin protection, error handling
 
 ### Test Setup & Utilities
 - **Database Isolation**: Clean setup/teardown between tests
@@ -275,12 +296,13 @@ npx prisma studio          # GUI for data inspection
 ## Current Development Status
 
 ### ✅ Completed (Production-Ready)
-- **Complete API Backend** with authentication, alerts, preferences  
-- **Comprehensive Testing** (93+ tests covering all functionality)
-- **Database Schema** with all core tables and relationships
-- **JWT Security** with proper validation and middleware
+- **Complete API Backend** with authentication, admin portal, alerts, preferences  
+- **Comprehensive Admin System** with user management, support tickets, analytics
+- **Comprehensive Testing** (93+ tests covering all functionality including admin)
+- **Database Schema** with role-based access and admin extensions
+- **JWT Security** with proper validation and admin middleware
 - **Intelligent Matching** algorithm with sophisticated scoring
-- **Web Application** with complete marketing pages
+- **Web Application** with complete admin management interface
 
 ### 🔄 Next Priority: Real Data Integration
 1. **Transition MCP from mock to real data** scraping
@@ -325,4 +347,33 @@ npx prisma studio          # GUI for data inspection
 - Clear API documentation
 - Consistent code style and patterns
 
-The AgentRadar API backend is **production-ready** and can be deployed with confidence. The intelligent alert system, user preferences, and authentication are fully functional with enterprise-grade security and testing.
+## Claude Code Team Workflow System
+
+### Session Management
+- **Orchestrated Development**: Advanced swarm mode with specialized agents
+- **Session Controls**: `claude:start`, `claude:checkpoint`, `claude:status`, `claude:end`
+- **Context Management**: Automatic checkpointing every 30 minutes, 8-hour max sessions
+- **Quality Assurance**: Integrated linting, security checks, and complexity analysis
+
+### Specialized Agents
+```bash
+npm run swarm:frontend    # Frontend-focused development  
+npm run swarm:backend     # Backend API development
+npm run swarm:scraper     # Data scraping features
+npm run swarm:mobile      # Mobile app development
+npm run swarm:mcp         # MCP integration work
+npm run swarm:devops      # Infrastructure and deployment
+```
+
+### Team Coordination
+- **Daily Workflows**: `team:daily` for sync and standup automation
+- **Insights System**: Automatic consolidation and sharing of development insights
+- **Branch Protection**: Enforced workflows for main/develop branches
+- **Quality Gates**: Automated pattern detection and code quality enforcement
+
+### White-Label Automation
+- **Brokerage Onboarding**: Automated client setup and configuration
+- **Deployment Tools**: One-command deployment for new brokerages
+- **Configuration Management**: Template-based customization system
+
+The AgentRadar platform combines **production-ready API backend** with **comprehensive admin capabilities** and **advanced Claude Code team orchestration** for scalable real estate intelligence platform development.
