@@ -1,10 +1,37 @@
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 import { createLogger } from './logger';
 
 const logger = createLogger();
 
-// JWT configuration
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
+// ✅ SECURITY ENHANCEMENT: Mandatory JWT secret validation
+// Addresses Medium Severity security issue from Phase 1 assessment
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable must be set');
+}
+
+if (JWT_SECRET === 'your-super-secret-jwt-key-change-in-production') {
+  throw new Error('JWT_SECRET must be changed from default value for security');
+}
+
+if (JWT_SECRET.length < 32) {
+  throw new Error('JWT_SECRET must be at least 32 characters long for security');
+}
+
+// Validate JWT secret entropy for production security
+if (process.env.NODE_ENV === 'production') {
+  const hasLowerCase = /[a-z]/.test(JWT_SECRET);
+  const hasUpperCase = /[A-Z]/.test(JWT_SECRET);
+  const hasNumbers = /\d/.test(JWT_SECRET);
+  const hasSymbols = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(JWT_SECRET);
+  
+  if (!(hasLowerCase && hasUpperCase && hasNumbers && hasSymbols)) {
+    throw new Error('JWT_SECRET must contain uppercase, lowercase, numbers, and symbols for production security');
+  }
+}
+
+// JWT configuration with validated secret
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '30d';
 
@@ -35,11 +62,11 @@ export interface TokenResponse {
  */
 export function generateAccessToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): string {
   try {
-    return jwt.sign(payload, JWT_SECRET, { 
+    return jwt.sign(payload, JWT_SECRET!, { 
       expiresIn: JWT_EXPIRES_IN,
       issuer: 'agentradar-api',
       audience: 'agentradar-web'
-    } as any);
+    });
   } catch (error) {
     logger.error('Error generating access token:', error);
     throw new Error('Failed to generate access token');
@@ -52,11 +79,11 @@ export function generateAccessToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): s
 export function generateRefreshToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): string {
   try {
     const refreshPayload = { ...payload, type: 'refresh' };
-    return jwt.sign(refreshPayload, JWT_SECRET, { 
+    return jwt.sign(refreshPayload, JWT_SECRET!, { 
       expiresIn: JWT_REFRESH_EXPIRES_IN,
       issuer: 'agentradar-api',
       audience: 'agentradar-web'
-    } as any);
+    });
   } catch (error) {
     logger.error('Error generating refresh token:', error);
     throw new Error('Failed to generate refresh token');
@@ -101,12 +128,16 @@ export function generateTokenPair(user: {
  */
 export function verifyToken(token: string): JwtPayload {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET, {
+    const decoded = jwt.verify(token, JWT_SECRET!, {
       issuer: 'agentradar-api',
       audience: 'agentradar-web'
-    }) as JwtPayload;
+    });
     
-    return decoded;
+    if (typeof decoded === 'string') {
+      throw new Error('Invalid token format');
+    }
+    
+    return decoded as JwtPayload;
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       throw new Error('Token expired');

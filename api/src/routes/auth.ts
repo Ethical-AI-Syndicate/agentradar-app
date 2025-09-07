@@ -429,4 +429,13 @@ router.put('/profile', authenticateToken, async (req, res, next) => {
   }
 });
 
+// Health check endpoint for production monitoring
+router.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    service: 'auth',
+    timestamp: new Date().toISOString()
+  });
+});
+
 export default router;
