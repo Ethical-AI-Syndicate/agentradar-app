@@ -13,7 +13,7 @@ export function SocialProofSection() {
       name: "Maria Santos",
       title: "Top 1% Agent, RE/MAX Elite", 
       location: "Toronto, ON",
-      image: "/avatars/maria.jpg",
+      image: "", // Using initials fallback
       initials: "MS",
       deals: "47 deals this year",
       rating: 5
@@ -23,7 +23,7 @@ export function SocialProofSection() {
       name: "Michael Rodriguez",
       title: "Investment Specialist",
       location: "Mississauga, ON", 
-      image: "/avatars/michael.jpg",
+      image: "", // Using initials fallback
       initials: "MR",
       deals: "Investment focus",
       rating: 5
@@ -33,7 +33,7 @@ export function SocialProofSection() {
       name: "Jennifer Walsh",
       title: "Broker of Record",
       location: "Vaughan, ON",
-      image: "/avatars/jennifer.jpg", 
+      image: "", // Using initials fallback 
       initials: "JW",
       deals: "200+ agents",
       rating: 5
