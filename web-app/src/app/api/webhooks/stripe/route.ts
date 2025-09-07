@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import Stripe from 'stripe';
-import { PrismaClient, SubscriptionTier, SubscriptionStatus } from '@/generated/prisma';
+import { PrismaClient, SubscriptionTier, SubscriptionStatus } from '@prisma/client';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-11-20.acacia',
