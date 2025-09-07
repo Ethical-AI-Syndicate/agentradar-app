@@ -20,15 +20,11 @@ export function middleware(request: NextRequest) {
       console.log(`[Middleware] Rewriting root to /admin`);
       url.pathname = '/admin';
       response = NextResponse.rewrite(url);
-    } else if (url.pathname === '/login') {
-      // For login on admin subdomain, keep using /login but add admin context
-      console.log(`[Middleware] Admin login request, keeping /login path`);
-      response = NextResponse.next();
     } else {
-      // For other paths, rewrite to admin equivalent (don't redirect)
-      console.log(`[Middleware] Rewriting ${url.pathname} to /admin${url.pathname}`);
-      url.pathname = `/admin${url.pathname}`;
-      response = NextResponse.rewrite(url);
+      // For all other paths (login, forgot-password, register, etc.), keep them as-is
+      // These are public pages that should be accessible on the admin subdomain
+      console.log(`[Middleware] Admin subdomain accessing public page: ${url.pathname}`);
+      response = NextResponse.next();
     }
   } else if (hostname === 'agentradar.app' || (!hostname.includes('admin') && hostname.includes('agentradar'))) {
     // Handle main domain - prevent access to admin routes
