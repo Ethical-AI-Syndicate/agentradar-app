@@ -8,18 +8,5 @@
   "env": {
     "NODE_ENV": "production",
     "SKIP_HUSKY_INSTALL": "1"
-  },
-  "redirects": [
-    {
-      "source": "/((?!admin).*)",
-      "destination": "/admin/$1",
-      "permanent": false,
-      "has": [
-        {
-          "type": "host",
-          "value": "admin.agentradar.app"
-        }
-      ]
-    }
-  ]
+  }
 }
