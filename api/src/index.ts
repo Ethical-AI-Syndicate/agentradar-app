@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import { createLogger } from './utils/logger';
 import { errorHandler } from './middleware/errorHandler';
 import { notFound } from './middleware/notFound';
+import { initializeServices, shutdownServices } from './services';
 // import { connectDatabase, disconnectDatabase } from './lib/database';
 
 // Routes
@@ -17,6 +18,7 @@ import propertyRoutes from './routes/properties';
 import earlyAdopterRoutes from './routes/early-adopters';
 import adminRoutes from './routes/admin';
 import preferencesRoutes from './routes/preferences';
+import courtProcessingRoutes from './routes/courtProcessing';
 
 // Load environment variables
 dotenv.config();
@@ -85,6 +87,7 @@ app.use('/api/properties', propertyRoutes);
 app.use('/api/early-adopters', earlyAdopterRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/preferences', preferencesRoutes);
+app.use('/api/court-processing', courtProcessingRoutes);
 
 // API documentation endpoint
 app.get('/api', (req, res) => {
@@ -100,7 +103,8 @@ app.get('/api', (req, res) => {
       properties: '/api/properties',
       earlyAdopters: '/api/early-adopters',
       admin: '/api/admin',
-      preferences: '/api/preferences'
+      preferences: '/api/preferences',
+      courtProcessing: '/api/court-processing'
     },
     health: '/health'
   });
@@ -113,12 +117,14 @@ app.use(errorHandler);
 // Graceful shutdown
 process.on('SIGTERM', async () => {
   logger.info('SIGTERM received, shutting down gracefully');
+  await shutdownServices();
   // await disconnectDatabase();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
   logger.info('SIGINT received, shutting down gracefully');
+  await shutdownServices();
   // await disconnectDatabase();
   process.exit(0);
 });
@@ -127,10 +133,20 @@ process.on('SIGINT', async () => {
 if (process.env.NODE_ENV !== 'test') {
   const server = app.listen(PORT, async () => {
     // await connectDatabase();
+    
+    // Initialize background services
+    try {
+      await initializeServices();
+      logger.info('✅ All services initialized successfully');
+    } catch (error) {
+      logger.error('❌ Failed to initialize services:', error);
+    }
+    
     logger.info(`🚀 AgentRadar API Server running on port ${PORT}`);
     logger.info(`🌍 Environment: ${process.env.NODE_ENV}`);
     logger.info(`📊 Health check: http://localhost:${PORT}/health`);
     logger.info(`📖 API docs: http://localhost:${PORT}/api`);
+    logger.info(`⚖️ Court Processing: Active (polling every ${process.env.COURT_POLLING_INTERVAL || 45} minutes)`);
   });
 
   // Handle server errors

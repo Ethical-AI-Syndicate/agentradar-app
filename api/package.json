@@ -45,6 +45,7 @@
   "dependencies": {
     "@prisma/client": "^6.15.0",
     "@sendgrid/mail": "^8.1.5",
+    "axios": "^1.7.9",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
@@ -52,6 +53,7 @@
     "express-rate-limit": "^8.1.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
-    "morgan": "^1.10.1"
+    "morgan": "^1.10.1",
+    "rss-parser": "^3.13.0"
   }
 }

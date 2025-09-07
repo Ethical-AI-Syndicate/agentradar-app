@@ -82,6 +82,7 @@ model Alert {
   // Court/Legal info (for power of sale)
   courtFileNumber  String?
   courtDate        DateTime?
+  courtCaseId      String? // Link to CourtCase if originated from court data
   
   // Estate info
   probateNumber    String?
@@ -102,8 +103,9 @@ model Alert {
   updatedAt    DateTime @updatedAt
   discoveredAt DateTime @default(now())
   
-  // Relations
+  // Relations  
   userAlerts UserAlert[]
+  courtCase  CourtCase? @relation(fields: [courtCaseId], references: [id])
   
   @@map("alerts")
 }
@@ -242,6 +244,76 @@ model EarlyAdopterToken {
   @@map("early_adopter_tokens")
 }
 
+// Court Bulletin Cases
+model CourtCase {
+  id              String @id @default(cuid())
+  guid            String @unique // CanLII stable identifier
+  title           String
+  neutralCitation String?
+  court           CourtType
+  publishDate     DateTime
+  caseUrl         String
+  
+  // Raw case content
+  summary         String?
+  fullText        String? // Store full case text for NER processing
+  
+  // NER Extracted Data
+  addresses       String[] @default([]) // Extracted property addresses
+  municipalities  String[] @default([]) // Extracted municipalities  
+  parties         String[] @default([]) // Extracted party names
+  statutes        String[] @default([]) // Referenced statutes
+  
+  // Case Classification
+  caseTypes       RealEstateCaseType[] @default([])
+  riskLevel       RiskLevel @default(LOW)
+  
+  // Processing Status
+  isProcessed     Boolean @default(false)
+  nerProcessed    Boolean @default(false)
+  classified      Boolean @default(false)
+  
+  // Metadata
+  source          String // RSS feed source
+  metadata        Json? // Additional structured data
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  alerts Alert[] // Cases can trigger multiple alerts
+  
+  @@index([court, publishDate])
+  @@index([isProcessed, nerProcessed])
+  @@map("court_cases")
+}
+
+// Court Case Processing Queue
+model CaseProcessingQueue {
+  id          String @id @default(cuid())
+  caseId      String
+  processType ProcessingType
+  status      ProcessingStatus @default(PENDING)
+  priority    Int @default(5) // 1-10, higher = more urgent
+  
+  // Processing details
+  attempts    Int @default(0)
+  maxAttempts Int @default(3)
+  error       String?
+  
+  // Timing
+  scheduledAt DateTime @default(now())
+  startedAt   DateTime?
+  completedAt DateTime?
+  
+  // Relations
+  case CourtCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  
+  @@index([status, priority])
+  @@index([scheduledAt])
+  @@map("case_processing_queue")
+}
+
 // Enums
 enum SubscriptionTier {
   FREE
@@ -292,4 +364,49 @@ enum ActivityType {
   SEARCH_PERFORMED
   PREFERENCES_UPDATED
   SUBSCRIPTION_CHANGED
+}
+
+enum CourtType {
+  ONSC      // Ontario Superior Court of Justice
+  ONCA      // Ontario Court of Appeal  
+  ONCJ      // Ontario Court of Justice
+  ONSCDC    // Ontario Superior Court of Justice - Divisional Court
+  OLT       // Ontario Land Tribunal (formerly OMB)
+}
+
+enum RealEstateCaseType {
+  FORECLOSURE
+  POWER_OF_SALE
+  LIEN
+  CONDO
+  RECEIVERSHIP
+  PLANNING
+  OLT_APPEAL
+  ENVIRONMENTAL
+  LABOUR_CONVICTION
+  CONSTRUCTION_LIEN
+  PLANNING_ACT
+  BIA_PROCEEDING
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ProcessingType {
+  NER_EXTRACTION
+  CASE_CLASSIFICATION
+  RISK_ASSESSMENT
+  ALERT_GENERATION
+}
+
+enum ProcessingStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  CANCELLED
 }
