@@ -50,7 +50,12 @@ const TOKEN_KEY = 'agentradar_token';
 const USER_KEY = 'agentradar_user';
 
 export const setToken = (token: string) => {
-  Cookies.set(TOKEN_KEY, token, { expires: 30, secure: true, sameSite: 'strict' });
+  Cookies.set(TOKEN_KEY, token, { 
+    expires: 30, 
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    domain: process.env.NODE_ENV === 'production' ? '.agentradar.app' : undefined
+  });
 };
 
 export const getToken = (): string | null => {
@@ -83,7 +88,12 @@ export interface User {
 }
 
 export const setUser = (user: User) => {
-  Cookies.set(USER_KEY, JSON.stringify(user), { expires: 30, secure: true, sameSite: 'strict' });
+  Cookies.set(USER_KEY, JSON.stringify(user), { 
+    expires: 30, 
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    domain: process.env.NODE_ENV === 'production' ? '.agentradar.app' : undefined
+  });
 };
 
 export const getUser = (): User | null => {
