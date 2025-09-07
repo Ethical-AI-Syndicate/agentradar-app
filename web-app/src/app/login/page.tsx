@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -23,10 +23,14 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  
+  // Get redirect parameter for post-login navigation
+  const redirectPath = searchParams.get('redirect') || '/dashboard';
 
   const {
     register,
@@ -44,7 +48,8 @@ export default function LoginPage() {
       const result = await login(data);
       
       if (result.success) {
-        router.push('/dashboard');
+        // Use the redirect parameter to navigate after login
+        router.push(redirectPath);
       } else {
         setError(result.message || 'Login failed');
       }

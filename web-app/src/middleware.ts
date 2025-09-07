@@ -19,6 +19,10 @@ export function middleware(request: NextRequest) {
       console.log(`[Middleware] Rewriting root to /admin`);
       url.pathname = '/admin';
       response = NextResponse.rewrite(url);
+    } else if (url.pathname === '/login') {
+      // For login on admin subdomain, keep using /login but add admin context
+      console.log(`[Middleware] Admin login request, keeping /login path`);
+      response = NextResponse.next();
     } else {
       // For other paths, rewrite to admin equivalent (don't redirect)
       console.log(`[Middleware] Rewriting ${url.pathname} to /admin${url.pathname}`);
