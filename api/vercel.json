@@ -1,0 +1,28 @@
+{
+  "version": 2,
+  "name": "agentradar-api",
+  "builds": [
+    {
+      "src": "src/server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/src/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/src/server.js"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "functions": {
+    "src/server.js": {
+      "includeFiles": "src/**"
+    }
+  }
+}

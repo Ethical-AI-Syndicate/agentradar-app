@@ -5,8 +5,8 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-// API Configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+// API Configuration - Use Next.js API routes instead of Express API
+const API_BASE_URL = '/api';
 
 // Create axios instance with default config
 export const apiClient = axios.create({
