@@ -7,6 +7,10 @@
   "ignoreCommand": "false",
   "env": {
     "NODE_ENV": "production",
-    "SKIP_HUSKY_INSTALL": "1"
+    "SKIP_HUSKY_INSTALL": "1",
+    "DATABASE_URL": "@database_url",
+    "JWT_SECRET": "@jwt_secret",
+    "SESSION_SECRET": "@session_secret",
+    "REDIS_URL": "@redis_url"
   }
 }
