@@ -1,0 +1,29 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Claude Quality Gates Before Push
+echo "🔍 Running Claude quality checks before push..."
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+BRANCH_TYPE=$(echo $BRANCH | cut -d'/' -f1)
+
+# Run tests for Claude-generated code
+echo "🧪 Testing Claude-generated code..."
+npm run test:claude-generated
+
+# Check Claude insights were captured
+if [ "$BRANCH_TYPE" = "feature" ]; then
+  INSIGHTS_COUNT=$(find .claude/insights -name "*.json" -mtime -1 2>/dev/null | wc -l)
+  if [ "$INSIGHTS_COUNT" -eq "0" ]; then
+    echo "⚠️  Warning: No Claude insights captured in the last 24 hours"
+    echo "💡 Capture insights with: npm run claude:insight"
+  fi
+fi
+
+# Validate complexity didn't increase dramatically
+npm run complexity:check
+
+# Check for Claude-specific anti-patterns
+npm run claude:anti-patterns
+
+echo "✅ All Claude quality checks passed"

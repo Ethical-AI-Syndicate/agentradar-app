@@ -1,0 +1,49 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Claude Context Auto-switching
+PREV_BRANCH=$1
+NEW_BRANCH=$2
+BRANCH_CHECKOUT=$3
+
+if [ "$BRANCH_CHECKOUT" = "1" ]; then
+  BRANCH=$(git rev-parse --abbrev-ref HEAD)
+  BRANCH_TYPE=$(echo $BRANCH | cut -d'/' -f1)
+  
+  echo "🔄 Switched to branch: $BRANCH"
+  
+  # Load appropriate Claude context
+  case $BRANCH_TYPE in
+    main)
+      echo "📋 Loading production Claude context..."
+      cp .claude/contexts/production/CLAUDE.md ./CLAUDE.md 2>/dev/null || true
+      echo "⚠️  Production branch - Maximum safety enabled"
+      ;;
+    develop)
+      echo "📋 Loading development Claude context..."
+      cp .claude/contexts/development/CLAUDE.md ./CLAUDE.md 2>/dev/null || true
+      ;;
+    feature)
+      echo "📋 Loading feature Claude template..."
+      cp .claude/templates/feature-CLAUDE.md ./CLAUDE.md 2>/dev/null || true
+      echo "💡 Remember to start a Claude session: npm run claude:start"
+      ;;
+    hotfix)
+      echo "🚨 Loading hotfix Claude context..."
+      cp .claude/templates/hotfix-CLAUDE.md ./CLAUDE.md 2>/dev/null || true
+      echo "⏱️  Hotfix branch - Limited time context"
+      ;;
+    experiment)
+      echo "🧪 Loading experimental Claude context..."
+      cp .claude/templates/experiment-CLAUDE.md ./CLAUDE.md 2>/dev/null || true
+      echo "⚠️  Experimental branch - Remember to clean up after"
+      ;;
+  esac
+  
+  # Check for existing session file from this branch
+  SESSION_FILE=".claude/sessions/branches/${BRANCH//\//-}.json"
+  if [ -f "$SESSION_FILE" ]; then
+    echo "📂 Found existing Claude session for this branch"
+    echo "💡 Resume with: npm run claude:resume"
+  fi
+fi

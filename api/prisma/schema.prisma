@@ -1,0 +1,295 @@
+// AgentRadar Database Schema
+// Real Estate Intelligence Platform
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Management
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  firstName String
+  lastName  String
+  password  String
+  phone     String?
+  isActive  Boolean  @default(true)
+  
+  // Subscription info
+  subscriptionTier SubscriptionTier @default(FREE)
+  stripeCustomerId String?          @unique
+  subscriptionId   String?          @unique
+  subscriptionStatus String?
+  
+  // Profile info
+  company          String?
+  location         String?
+  teamSize         String?
+  monthlyDeals     String?
+  primaryFocus     String?
+  techComfort      String?
+  currentChallenges String[]
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastLogin DateTime?
+  
+  // Relations
+  alertPreferences AlertPreference[]
+  userAlerts       UserAlert[]
+  savedProperties  SavedProperty[]
+  activityLogs     ActivityLog[]
+  
+  @@map("users")
+}
+
+// Property Alerts System
+model Alert {
+  id          String      @id @default(cuid())
+  title       String
+  description String
+  
+  // Property details
+  address     String
+  city        String
+  province    String      @default("ON")
+  postalCode  String?
+  
+  // Alert metadata
+  alertType   AlertType
+  source      DataSource
+  status      AlertStatus @default(ACTIVE)
+  priority    Priority    @default(MEDIUM)
+  
+  // Opportunity scoring
+  opportunityScore Int     @default(0) // 0-100
+  timelineMonths   Int?    // Estimated months to market
+  
+  // Property details
+  propertyType     String?
+  estimatedValue   Int?    // In CAD cents
+  lotSize          String?
+  bedrooms         Int?
+  bathrooms        Float?
+  
+  // Court/Legal info (for power of sale)
+  courtFileNumber  String?
+  courtDate        DateTime?
+  
+  // Estate info
+  probateNumber    String?
+  executorName     String?
+  executorContact  String?
+  
+  // Development info
+  applicationNumber String?
+  municipalOffice  String?
+  applicationDate  DateTime?
+  
+  // Geographic data
+  latitude  Float?
+  longitude Float?
+  
+  // Timestamps
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  discoveredAt DateTime @default(now())
+  
+  // Relations
+  userAlerts UserAlert[]
+  
+  @@map("alerts")
+}
+
+// User-Alert Relationship (Many-to-Many)
+model UserAlert {
+  id       String @id @default(cuid())
+  userId   String
+  alertId  String
+  
+  // Notification status
+  isNotified   Boolean   @default(false)
+  notifiedAt   DateTime?
+  isViewed     Boolean   @default(false)
+  viewedAt     DateTime?
+  isBookmarked Boolean   @default(false)
+  
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  alert Alert @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, alertId])
+  @@map("user_alerts")
+}
+
+// Alert Preferences
+model AlertPreference {
+  id     String @id @default(cuid())
+  userId String
+  
+  // Geographic preferences
+  cities          String[] @default([])
+  maxDistanceKm   Int      @default(50)
+  
+  // Property preferences
+  propertyTypes   String[] @default([])
+  minValue        Int?     // In CAD cents
+  maxValue        Int?     // In CAD cents
+  minBedrooms     Int?
+  maxBedrooms     Int?
+  
+  // Alert preferences
+  alertTypes      AlertType[]
+  minPriority     Priority     @default(LOW)
+  minOpportunityScore Int      @default(0)
+  
+  // Notification preferences
+  emailNotifications  Boolean @default(true)
+  smsNotifications    Boolean @default(false)
+  pushNotifications   Boolean @default(true)
+  
+  // Timing preferences
+  maxAlertsPerDay     Int     @default(10)
+  quietHoursStart     String? // "22:00"
+  quietHoursEnd       String? // "08:00"
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId])
+  @@map("alert_preferences")
+}
+
+// Saved Properties
+model SavedProperty {
+  id       String @id @default(cuid())
+  userId   String
+  alertId  String
+  
+  // User notes
+  notes    String?
+  tags     String[] @default([])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, alertId])
+  @@map("saved_properties")
+}
+
+// Activity Logging
+model ActivityLog {
+  id        String       @id @default(cuid())
+  userId    String?
+  action    ActivityType
+  details   Json?        // Flexible JSON field for activity details
+  ipAddress String?
+  userAgent String?
+  
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  @@map("activity_logs")
+}
+
+// Early Adopter Tokens
+model EarlyAdopterToken {
+  id       String @id @default(cuid())
+  token    String @unique @default(cuid())
+  email    String @unique
+  
+  // Form data
+  firstName         String
+  lastName          String
+  phone             String
+  company           String
+  location          String
+  teamSize          String
+  monthlyDeals      String
+  primaryFocus      String
+  currentChallenges String[]
+  techComfort       String
+  
+  // Token status
+  isUsed      Boolean   @default(false)
+  usedAt      DateTime?
+  userId      String?   @unique
+  
+  // Benefits
+  discountPercent Int @default(50)
+  expiresAt       DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("early_adopter_tokens")
+}
+
+// Enums
+enum SubscriptionTier {
+  FREE
+  SOLO_AGENT
+  PROFESSIONAL  
+  TEAM_ENTERPRISE
+  WHITE_LABEL
+}
+
+enum AlertType {
+  POWER_OF_SALE
+  ESTATE_SALE
+  DEVELOPMENT_APPLICATION
+  MUNICIPAL_PERMIT
+  PROBATE_FILING
+  TAX_SALE
+}
+
+enum DataSource {
+  ONTARIO_COURT_BULLETINS
+  ESTATE_FILINGS
+  MUNICIPAL_APPLICATIONS
+  DEVELOPMENT_PERMITS
+  TAX_OFFICE
+  MANUAL_ENTRY
+}
+
+enum AlertStatus {
+  ACTIVE
+  RESOLVED
+  EXPIRED
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum ActivityType {
+  USER_LOGIN
+  USER_LOGOUT
+  ALERT_VIEWED
+  ALERT_BOOKMARKED
+  PROPERTY_SAVED
+  SEARCH_PERFORMED
+  PREFERENCES_UPDATED
+  SUBSCRIPTION_CHANGED
+}

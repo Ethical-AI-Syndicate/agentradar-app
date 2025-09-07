@@ -1,0 +1,210 @@
+version: 1
+swarm:
+  name: "AgentRadar Development Team"
+  main: lead
+  # Environment variables for all agents
+  env:
+    DATABASE_URL: "${DATABASE_URL}"
+    REDIS_URL: "${REDIS_URL}"
+    NEXT_PUBLIC_API_URL: "${NEXT_PUBLIC_API_URL}"
+    ENABLE_MOCK_DATA: "${ENABLE_MOCK_DATA:-true}"
+  
+  instances:
+    # Team Lead - Orchestrates the entire development
+    lead:
+      description: "Team lead coordinating AgentRadar development, manages high-level architecture and delegates tasks"
+      directory: .
+      model: opus
+      connections: [frontend, backend, scraper, mcp, mobile, devops]
+      tools:
+        - Task
+        - Bash
+        - Glob
+        - Grep
+        - Read
+        - Edit
+        - MultiEdit
+        - Write
+        - TodoWrite
+        - WebSearch
+      permissions:
+        read: ["**/*"]
+        write: ["**/*"]
+        execute: ["npm", "node", "git"]
+    
+    # Frontend Specialist - Web, Mobile, Desktop UI
+    frontend:
+      description: "Frontend specialist for web (Next.js), mobile (React Native), and desktop (Electron) applications"
+      directory: .
+      model: sonnet
+      connections: [lead, backend]
+      tools:
+        - Task
+        - Bash
+        - Glob
+        - Grep
+        - Read
+        - Edit
+        - MultiEdit
+        - Write
+        - TodoWrite
+      permissions:
+        read: ["web-app/**/*", "mobile/**/*", "desktop/**/*", "docs/**/*"]
+        write: ["web-app/**/*", "mobile/**/*", "desktop/**/*"]
+        execute: ["npm", "npx", "expo", "electron"]
+      env:
+        FOCUS_AREAS: "React, Next.js, React Native, Electron, Tailwind CSS, shadcn/ui"
+    
+    # Backend Specialist - API, Database, Auth
+    backend:
+      description: "Backend specialist for API server, database operations, authentication, and real-time features"
+      directory: .
+      model: sonnet
+      connections: [lead, frontend, scraper]
+      tools:
+        - Task
+        - Bash
+        - Glob
+        - Grep
+        - Read
+        - Edit
+        - MultiEdit
+        - Write
+        - TodoWrite
+      permissions:
+        read: ["api/**/*", "docs/**/*", "*.sql", "*.prisma"]
+        write: ["api/**/*", "*.sql", "*.prisma"]
+        execute: ["npm", "node", "prisma", "psql"]
+      env:
+        FOCUS_AREAS: "Node.js, Express, PostgreSQL, Prisma, Redis, WebSockets"
+    
+    # Scraper Specialist - Data Collection & Processing
+    scraper:
+      description: "Data scraping specialist for court filings, estate sales, development applications, and MLS data"
+      directory: .
+      model: sonnet
+      connections: [lead, backend, mcp]
+      tools:
+        - Task
+        - Bash
+        - Glob
+        - Grep
+        - Read
+        - Edit
+        - MultiEdit
+        - Write
+        - TodoWrite
+        - WebFetch
+      permissions:
+        read: ["scrapers/**/*", "mcp-integrations/**/*", "docs/**/*"]
+        write: ["scrapers/**/*"]
+        execute: ["npm", "node", "python"]
+      env:
+        FOCUS_AREAS: "Web scraping, Puppeteer, Playwright, data extraction, PDF parsing"
+    
+    # MCP Integration Specialist
+    mcp:
+      description: "MCP (Model Context Protocol) integration specialist for Claude tools and real estate intelligence"
+      directory: .
+      model: sonnet
+      connections: [lead, backend, scraper]
+      tools:
+        - Task
+        - Bash
+        - Glob
+        - Grep
+        - Read
+        - Edit
+        - MultiEdit
+        - Write
+        - TodoWrite
+      permissions:
+        read: ["mcp-integrations/**/*", ".mcp.json", "docs/**/*"]
+        write: ["mcp-integrations/**/*", ".mcp.json"]
+        execute: ["npm", "node"]
+      env:
+        FOCUS_AREAS: "@modelcontextprotocol/sdk, MCP tools, Claude integration"
+    
+    # Mobile Specialist - iOS & Android
+    mobile:
+      description: "Mobile development specialist for React Native apps with iOS and Android optimization"
+      directory: .
+      model: sonnet
+      connections: [lead, frontend, backend]
+      tools:
+        - Task
+        - Bash
+        - Glob
+        - Grep
+        - Read
+        - Edit
+        - MultiEdit
+        - Write
+        - TodoWrite
+      permissions:
+        read: ["mobile/**/*", "docs/**/*"]
+        write: ["mobile/**/*"]
+        execute: ["npm", "expo", "eas", "react-native"]
+      env:
+        FOCUS_AREAS: "React Native, Expo, iOS, Android, push notifications, mobile optimization"
+    
+    # DevOps & Infrastructure Specialist
+    devops:
+      description: "DevOps specialist for white-label deployments, CI/CD, Docker, Kubernetes, and infrastructure"
+      directory: .
+      model: sonnet
+      connections: [lead, backend]
+      tools:
+        - Task
+        - Bash
+        - Glob
+        - Grep
+        - Read
+        - Edit
+        - MultiEdit
+        - Write
+        - TodoWrite
+      permissions:
+        read: ["scripts/**/*", ".github/**/*", "*.yml", "*.yaml", "Dockerfile*", "docs/**/*"]
+        write: ["scripts/**/*", ".github/**/*", "*.yml", "*.yaml", "Dockerfile*"]
+        execute: ["npm", "docker", "kubectl", "git", "bash"]
+      env:
+        FOCUS_AREAS: "Docker, Kubernetes, CI/CD, GitHub Actions, white-label automation, deployment"
+
+# Global configuration
+config:
+  # Auto-save progress every 5 minutes
+  auto_checkpoint: true
+  checkpoint_interval: 300
+  
+  # Enable verbose logging for debugging
+  verbose: false
+  
+  # Maximum context size per agent
+  max_context_size: 100000
+  
+  # Shared knowledge base
+  knowledge_base:
+    - CLAUDE.md
+    - CLAUDE_INSTRUCTIONS.md
+    - MCP_ARCHITECTURE.md
+    - IMPLEMENTATION_GUIDE.md
+    - TEAM_WORKFLOWS.md
+    - COMMANDS.md
+  
+  # Development patterns to enforce
+  patterns:
+    - "Use TypeScript for all new code"
+    - "Follow white-label architecture patterns"
+    - "Implement proper error handling"
+    - "Add tests for new features"
+    - "Document API endpoints"
+    - "Use environment variables for configuration"
+  
+  # Security rules
+  security:
+    - "Never commit secrets or API keys"
+    - "Sanitize all user inputs"
+    - "Use parameterized queries"
+    - "Implement proper authentication"
+    - "Follow OWASP guidelines"

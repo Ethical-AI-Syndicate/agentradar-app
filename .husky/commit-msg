@@ -1,0 +1,30 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Claude Session ID Injection
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(cat $COMMIT_MSG_FILE)
+
+# Check if we have an active Claude session
+if [ -f ".claude/current-session.json" ]; then
+  SESSION_ID=$(grep '"id"' .claude/current-session.json | cut -d'"' -f4)
+  
+  # Check if session ID is already in commit message
+  if ! echo "$COMMIT_MSG" | grep -q "Claude:"; then
+    # Append Claude session ID to commit message
+    echo "$COMMIT_MSG" > $COMMIT_MSG_FILE
+    echo "" >> $COMMIT_MSG_FILE
+    echo "Claude: $SESSION_ID" >> $COMMIT_MSG_FILE
+    echo "✅ Added Claude session ID to commit message"
+  fi
+fi
+
+# Validate commit message format for Claude-generated code
+if echo "$COMMIT_MSG" | grep -q "\[Claude\]"; then
+  # Ensure proper format for Claude commits
+  if ! echo "$COMMIT_MSG" | grep -q "\[Claude\].*\[.*\]"; then
+    echo "❌ Error: Claude commits must include ticket reference"
+    echo "Format: [Claude] Description [TICKET-123]"
+    exit 1
+  fi
+fi

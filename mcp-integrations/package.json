@@ -1,0 +1,36 @@
+{
+  "name": "@agentradar/mcp-server",
+  "version": "1.0.0",
+  "description": "MCP Server for AgentRadar Real Estate Intelligence Platform",
+  "type": "module",
+  "main": "core/server.js",
+  "scripts": {
+    "start": "node core/server.js",
+    "dev": "node --watch core/server.js",
+    "test": "node tests/test-connection.js",
+    "test:tools": "node tests/test-tools.js",
+    "logs": "tail -f logs/mcp-server.log"
+  },
+  "keywords": [
+    "mcp",
+    "claude",
+    "real-estate",
+    "automation",
+    "scraping"
+  ],
+  "author": "AgentRadar",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.6.0",
+    "axios": "^1.6.7",
+    "cheerio": "^1.0.0-rc.12",
+    "puppeteer": "^23.10.1",
+    "dotenv": "^16.4.5",
+    "winston": "^3.11.0",
+    "node-cron": "^3.0.3",
+    "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17"
+  }
+}

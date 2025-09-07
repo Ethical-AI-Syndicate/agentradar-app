@@ -1,0 +1,135 @@
+{
+  "name": "agentradar",
+  "version": "1.0.0",
+  "description": "Real Estate Intelligence Platform with Claude Code Team Workflows",
+  "scripts": {
+    "//": "===== CORE DEVELOPMENT =====",
+    "test": "echo 'Tests require database setup - run npm run db:migrate first'",
+    "build": "npm run build:all",
+    "dev": "npm run dev:all",
+    "lint": "npm run claude:lint",
+    "//": "===== WHITE-LABEL & BROKERAGE =====",
+    "swarm": "./scripts/start-swarm.sh",
+    "swarm:vibe": "./scripts/start-swarm.sh --vibe",
+    "swarm:lead": "./scripts/start-swarm.sh --agent lead",
+    "swarm:frontend": "./scripts/start-swarm.sh --agent frontend",
+    "swarm:backend": "./scripts/start-swarm.sh --agent backend",
+    "swarm:scraper": "./scripts/start-swarm.sh --agent scraper",
+    "swarm:mcp": "./scripts/start-swarm.sh --agent mcp",
+    "swarm:mobile": "./scripts/start-swarm.sh --agent mobile",
+    "swarm:devops": "./scripts/start-swarm.sh --agent devops",
+    "swarm:debug": "./scripts/start-swarm.sh --debug",
+    "prepare": "husky",
+    "setup:hooks": "npx husky init && npm run prepare",
+    "claude:start": "node scripts/claude-team-manager.js start",
+    "claude:end": "node scripts/claude-team-manager.js end",
+    "claude:checkpoint": "node scripts/claude-team-manager.js checkpoint",
+    "claude:resume": "node scripts/claude-team-manager.js resume",
+    "claude:status": "node scripts/claude-team-manager.js status",
+    "claude:insight": "node scripts/claude-team-manager.js insight",
+    "insights:submit": "node scripts/submit-insights.js",
+    "insights:view": "node scripts/view-insights.js",
+    "insights:consolidate": "node scripts/consolidate-insights.js",
+    "claude:validate": "node scripts/claude-validation-scripts.js",
+    "claude:lint": "node scripts/claude-linter.js",
+    "claude:security-check": "node scripts/claude-security-check.js",
+    "claude:anti-patterns": "node scripts/anti-pattern-detector.js",
+    "complexity:check": "node scripts/complexity-analyzer.js",
+    "claude:context:reset": "node scripts/reset-context.js",
+    "claude:context:switch": "node scripts/switch-context.js",
+    "claude:context:verify": "node scripts/verify-context.js",
+    "claude:context:backup": "node scripts/backup-context.js",
+    "team:daily": "npm run claude:sync && npm run team:standup",
+    "team:weekly": "npm run insights:consolidate && npm run commands:update",
+    "team:standup": "node scripts/team-standup.js",
+    "claude:sync": "node scripts/claude-team-manager.js sync",
+    "commands:update": "node scripts/update-command-library.js",
+    "feature:start": "node scripts/start-feature.js",
+    "hotfix:start": "node scripts/start-hotfix.js",
+    "experiment:start": "node scripts/start-experiment.js",
+    "branch:cleanup": "node scripts/cleanup-branch.js",
+    "test:claude-generated": "jest --testPathPattern=__tests__/claude-generated",
+    "test:integration:claude": "jest --testPathPattern=__tests__/integration/claude",
+    "test:patterns": "node scripts/test-patterns.js",
+    "report:session": "node scripts/generate-session-report.js",
+    "report:team": "node scripts/generate-team-report.js",
+    "metrics:efficiency": "node scripts/calculate-efficiency.js",
+    "metrics:quality": "node scripts/calculate-quality-metrics.js",
+    "claude:emergency": "node scripts/emergency-claude.js",
+    "claude:rollback": "node scripts/rollback-claude.js",
+    "claude:escalate": "node scripts/escalate-issue.js",
+    "dev:all": "concurrently -n web,api,scrapers \"npm run dev:web\" \"npm run dev:api\" \"npm run dev:scrapers\"",
+    "dev:web": "cd web-app && npm run dev",
+    "dev:api": "cd api && npm run dev",
+    "dev:scrapers": "cd scrapers && npm run dev",
+    "build:all": "npm run build:web && npm run build:api && npm run build:scrapers",
+    "build:web": "cd web-app && npm run build",
+    "build:api": "cd api && npm run build",
+    "whitelabel:init": "node scripts/white-label-automation.js init",
+    "whitelabel:deploy": "node scripts/white-label-automation.js deploy",
+    "brokerage:onboard": "node scripts/brokerage-onboarding.js onboard",
+    "brokerage:quick-launch": "node scripts/brokerage-quick-launch.js"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": ".husky/pre-commit",
+      "commit-msg": ".husky/commit-msg",
+      "post-checkout": ".husky/post-checkout",
+      "pre-push": ".husky/pre-push"
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.56.0",
+    "husky": "^9.0.11",
+    "jest": "^29.7.0",
+    "prettier": "^3.2.4",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^11.1.0",
+    "dotenv": "^16.3.1",
+    "inquirer": "^8.2.6",
+    "js-yaml": "^4.1.0",
+    "winston": "^3.11.0"
+  },
+  "workspaces": [
+    "web-app",
+    "mobile",
+    "desktop",
+    "api",
+    "scrapers"
+  ],
+  "claude": {
+    "version": "1.0.0",
+    "contextVersion": "2.0.0",
+    "teamSize": 10,
+    "branches": {
+      "protected": [
+        "main",
+        "develop"
+      ],
+      "feature": "feature/*",
+      "hotfix": "hotfix/*",
+      "experiment": "experiment/*"
+    },
+    "sessionLimits": {
+      "maxDuration": 28800,
+      "autoCheckpoint": 1800,
+      "maxContextSize": 102400
+    },
+    "insights": {
+      "shareByDefault": true,
+      "minQualityScore": 0.7,
+      "categories": [
+        "command",
+        "pattern",
+        "optimization",
+        "security",
+        "performance"
+      ]
+    }
+  }
+}

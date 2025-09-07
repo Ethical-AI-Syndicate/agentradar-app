@@ -1,0 +1,38 @@
+{
+  "name": "agentradar-e2e-tests",
+  "version": "1.0.0",
+  "description": "End-to-end tests for AgentRadar platform",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report",
+    "test:auth": "playwright test specs/auth.spec.js",
+    "test:alerts": "playwright test specs/alerts.spec.js",
+    "test:search": "playwright test specs/search.spec.js",
+    "test:properties": "playwright test specs/properties.spec.js",
+    "test:dashboard": "playwright test specs/dashboard.spec.js",
+    "test:mobile": "playwright test --project='Mobile Chrome' --project='Mobile Safari'",
+    "test:desktop": "playwright test --project=chromium --project=firefox --project=webkit",
+    "test:ci": "playwright test --reporter=junit",
+    "install-browsers": "playwright install",
+    "install-deps": "playwright install-deps"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.40.0"
+  },
+  "devDependencies": {
+    "dotenv": "^16.3.0"
+  },
+  "keywords": [
+    "e2e",
+    "testing",
+    "playwright",
+    "automation",
+    "real-estate"
+  ],
+  "author": "AgentRadar Team",
+  "license": "UNLICENSED"
+}

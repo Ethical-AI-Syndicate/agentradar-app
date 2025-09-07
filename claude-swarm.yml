@@ -1,0 +1,288 @@
+# AgentRadar Claude Swarm Configuration
+# Multi-agent development orchestration
+
+version: '1.0'
+name: agentradar-swarm
+
+# Global swarm settings
+settings:
+  mode: ${SWARM_MODE:-vibe}
+  mock_data: ${ENABLE_MOCK_DATA:-true}
+  api_url: ${API_URL:-http://localhost:4000}
+  auto_checkpoint: true
+  checkpoint_interval: 30m
+
+# Agent definitions
+agents:
+  lead:
+    name: Lead Agent
+    role: Team coordinator and architect
+    expertise:
+      - System architecture
+      - Task delegation
+      - Integration planning
+      - Technical decisions
+    context_files:
+      - IMPLEMENTATION_GUIDE.md
+      - MCP_ARCHITECTURE.md
+      - TEAM_WORKFLOWS.md
+    
+  frontend:
+    name: Frontend Agent
+    role: Web/Mobile/Desktop UI specialist
+    expertise:
+      - Next.js development
+      - React Native
+      - Electron apps
+      - UI/UX implementation
+    context_files:
+      - web-app/README.md
+      - mobile/README.md
+      - desktop/README.md
+    
+  backend:
+    name: Backend Agent
+    role: API and database specialist
+    expertise:
+      - Node.js APIs
+      - PostgreSQL
+      - Redis caching
+      - WebSocket real-time
+    context_files:
+      - api/README.md
+      - docs/database-schema.md
+    
+  scraper:
+    name: Scraper Agent
+    role: Data collection specialist
+    expertise:
+      - Web scraping
+      - Court bulletin parsing
+      - Development app monitoring
+      - Data extraction
+    context_files:
+      - scrapers/README.md
+      - docs/data-sources.md
+    
+  mcp:
+    name: MCP Agent
+    role: MCP integration specialist
+    expertise:
+      - MCP server development
+      - Tool implementation
+      - Claude integration
+      - API bridging
+    context_files:
+      - mcp-integrations/README.md
+      - MCP_ARCHITECTURE.md
+      - .mcp.json
+    
+  mobile:
+    name: Mobile Agent
+    role: iOS/Android specialist
+    expertise:
+      - React Native
+      - Expo framework
+      - Push notifications
+      - Mobile optimization
+    context_files:
+      - mobile/README.md
+      - mobile/app.json
+    
+  devops:
+    name: DevOps Agent
+    role: Infrastructure and deployment
+    expertise:
+      - Docker containers
+      - Kubernetes
+      - CI/CD pipelines
+      - White-label deployment
+    context_files:
+      - SWARM_SETUP.md
+      - scripts/deploy.sh
+
+# Workflow templates
+workflows:
+  daily_standup:
+    description: Daily team sync and planning
+    agents: [lead, frontend, backend, scraper, mcp, mobile, devops]
+    steps:
+      - Review previous day's progress
+      - Identify blockers
+      - Plan today's tasks
+      - Assign responsibilities
+    
+  feature_implementation:
+    description: Implement new feature across platforms
+    agents: [lead, frontend, backend, mobile]
+    steps:
+      - Architecture review
+      - API design
+      - UI implementation
+      - Mobile integration
+      - Testing
+    
+  data_pipeline:
+    description: Set up new data source
+    agents: [scraper, backend, mcp]
+    steps:
+      - Source analysis
+      - Scraper development
+      - Database schema
+      - MCP tool creation
+      - Integration testing
+    
+  white_label_deployment:
+    description: Deploy for new brokerage
+    agents: [devops, lead, frontend]
+    steps:
+      - Environment setup
+      - Branding configuration
+      - Database isolation
+      - Domain configuration
+      - Launch verification
+
+# Communication channels
+channels:
+  main:
+    type: shared_context
+    agents: all
+    purpose: General coordination
+    
+  technical:
+    type: shared_context
+    agents: [backend, mcp, scraper]
+    purpose: Technical implementation details
+    
+  ui:
+    type: shared_context
+    agents: [frontend, mobile]
+    purpose: UI/UX coordination
+    
+  deployment:
+    type: shared_context
+    agents: [devops, lead]
+    purpose: Deployment and infrastructure
+
+# Task routing rules
+routing:
+  - pattern: "web|dashboard|ui"
+    primary: frontend
+    support: [lead]
+    
+  - pattern: "mobile|ios|android"
+    primary: mobile
+    support: [frontend]
+    
+  - pattern: "api|database|endpoint"
+    primary: backend
+    support: [lead]
+    
+  - pattern: "scrape|crawl|extract"
+    primary: scraper
+    support: [backend, mcp]
+    
+  - pattern: "mcp|tool|claude"
+    primary: mcp
+    support: [backend]
+    
+  - pattern: "deploy|docker|kubernetes"
+    primary: devops
+    support: [lead]
+    
+  - pattern: "architecture|design|plan"
+    primary: lead
+    support: all
+
+# Collaboration modes
+modes:
+  vibe:
+    description: Relaxed exploration mode
+    settings:
+      auto_delegate: true
+      consensus_required: false
+      exploration_allowed: true
+      
+  focus:
+    description: Focused development mode
+    settings:
+      auto_delegate: false
+      consensus_required: false
+      exploration_allowed: false
+      
+  review:
+    description: Code review mode
+    settings:
+      auto_delegate: false
+      consensus_required: true
+      exploration_allowed: false
+      
+  emergency:
+    description: Critical bug fix mode
+    settings:
+      auto_delegate: true
+      consensus_required: false
+      exploration_allowed: false
+      priority: high
+
+# Integration points
+integrations:
+  github:
+    enabled: true
+    auto_pr: false
+    branch_strategy: feature-branches
+    
+  slack:
+    enabled: false
+    webhook_url: ${SLACK_WEBHOOK_URL}
+    
+  jira:
+    enabled: false
+    api_url: ${JIRA_API_URL}
+    
+  mcp_server:
+    enabled: true
+    port: 3001
+    mock_mode: ${ENABLE_MOCK_DATA:-true}
+
+# Monitoring
+monitoring:
+  metrics:
+    - task_completion_rate
+    - agent_utilization
+    - code_quality_score
+    - deployment_success_rate
+    
+  alerts:
+    - type: blocker
+      threshold: 15m
+      notify: [lead]
+      
+    - type: test_failure
+      threshold: 3
+      notify: [backend, frontend]
+      
+    - type: deployment_failure
+      threshold: 1
+      notify: [devops, lead]
+
+# Resource allocation
+resources:
+  max_concurrent_agents: 4
+  memory_limit: 8GB
+  cpu_cores: 4
+  context_window: 100000
+
+# Success criteria
+success_criteria:
+  mvp_launch:
+    - Web dashboard functional
+    - Alert system working
+    - MCP tools integrated
+    - White-label ready
+    
+  production_ready:
+    - All platforms deployed
+    - 95% test coverage
+    - Performance benchmarks met
+    - Security audit passed

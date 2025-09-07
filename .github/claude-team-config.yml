@@ -1,0 +1,403 @@
+# GitHub Configuration for Claude Code Team Workflows
+# This file implements the team protocols defined in TEAM_WORKFLOWS.md
+
+# Branch Protection Rules
+branch_protection:
+  main:
+    required_reviews: 2
+    dismiss_stale_reviews: true
+    require_code_owner_reviews: true
+    required_status_checks:
+      - "Claude Context Validation"
+      - "Security Scan"
+      - "Production Tests"
+    enforce_admins: false
+    restrictions:
+      users: ["senior-dev-1", "senior-dev-2", "tech-lead"]
+      teams: ["senior-developers"]
+    require_claude_review: true
+    claude_safety_level: "maximum"
+
+  develop:
+    required_reviews: 1
+    required_status_checks:
+      - "Claude Context Check"
+      - "Integration Tests"
+      - "Code Quality"
+    restrictions:
+      teams: ["developers", "senior-developers"]
+    require_claude_review: true
+    claude_safety_level: "high"
+
+  feature/*:
+    required_reviews: 1
+    required_status_checks:
+      - "Unit Tests"
+      - "Claude Validation"
+    allow_force_pushes: true
+    allow_deletions: true
+    require_claude_context: true
+    claude_safety_level: "medium"
+
+  hotfix/*:
+    required_reviews: 1
+    required_status_checks:
+      - "Emergency Tests"
+      - "Security Scan"
+    bypass_pr_allowances:
+      users: ["oncall-dev"]
+      teams: ["emergency-response"]
+    require_claude_review: true
+    claude_safety_level: "high"
+    auto_merge_after_checks: true
+
+# Claude Context Requirements by Branch
+claude_context_requirements:
+  main:
+    required_files:
+      - "CLAUDE.md"
+      - "COMMANDS.md"
+      - "SECURITY.md"
+    forbidden_commands:
+      - "experiment:*"
+      - "test:destructive"
+    required_safety_checks:
+      - "production_safety"
+      - "data_integrity"
+      - "backward_compatibility"
+
+  develop:
+    required_files:
+      - "CLAUDE.md"
+      - "COMMANDS.md"
+      - "TESTING.md"
+    optional_files:
+      - "INTEGRATION.md"
+    allowed_experimental: false
+
+  feature/*:
+    required_files:
+      - "CLAUDE.md"
+    template: ".claude/templates/feature-CLAUDE.md"
+    custom_context_allowed: true
+    max_context_size: "50KB"
+    session_recording: required
+
+  hotfix/*:
+    required_files:
+      - "CLAUDE.md"
+      - "HOTFIX-PROCEDURES.md"
+    template: ".claude/templates/hotfix-CLAUDE.md"
+    scope_restriction: "narrow"
+    time_limit: "4_hours"
+
+  experiment/*:
+    required_files: []
+    template: ".claude/templates/experiment-CLAUDE.md"
+    safety_level: "minimum"
+    require_cleanup: true
+    max_lifetime: "7_days"
+
+# Team Member Roles and Permissions
+team_roles:
+  senior_developers:
+    members:
+      - "alice@agentradar.app"
+      - "bob@agentradar.app"
+    permissions:
+      - "main_branch_access"
+      - "claude_context_approval"
+      - "production_deployment"
+      - "emergency_override"
+    claude_capabilities:
+      - "modify_core_context"
+      - "approve_new_commands"
+      - "access_production_data"
+
+  team_leads:
+    members:
+      - "carol@agentradar.app"
+    permissions:
+      - "develop_branch_access"
+      - "feature_branch_creation"
+      - "claude_session_monitoring"
+      - "resource_allocation"
+    claude_capabilities:
+      - "create_team_contexts"
+      - "assign_claude_quotas"
+      - "review_team_insights"
+
+  developers:
+    members:
+      - "dan@agentradar.app"
+      - "eve@agentradar.app"
+      - "frank@agentradar.app"
+    permissions:
+      - "feature_branch_access"
+      - "experiment_branch_access"
+      - "claude_session_creation"
+    claude_capabilities:
+      - "use_feature_context"
+      - "create_custom_commands"
+      - "submit_insights"
+
+  junior_developers:
+    members:
+      - "grace@agentradar.app"
+      - "henry@agentradar.app"
+    permissions:
+      - "feature_branch_access"
+      - "limited_claude_access"
+    claude_capabilities:
+      - "use_guided_context"
+      - "supervised_generation"
+    require_mentor_review: true
+
+  qa_engineers:
+    members:
+      - "ivan@agentradar.app"
+      - "jane@agentradar.app"
+    permissions:
+      - "all_branch_read"
+      - "test_execution"
+      - "claude_test_generation"
+    claude_capabilities:
+      - "generate_test_cases"
+      - "validate_claude_output"
+
+# Automated Workflows
+workflows:
+  # Triggered on every PR
+  claude_code_review:
+    name: "Claude Code Review"
+    on: ["pull_request"]
+    jobs:
+      validate_context:
+        steps:
+          - check_claude_files
+          - verify_session_id
+          - validate_commands_used
+      
+      security_scan:
+        steps:
+          - scan_for_credentials
+          - check_dependencies
+          - validate_api_usage
+      
+      quality_check:
+        steps:
+          - run_linting
+          - check_complexity
+          - verify_patterns
+
+  # Daily team sync
+  daily_sync:
+    name: "Daily Claude Sync"
+    schedule: "0 9 * * *"  # 9 AM daily
+    jobs:
+      sync_contexts:
+        steps:
+          - collect_branch_contexts
+          - merge_new_commands
+          - distribute_updates
+      
+      generate_reports:
+        steps:
+          - collect_metrics
+          - analyze_usage
+          - send_summary
+
+  # Weekly knowledge consolidation
+  weekly_consolidation:
+    name: "Weekly Knowledge Consolidation"
+    schedule: "0 14 * * 5"  # 2 PM Friday
+    jobs:
+      consolidate_learnings:
+        steps:
+          - gather_insights
+          - identify_patterns
+          - update_documentation
+      
+      archive_sessions:
+        steps:
+          - compress_old_logs
+          - backup_contexts
+          - clean_temp_files
+
+# Claude Session Management
+claude_sessions:
+  defaults:
+    max_duration: "8_hours"
+    auto_checkpoint: "30_minutes"
+    log_retention: "30_days"
+  
+  by_branch_type:
+    main:
+      max_duration: "2_hours"
+      require_pair: true
+      audit_level: "full"
+    
+    develop:
+      max_duration: "4_hours"
+      audit_level: "high"
+    
+    feature:
+      max_duration: "8_hours"
+      audit_level: "medium"
+    
+    hotfix:
+      max_duration: "1_hour"
+      require_approval: true
+      audit_level: "full"
+    
+    experiment:
+      max_duration: "24_hours"
+      audit_level: "low"
+      auto_cleanup: true
+
+# Code Review Automation
+code_review:
+  claude_generated_code:
+    required_checks:
+      - pattern_compliance
+      - security_validation
+      - performance_analysis
+      - documentation_presence
+    
+    auto_comments:
+      enabled: true
+      templates:
+        - "claude_assumption_check"
+        - "manual_verification_needed"
+        - "performance_consideration"
+    
+    metrics_collection:
+      - lines_generated
+      - time_saved
+      - patterns_used
+      - commands_executed
+
+# Integration Points
+integrations:
+  slack:
+    channels:
+      claude_insights: "#claude-insights"
+      claude_alerts: "#claude-alerts"
+      team_sync: "#team-claude-sync"
+    
+    notifications:
+      - new_pattern_discovered
+      - context_update_available
+      - session_limit_warning
+      - review_required
+  
+  jira:
+    sync_enabled: true
+    fields:
+      claude_session_id: "customfield_10042"
+      claude_commands: "customfield_10043"
+      efficiency_gain: "customfield_10044"
+  
+  analytics:
+    platform: "datadog"
+    metrics:
+      - session_duration
+      - commands_per_session
+      - code_quality_score
+      - team_efficiency_index
+
+# Resource Limits
+resource_limits:
+  by_role:
+    senior_developers:
+      daily_sessions: unlimited
+      concurrent_sessions: 3
+      context_size: "100KB"
+    
+    developers:
+      daily_sessions: 10
+      concurrent_sessions: 2
+      context_size: "50KB"
+    
+    junior_developers:
+      daily_sessions: 5
+      concurrent_sessions: 1
+      context_size: "25KB"
+  
+  by_branch:
+    main:
+      max_generations_per_pr: 5
+      max_context_modifications: 1
+    
+    feature:
+      max_generations_per_pr: 50
+      max_context_modifications: unlimited
+    
+    experiment:
+      max_generations_per_pr: unlimited
+      max_context_modifications: unlimited
+
+# Emergency Procedures
+emergency:
+  hotfix_protocol:
+    auto_create_branch: true
+    notify_on_call: true
+    bypass_normal_review: true
+    require_post_mortem: true
+  
+  rollback_triggers:
+    - "claude_generated_error"
+    - "context_corruption"
+    - "security_breach"
+  
+  escalation_path:
+    - oncall_developer
+    - team_lead
+    - senior_developer
+    - cto
+
+# Monitoring and Alerts
+monitoring:
+  dashboards:
+    - name: "Claude Team Usage"
+      url: "https://dashboard.agentradar.app/claude"
+      refresh: "5_minutes"
+    
+    - name: "Code Quality Trends"
+      url: "https://dashboard.agentradar.app/quality"
+      refresh: "hourly"
+  
+  alerts:
+    high_error_rate:
+      threshold: "5_errors_per_hour"
+      notify: ["team_lead", "senior_developers"]
+    
+    context_corruption:
+      immediate: true
+      notify: ["all_active_developers"]
+    
+    quota_exceeded:
+      threshold: "80_percent"
+      notify: ["developer", "team_lead"]
+
+# Compliance and Audit
+compliance:
+  audit_trail:
+    enabled: true
+    retention: "365_days"
+    includes:
+      - session_metadata
+      - commands_executed
+      - code_generated
+      - review_decisions
+  
+  security_compliance:
+    - no_credentials_in_context
+    - no_pii_in_logs
+    - encrypted_session_storage
+    - signed_context_files
+  
+  reporting:
+    monthly_summary: true
+    quarterly_review: true
+    annual_audit: true

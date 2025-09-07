@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "context7": {
+      "command": "http",
+      "args": ["https://api.context7.com"],
+      "env": {
+        "API_KEY": "ctx7sk-2c52251e-5268-4735-ae27-03f314ba4dc2"
+      }
+    }
+  }
+}

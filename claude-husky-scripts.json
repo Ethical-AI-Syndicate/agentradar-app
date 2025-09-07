@@ -1,0 +1,14 @@
+{
+  "scripts": {
+    "prepare": "husky",
+    "claude:lint": "node scripts/claude-linter.js",
+    "claude:security-check": "node scripts/claude-security-check.js",
+    "test:claude-generated": "jest --testPathPattern=claude-generated",
+    "complexity:check": "node scripts/complexity-analyzer.js",
+    "claude:anti-patterns": "node scripts/anti-pattern-detector.js",
+    "claude:start": "node scripts/claude-team-manager.js start",
+    "claude:resume": "node scripts/claude-team-manager.js resume",
+    "claude:insight": "node scripts/claude-team-manager.js insight",
+    "claude:end": "node scripts/claude-team-manager.js end"
+  }
+}
