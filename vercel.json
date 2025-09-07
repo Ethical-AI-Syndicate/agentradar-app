@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "installCommand": "cd web-app && npm install --production=false",
+  "installCommand": "npm install && cd web-app && npm install",
   "buildCommand": "cd web-app && npm run build",
   "outputDirectory": "web-app/.next",
   "framework": "nextjs",
   "ignoreCommand": "git diff --quiet HEAD^ HEAD ./web-app",
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "SKIP_HUSKY_INSTALL": "1"
   }
 }

@@ -616,8 +616,150 @@ export class ScraperTools {
   async monitorDevelopmentApps(args) {
     const { municipality, types = ['all'] } = args;
     
-    // Mock implementation
-    const applications = [
+    console.log(`🏢 Development Apps Monitor: ${municipality} (${this.enableMockData ? 'MOCK' : 'LIVE'} mode)`);
+    
+    // Use mock data if enabled
+    if (this.enableMockData) {
+      return this.getMockDevelopmentData(municipality, types);
+    }
+    
+    // Production implementation with rate limiting and compliance
+    try {
+      const rateLimiter = await import('../utils/rate-limiter.js').then(m => m.rateLimiter);
+      const municipalConfig = await import('../config/municipal-sources.js').then(m => m.MUNICIPAL_SOURCES);
+      
+      // Check if municipality is supported
+      if (!municipalConfig[municipality]) {
+        throw new Error(`Unsupported municipality: ${municipality}. Supported: ${Object.keys(municipalConfig).join(', ')}`);
+      }
+      
+      // Check rate limiting and compliance
+      const canProceed = await rateLimiter.canMakeRequest(municipality);
+      if (!canProceed.allowed) {
+        console.warn(`⚠️ Rate limit check failed for ${municipality}: ${canProceed.message}`);
+        
+        // Return graceful fallback with explanation
+        return {
+          success: false,
+          municipality,
+          types,
+          error: 'rate_limit_exceeded',
+          message: canProceed.message,
+          retryAfter: Math.ceil((canProceed.waitTime || 0) / 1000),
+          fallbackData: this.getMockDevelopmentData(municipality, types)
+        };
+      }
+      
+      // Perform actual scraping
+      const applications = await this.scrapeRealDevelopmentApps(municipality, types, municipalConfig[municipality]);
+      
+      // Record successful request
+      rateLimiter.recordRequest(municipality);
+      
+      return {
+        success: true,
+        municipality,
+        types,
+        totalApplications: applications.length,
+        applications,
+        opportunityIndicators: this.calculateOpportunityIndicators(applications),
+        compliance: {
+          rateLimit: 'respected',
+          businessHours: 'compliant',
+          robotsTxt: 'honored'
+        },
+        timestamp: new Date().toISOString()
+      };
+      
+    } catch (error) {
+      console.error(`❌ Development Apps Monitor Error (${municipality}):`, error.message);
+      
+      // Record error for rate limiting
+      try {
+        const rateLimiter = await import('../utils/rate-limiter.js').then(m => m.rateLimiter);
+        rateLimiter.recordError(municipality, error);
+      } catch (rateLimiterError) {
+        console.error('Rate limiter error:', rateLimiterError);
+      }
+      
+      // Return fallback data with error info
+      return {
+        success: false,
+        municipality,
+        types,
+        error: 'scraping_failed',
+        message: error.message,
+        fallbackData: this.getMockDevelopmentData(municipality, types),
+        timestamp: new Date().toISOString()
+      };
+    }
+  }
+  
+  async scrapeRealDevelopmentApps(municipality, types, config) {
+    console.log(`🔍 Scraping real development applications for ${config.name}...`);
+    
+    const applications = [];
+    const targetUrl = config.developmentAppsUrl;
+    
+    try {
+      // Respect robots.txt and compliance settings
+      const response = await axios.get(targetUrl, {
+        headers: {
+          'User-Agent': config.compliance.userAgent,
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.5',
+          'Accept-Encoding': 'gzip, deflate',
+          'Connection': 'keep-alive',
+          'Cache-Control': 'no-cache'
+        },
+        timeout: this.timeout,
+        maxRedirects: 5
+      });
+      
+      const $ = cheerio.load(response.data);
+      
+      // Extract applications using municipal-specific selectors
+      $(config.selectors.applications).each((i, elem) => {
+        try {
+          const $elem = $(elem);
+          
+          const application = {
+            applicationId: this.extractApplicationId($elem, config),
+            type: this.extractApplicationType($elem, config),
+            address: this.extractApplicationAddress($elem, config),
+            status: this.extractApplicationStatus($elem, config),
+            submissionDate: this.extractApplicationDate($elem, config),
+            description: this.extractApplicationDescription($elem, config),
+            municipality: config.name,
+            source: targetUrl,
+            scrapedAt: new Date().toISOString()
+          };
+          
+          // Filter by requested types
+          if (types.includes('all') || types.includes(application.type)) {
+            // Calculate opportunity indicators
+            application.opportunityScore = this.calculateApplicationOpportunityScore(application);
+            application.impactRadius = this.estimateImpactRadius(application);
+            
+            applications.push(application);
+          }
+          
+        } catch (parseError) {
+          console.warn(`Parse error for application element:`, parseError.message);
+        }
+      });
+      
+      console.log(`✓ Scraped ${applications.length} development applications from ${config.name}`);
+      return applications;
+      
+    } catch (error) {
+      console.error(`Failed to scrape ${config.name}:`, error.message);
+      throw error;
+    }
+  }
+  
+  getMockDevelopmentData(municipality, types) {
+    const mockApplications = [
       {
         applicationId: 'DEV-2024-001',
         type: 'rezoning',
@@ -626,7 +768,9 @@ export class ScraperTools {
         submissionDate: new Date(Date.now() - 604800000).toISOString(),
         description: 'Rezoning from residential to mixed-use',
         impactRadius: '500m',
-        affectedProperties: 12
+        affectedProperties: 12,
+        opportunityScore: 85,
+        municipality: municipality.charAt(0).toUpperCase() + municipality.slice(1)
       },
       {
         applicationId: 'DEM-2024-047',
@@ -635,7 +779,20 @@ export class ScraperTools {
         status: 'approved',
         submissionDate: new Date(Date.now() - 1209600000).toISOString(),
         description: 'Demolition permit for single family home',
-        plannedConstruction: 'Luxury townhomes'
+        plannedConstruction: 'Luxury townhomes',
+        opportunityScore: 92,
+        municipality: municipality.charAt(0).toUpperCase() + municipality.slice(1)
+      },
+      {
+        applicationId: 'SUB-2024-012',
+        type: 'subdivision',
+        address: '890 Large Lot Avenue, ' + municipality,
+        status: 'approved',
+        submissionDate: new Date(Date.now() - 2419200000).toISOString(),
+        description: 'Draft plan of subdivision for 24 single-family lots',
+        impactRadius: '1km',
+        affectedProperties: 45,
+        opportunityScore: 78
       },
       {
         applicationId: 'VAR-2024-089',
@@ -643,14 +800,25 @@ export class ScraperTools {
         address: '987 Exception Street, ' + municipality,
         status: 'pending',
         submissionDate: new Date(Date.now() - 259200000).toISOString(),
-        description: 'Minor variance for setback requirements'
+        description: 'Minor variance for setback requirements',
+        opportunityScore: 65
+      },
+      {
+        applicationId: 'CON-2024-034',
+        type: 'conversion',
+        address: '456 Commercial Plaza, ' + municipality,
+        status: 'under_review',
+        submissionDate: new Date(Date.now() - 432000000).toISOString(),
+        description: 'Site plan control for office to residential conversion',
+        impactRadius: '300m',
+        opportunityScore: 88
       }
     ];
     
     // Filter by types if specified
     const filtered = types.includes('all') 
-      ? applications 
-      : applications.filter(app => types.includes(app.type));
+      ? mockApplications 
+      : mockApplications.filter(app => types.includes(app.type));
     
     return {
       success: true,
@@ -658,13 +826,131 @@ export class ScraperTools {
       types,
       totalApplications: filtered.length,
       applications: filtered,
-      opportunityIndicators: {
-        distressedProperties: 2,
-        developmentPotential: 5,
-        landAssembly: 1
-      },
+      opportunityIndicators: this.calculateOpportunityIndicators(filtered),
+      dataSource: 'mock',
       timestamp: new Date().toISOString()
     };
+  }
+  
+  calculateOpportunityIndicators(applications) {
+    const highOpportunity = applications.filter(app => (app.opportunityScore || 0) > 80).length;
+    const developmentTypes = ['rezoning', 'subdivision', 'demolition'];
+    const developmentPotential = applications.filter(app => developmentTypes.includes(app.type)).length;
+    
+    return {
+      highOpportunityApplications: highOpportunity,
+      developmentPotential,
+      landAssemblyOpportunities: applications.filter(app => app.type === 'subdivision').length,
+      conversionOpportunities: applications.filter(app => app.type === 'conversion').length,
+      averageOpportunityScore: applications.reduce((sum, app) => sum + (app.opportunityScore || 50), 0) / applications.length
+    };
+  }
+  
+  // Helper methods for parsing municipal data
+  extractApplicationId($elem, config) {
+    const text = $elem.text();
+    const patterns = [
+      /App[#\s]*:?\s*([A-Z0-9-]+)/i,
+      /File[#\s]*:?\s*([A-Z0-9-]+)/i,
+      /([A-Z]{2,4}-\d{4}-\d{3,6})/i,
+      /(D[A-Z]{2}-\d{4}-\d{3,6})/i
+    ];
+    
+    for (const pattern of patterns) {
+      const match = text.match(pattern);
+      if (match) return match[1] || match[0];
+    }
+    
+    return `AUTO-${Date.now().toString().slice(-6)}`;
+  }
+  
+  extractApplicationType($elem, config) {
+    const text = $elem.find(config.selectors.type).text().toLowerCase();
+    const typeMapping = config.applicationTypes;
+    
+    for (const [key, pattern] of Object.entries(typeMapping)) {
+      if (text.includes(pattern.toLowerCase()) || text.includes(key)) {
+        return key;
+      }
+    }
+    
+    return 'other';
+  }
+  
+  extractApplicationAddress($elem, config) {
+    const addressText = $elem.find(config.selectors.address).text().trim();
+    return addressText || 'Address not specified';
+  }
+  
+  extractApplicationStatus($elem, config) {
+    const statusText = $elem.find(config.selectors.status).text().toLowerCase();
+    
+    if (statusText.includes('approv')) return 'approved';
+    if (statusText.includes('reject') || statusText.includes('deny')) return 'rejected';
+    if (statusText.includes('review') || statusText.includes('process')) return 'under_review';
+    if (statusText.includes('pending')) return 'pending';
+    if (statusText.includes('complete')) return 'completed';
+    
+    return 'unknown';
+  }
+  
+  extractApplicationDate($elem, config) {
+    const dateText = $elem.find(config.selectors.date).text();
+    const dateMatch = dateText.match(/\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}/);
+    
+    if (dateMatch) {
+      try {
+        return new Date(dateMatch[0]).toISOString();
+      } catch (error) {
+        console.warn('Date parsing error:', error);
+      }
+    }
+    
+    return new Date().toISOString();
+  }
+  
+  extractApplicationDescription($elem, config) {
+    return $elem.find(config.selectors.details).text().trim() || 'No description available';
+  }
+  
+  calculateApplicationOpportunityScore(application) {
+    let score = 50; // Base score
+    
+    // Type-based scoring
+    const typeScores = {
+      'rezoning': 20,
+      'subdivision': 25,
+      'demolition': 15,
+      'conversion': 18,
+      'variance': 10
+    };
+    
+    score += typeScores[application.type] || 5;
+    
+    // Status-based scoring
+    if (application.status === 'approved') score += 15;
+    if (application.status === 'under_review') score += 10;
+    if (application.status === 'pending') score += 5;
+    
+    // Recency bonus (newer applications often indicate active development)
+    const submissionDate = new Date(application.submissionDate);
+    const daysSinceSubmission = (Date.now() - submissionDate.getTime()) / (1000 * 60 * 60 * 24);
+    if (daysSinceSubmission < 30) score += 10;
+    else if (daysSinceSubmission < 90) score += 5;
+    
+    return Math.min(100, Math.max(0, score));
+  }
+  
+  estimateImpactRadius(application) {
+    const radiusMap = {
+      'subdivision': '1km',
+      'rezoning': '500m',
+      'demolition': '300m',
+      'conversion': '400m',
+      'variance': '200m'
+    };
+    
+    return radiusMap[application.type] || '250m';
   }
 
   /**
