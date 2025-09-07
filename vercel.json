@@ -4,7 +4,7 @@
   "buildCommand": "cd web-app && npm run build",
   "outputDirectory": "web-app/.next",
   "framework": "nextjs",
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./web-app",
+  "ignoreCommand": "false",
   "env": {
     "NODE_ENV": "production",
     "SKIP_HUSKY_INSTALL": "1"
