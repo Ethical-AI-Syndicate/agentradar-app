@@ -23,10 +23,11 @@ model User {
   role      UserRole @default(USER)
 
   // Subscription info
-  subscriptionTier   SubscriptionTier @default(FREE)
-  stripeCustomerId   String?          @unique
-  subscriptionId     String?          @unique
-  subscriptionStatus String?
+  subscriptionTier             SubscriptionTier   @default(FREE)
+  stripeCustomerId             String?            @unique
+  subscriptionId               String?            @unique
+  subscriptionStatus           SubscriptionStatus @default(INACTIVE)
+  subscriptionCurrentPeriodEnd DateTime?
 
   // Profile info
   company           String?
@@ -55,6 +56,38 @@ model User {
   adminActions    AdminAction[]          @relation("AdminActions")
 
   @@map("users")
+}
+
+// Product Catalogue
+model Product {
+  id            String @id @default(cuid())
+  name          String
+  description   String
+  stripePriceId String @unique
+
+  // Pricing
+  price    Decimal @db.Decimal(10, 2)
+  currency String  @default("usd")
+  interval String // month, year
+
+  // Product details
+  tier      SubscriptionTier
+  features  String[] // Array of feature descriptions
+  maxAlerts Int? // Max alerts per month/year
+  maxUsers  Int? // Max team members
+
+  // Status
+  isActive  Boolean @default(true)
+  isPopular Boolean @default(false)
+
+  // Display
+  displayOrder Int?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("products")
 }
 
 // Property Alerts System
@@ -329,6 +362,15 @@ enum SubscriptionTier {
   PROFESSIONAL
   TEAM_ENTERPRISE
   WHITE_LABEL
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  INACTIVE
+  PAST_DUE
+  CANCELLED
+  TRIALING
+  INCOMPLETE
 }
 
 enum AlertType {

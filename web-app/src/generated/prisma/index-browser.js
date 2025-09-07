@@ -133,6 +133,7 @@ exports.Prisma.UserScalarFieldEnum = {
   stripeCustomerId: 'stripeCustomerId',
   subscriptionId: 'subscriptionId',
   subscriptionStatus: 'subscriptionStatus',
+  subscriptionCurrentPeriodEnd: 'subscriptionCurrentPeriodEnd',
   company: 'company',
   location: 'location',
   teamSize: 'teamSize',
@@ -143,6 +144,25 @@ exports.Prisma.UserScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   lastLogin: 'lastLogin'
+};
+
+exports.Prisma.ProductScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  stripePriceId: 'stripePriceId',
+  price: 'price',
+  currency: 'currency',
+  interval: 'interval',
+  tier: 'tier',
+  features: 'features',
+  maxAlerts: 'maxAlerts',
+  maxUsers: 'maxUsers',
+  isActive: 'isActive',
+  isPopular: 'isPopular',
+  displayOrder: 'displayOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.AlertScalarFieldEnum = {
@@ -382,6 +402,15 @@ exports.SubscriptionTier = exports.$Enums.SubscriptionTier = {
   WHITE_LABEL: 'WHITE_LABEL'
 };
 
+exports.SubscriptionStatus = exports.$Enums.SubscriptionStatus = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  PAST_DUE: 'PAST_DUE',
+  CANCELLED: 'CANCELLED',
+  TRIALING: 'TRIALING',
+  INCOMPLETE: 'INCOMPLETE'
+};
+
 exports.AlertType = exports.$Enums.AlertType = {
   POWER_OF_SALE: 'POWER_OF_SALE',
   ESTATE_SALE: 'ESTATE_SALE',
@@ -487,6 +516,7 @@ exports.SupportTicketPriority = exports.$Enums.SupportTicketPriority = {
 
 exports.Prisma.ModelName = {
   User: 'User',
+  Product: 'Product',
   Alert: 'Alert',
   UserAlert: 'UserAlert',
   AlertPreference: 'AlertPreference',
