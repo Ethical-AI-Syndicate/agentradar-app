@@ -30,9 +30,16 @@ export function middleware(request: NextRequest) {
       response = NextResponse.rewrite(url);
     }
   } else if (hostname === 'agentradar.app' || (!hostname.includes('admin') && hostname.includes('agentradar'))) {
-    // Handle main domain - allow admin routes directly
-    console.log(`[Middleware] Main domain access for ${url.pathname}`);
-    response = NextResponse.next();
+    // Handle main domain - prevent access to admin routes
+    if (url.pathname.startsWith('/admin')) {
+      // Redirect admin access on main domain to admin subdomain
+      const adminUrl = new URL(url);
+      adminUrl.hostname = 'admin.agentradar.app';
+      console.log(`[Middleware] Redirecting admin access to subdomain`);
+      response = NextResponse.redirect(adminUrl);
+    } else {
+      response = NextResponse.next();
+    }
   } else {
     response = NextResponse.next();
   }
