@@ -1,5 +1,6 @@
 import cron from 'node-cron';
-import { fetchOntarioCourtBulletins } from '../ontario-court-bulletins.js';
+import { fetchOntarioCourtBulletins, saveCourtFilings } from '../ontario-court-bulletins.js';
+import { prisma } from '../db.js';
 
 // Run every day at 8am Toronto time
 cron.schedule(
@@ -8,8 +9,8 @@ cron.schedule(
     console.log('Running Ontario court bulletin scraper');
     try {
       const data = await fetchOntarioCourtBulletins();
-      console.log(`Fetched ${data.filings.length} filings`);
-      // TODO: persist data into database and trigger downstream processing
+      await saveCourtFilings(data.filings);
+      console.log(`Saved ${data.filings.length} filings`);
     } catch (err) {
       console.error('Scraper failed', err);
     }
@@ -18,3 +19,8 @@ cron.schedule(
     timezone: 'America/Toronto'
   }
 );
+
+process.on('SIGINT', async () => {
+  await prisma.$disconnect();
+  process.exit(0);
+});
