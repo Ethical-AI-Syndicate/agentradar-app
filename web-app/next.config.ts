@@ -1,12 +1,11 @@
 import type { NextConfig } from "next";
-import path from "path";
 
 const nextConfig: NextConfig = {
   // ✅ SECURITY FIX: Removed ignoreDuringBuilds and ignoreBuildErrors
   // These were identified as HIGH SECURITY RISK in Phase 1 assessment
   // Now enforcing proper linting and type checking in builds
   
-  outputFileTracingRoot: path.join(__dirname, '../../'),
+  // Remove outputFileTracingRoot to fix Vercel deployment path issues
   
   experimental: {
     // Enable modern optimizations for performance
