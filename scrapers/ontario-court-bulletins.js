@@ -1,5 +1,6 @@
 import { parseCourtFiling } from './parsers/court-filing-parser.js';
 import { prisma } from './db.js';
+import pLimit from 'p-limit';
 
 /**
  * Ontario court bulletin base URL.
@@ -25,27 +26,31 @@ export async function fetchOntarioCourtBulletins() {
 /**
  * Persist filings into the court_cases table using Prisma upserts.
  * @param {{title: string, url: string}[]} filings
+ * @param {{concurrency?: number}} [options] Optional settings
  */
-export async function saveCourtFilings(filings) {
+export async function saveCourtFilings(filings, { concurrency = 5 } = {}) {
   const now = new Date();
+  const limit = pLimit(concurrency);
   await Promise.all(
     filings.map(filing =>
-      prisma.courtCase.upsert({
-        where: { guid: filing.url },
-        update: {
-          title: filing.title,
-          caseUrl: filing.url,
-          publishDate: now
-        },
-        create: {
-          guid: filing.url,
-          title: filing.title,
-          court: 'ONSC',
-          publishDate: now,
-          caseUrl: filing.url,
-          source: 'OntarioCourtBulletin'
-        }
-      })
+      limit(() =>
+        prisma.courtCase.upsert({
+          where: { guid: filing.url },
+          update: {
+            title: filing.title,
+            caseUrl: filing.url,
+            publishDate: now
+          },
+          create: {
+            guid: filing.url,
+            title: filing.title,
+            court: 'ONSC',
+            publishDate: now,
+            caseUrl: filing.url,
+            source: 'OntarioCourtBulletin'
+          }
+        })
+      )
     )
   );
 }

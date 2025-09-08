@@ -1,5 +1,6 @@
 import { test, mock } from 'node:test';
 import assert from 'node:assert/strict';
+import { setTimeout as sleep } from 'node:timers/promises';
 import { fetchOntarioCourtBulletins, saveCourtFilings } from './ontario-court-bulletins.js';
 import { prisma } from './db.js';
 
@@ -12,19 +13,26 @@ test('fetchOntarioCourtBulletins throws on HTTP error', async () => {
   mock.restoreAll();
 });
 
-test('saveCourtFilings upserts each filing', async () => {
-  const filings = [
-    { title: 'One', url: 'https://example.com/1.pdf' },
-    { title: 'Two', url: 'https://example.com/2.pdf' }
-  ];
+test('saveCourtFilings upserts each filing with limited concurrency', async () => {
+  const filings = Array.from({ length: 6 }, (_, i) => ({
+    title: `Case ${i + 1}`,
+    url: `https://example.com/${i + 1}.pdf`
+  }));
   const calls = [];
+  let active = 0;
+  let maxActive = 0;
   const originalModel = prisma.courtCase;
   prisma.courtCase = { upsert: async () => {} };
   mock.method(prisma.courtCase, 'upsert', async args => {
+    active++;
+    maxActive = Math.max(maxActive, active);
     calls.push(args);
+    await sleep(5); // simulate latency
+    active--;
   });
-  await saveCourtFilings(filings);
+  await saveCourtFilings(filings, { concurrency: 2 });
   assert.equal(calls.length, filings.length);
+  assert(maxActive <= 2);
   // ensure each call includes expected fields
   const publishDates = [];
   calls.forEach((call, idx) => {
@@ -34,7 +42,6 @@ test('saveCourtFilings upserts each filing', async () => {
     assert.equal(payload.caseUrl, filings[idx].url);
     publishDates.push(payload.publishDate);
   });
-  // all publish dates should be identical
   assert(publishDates.every(d => d.getTime() === publishDates[0].getTime()));
   mock.restoreAll();
   prisma.courtCase = originalModel;
