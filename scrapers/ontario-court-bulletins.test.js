@@ -13,6 +13,24 @@ test('fetchOntarioCourtBulletins throws on HTTP error', async () => {
   mock.restoreAll();
 });
 
+test('fetchOntarioCourtBulletins uses BULLETIN_URL override', async () => {
+  const html = '<html></html>';
+  const originalEnv = process.env.BULLETIN_URL;
+  process.env.BULLETIN_URL = 'https://override.example.com/bulletin';
+  mock.method(global, 'fetch', async url => {
+    assert.equal(url, 'https://override.example.com/bulletin');
+    return { ok: true, text: async () => html };
+  });
+  const mod = await import('./ontario-court-bulletins.js?override');
+  await mod.fetchOntarioCourtBulletins();
+  mock.restoreAll();
+  if (originalEnv === undefined) {
+    delete process.env.BULLETIN_URL;
+  } else {
+    process.env.BULLETIN_URL = originalEnv;
+  }
+});
+
 test('saveCourtFilings upserts each filing with limited concurrency', async () => {
   const filings = Array.from({ length: 6 }, (_, i) => ({
     title: `Case ${i + 1}`,
