@@ -27,24 +27,27 @@ export async function fetchOntarioCourtBulletins() {
  * @param {{title: string, url: string}[]} filings
  */
 export async function saveCourtFilings(filings) {
-  for (const filing of filings) {
-    await prisma.courtCase.upsert({
-      where: { guid: filing.url },
-      update: {
-        title: filing.title,
-        caseUrl: filing.url,
-        publishDate: new Date()
-      },
-      create: {
-        guid: filing.url,
-        title: filing.title,
-        court: 'ONSC',
-        publishDate: new Date(),
-        caseUrl: filing.url,
-        source: 'OntarioCourtBulletin'
-      }
-    });
-  }
+  const now = new Date();
+  await Promise.all(
+    filings.map(filing =>
+      prisma.courtCase.upsert({
+        where: { guid: filing.url },
+        update: {
+          title: filing.title,
+          caseUrl: filing.url,
+          publishDate: now
+        },
+        create: {
+          guid: filing.url,
+          title: filing.title,
+          court: 'ONSC',
+          publishDate: now,
+          caseUrl: filing.url,
+          source: 'OntarioCourtBulletin'
+        }
+      })
+    )
+  );
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
