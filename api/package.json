@@ -61,6 +61,7 @@
   "dependencies": {
     "@prisma/client": "^6.15.0",
     "@sendgrid/mail": "^8.1.5",
+    "@stripe/stripe-js": "^7.9.0",
     "@types/ioredis": "^4.28.10",
     "axios": "^1.7.9",
     "bcryptjs": "^3.0.2",
@@ -74,7 +75,9 @@
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.1",
+    "openai": "^5.20.0",
     "redis": "^5.8.2",
-    "rss-parser": "^3.13.0"
+    "rss-parser": "^3.13.0",
+    "stripe": "^18.5.0"
   }
 }

@@ -4,10 +4,12 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
+import { createServer } from 'http';
 import { createLogger } from './utils/logger';
 import { errorHandler } from './middleware/errorHandler';
 import { notFound } from './middleware/notFound';
 import { initializeServices, shutdownServices } from './services';
+import { createRealtimeService } from './services/realtime/realtimeService.js';
 // import { connectDatabase, disconnectDatabase } from './lib/database';
 
 // Routes
@@ -23,14 +25,22 @@ import customerOnboardingRoutes from './routes/customer-onboarding';
 import complianceRoutes from './routes/compliance';
 import leadQualificationRoutes from './routes/leadQualification';
 import competitiveAnalysisRoutes from './routes/competitiveAnalysis';
+import aiRoutes from './routes/ai';
+import realtimeRoutes from './routes/realtime.js';
+import cacheRoutes from './routes/cache.js';
+import paymentRoutes from './routes/payments';
 // import courtProcessingRoutes from './routes/courtProcessing'; // Temporarily disabled
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
+const httpServer = createServer(app);
 const logger = createLogger();
 const PORT = process.env.PORT || 4000;
+
+// Initialize real-time services
+let realtimeService: any = null;
 
 // CORS must come before helmet to ensure headers are set properly  
 app.use(cors({
@@ -63,6 +73,8 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // Body parsing middleware
+// Stripe webhook needs raw body, so we handle it specially
+app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -73,14 +85,19 @@ app.use(morgan('combined', {
   }
 }));
 
-// Health check endpoint
-app.get('/health', (req, res) => {
+// Health check endpoint (including WebSocket status)
+app.get('/health', async (req, res) => {
+  const realtimeStats = realtimeService ? await realtimeService.healthCheck() : { status: 'not_initialized' };
+  
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: process.env.NODE_ENV,
-    version: '1.0.0'
+    version: '1.0.0',
+    services: {
+      realtime: realtimeStats
+    }
   });
 });
 
@@ -97,6 +114,10 @@ app.use('/api/customer-onboarding', customerOnboardingRoutes);
 app.use('/api/compliance', complianceRoutes);
 app.use('/api/leads', leadQualificationRoutes);
 app.use('/api/competitive', competitiveAnalysisRoutes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/realtime', realtimeRoutes);
+app.use('/api/cache', cacheRoutes);
+app.use('/api/payments', paymentRoutes);
 // app.use('/api/court-processing', courtProcessingRoutes); // Temporarily disabled
 
 // API documentation endpoint
@@ -119,6 +140,10 @@ app.get('/api', (req, res) => {
       compliance: '/api/compliance',
       leadQualification: '/api/leads',
       competitiveAnalysis: '/api/competitive',
+      ai: '/api/ai',
+      realtime: '/api/realtime',
+      cache: '/api/cache',
+      payments: '/api/payments',
       // courtProcessing: '/api/court-processing' // Temporarily disabled
     },
     health: '/health'
@@ -132,6 +157,9 @@ app.use(errorHandler);
 // Graceful shutdown
 process.on('SIGTERM', async () => {
   logger.info('SIGTERM received, shutting down gracefully');
+  if (realtimeService) {
+    await realtimeService.shutdown();
+  }
   await shutdownServices();
   // await disconnectDatabase();
   process.exit(0);
@@ -139,6 +167,9 @@ process.on('SIGTERM', async () => {
 
 process.on('SIGINT', async () => {
   logger.info('SIGINT received, shutting down gracefully');
+  if (realtimeService) {
+    await realtimeService.shutdown();
+  }
   await shutdownServices();
   // await disconnectDatabase();
   process.exit(0);
@@ -146,8 +177,17 @@ process.on('SIGINT', async () => {
 
 // Start server only if not in test environment
 if (process.env.NODE_ENV !== 'test') {
-  const server = app.listen(PORT, async () => {
+  const server = httpServer.listen(PORT, async () => {
     // await connectDatabase();
+    
+    // Initialize real-time services
+    try {
+      realtimeService = createRealtimeService();
+      await realtimeService.initialize(httpServer);
+      logger.info('✅ Real-time WebSocket services initialized');
+    } catch (error) {
+      logger.error('❌ Failed to initialize real-time services:', error);
+    }
     
     // Initialize background services
     try {
@@ -161,6 +201,7 @@ if (process.env.NODE_ENV !== 'test') {
     logger.info(`🌍 Environment: ${process.env.NODE_ENV}`);
     logger.info(`📊 Health check: http://localhost:${PORT}/health`);
     logger.info(`📖 API docs: http://localhost:${PORT}/api`);
+    logger.info(`📡 WebSocket server: Active (Redis Cloud adapter)`);
     logger.info(`⚖️ Court Processing: Active (polling every ${process.env.COURT_POLLING_INTERVAL || 45} minutes)`);
   });
 
