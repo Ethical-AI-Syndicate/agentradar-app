@@ -73,6 +73,11 @@ export async function GET(request: NextRequest) {
               lastName: true,
               subscriptionTier: true,
             }
+          },
+          _count: {
+            select: {
+              messages: true
+            }
           }
         },
         orderBy: {
