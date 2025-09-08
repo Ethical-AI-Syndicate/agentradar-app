@@ -25,8 +25,17 @@ test('saveCourtFilings upserts each filing', async () => {
   });
   await saveCourtFilings(filings);
   assert.equal(calls.length, filings.length);
-  assert.deepEqual(calls[0].where, { guid: filings[0].url });
-  assert.deepEqual(calls[1].create.title, filings[1].title);
+  // ensure each call includes expected fields
+  const publishDates = [];
+  calls.forEach((call, idx) => {
+    assert.deepEqual(call.where, { guid: filings[idx].url });
+    const payload = call.update.title ? call.update : call.create;
+    assert.equal(payload.title, filings[idx].title);
+    assert.equal(payload.caseUrl, filings[idx].url);
+    publishDates.push(payload.publishDate);
+  });
+  // all publish dates should be identical
+  assert(publishDates.every(d => d.getTime() === publishDates[0].getTime()));
   mock.restoreAll();
   prisma.courtCase = originalModel;
 });
