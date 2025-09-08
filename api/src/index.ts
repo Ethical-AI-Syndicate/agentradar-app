@@ -19,6 +19,11 @@ import alertRoutes from './routes/alerts';
 import propertyRoutes from './routes/properties';
 import earlyAdopterRoutes from './routes/early-adopters';
 import adminRoutes from './routes/admin';
+import superAdminRoutes from './routes/super-admin';
+import customerSupportRoutes from './routes/customer-support';
+import contentManagementRoutes from './routes/content-management';
+import businessOperationsRoutes from './routes/business-operations';
+import emailNotificationsRoutes from './routes/email-notifications';
 import preferencesRoutes from './routes/preferences';
 // import monitoringRoutes from './routes/monitoring'; // Temporarily disabled
 import customerOnboardingRoutes from './routes/customer-onboarding';
@@ -109,6 +114,11 @@ app.use('/api/alerts', alertRoutes);
 app.use('/api/properties', propertyRoutes);
 app.use('/api/early-adopters', earlyAdopterRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/super-admin', superAdminRoutes);
+app.use('/api/customer-support', customerSupportRoutes);
+app.use('/api/content-management', contentManagementRoutes);
+app.use('/api/business-operations', businessOperationsRoutes);
+app.use('/api/email-notifications', emailNotificationsRoutes);
 app.use('/api/preferences', preferencesRoutes);
 // app.use('/api/monitoring', monitoringRoutes); // Temporarily disabled
 app.use('/api/customer-onboarding', customerOnboardingRoutes);
@@ -136,6 +146,11 @@ app.get('/api', (req, res) => {
       properties: '/api/properties',
       earlyAdopters: '/api/early-adopters',
       admin: '/api/admin',
+      superAdmin: '/api/super-admin',
+      customerSupport: '/api/customer-support',
+      contentManagement: '/api/content-management',
+      businessOperations: '/api/business-operations',
+      emailNotifications: '/api/email-notifications',
       preferences: '/api/preferences',
       // monitoring: '/api/monitoring', // Temporarily disabled
       customerOnboarding: '/api/customer-onboarding',

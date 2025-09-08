@@ -17,6 +17,7 @@ model User {
   email     String   @unique
   firstName String
   lastName  String
+  name      String?  // Computed or combined name field (optional for existing users)
   password  String
   phone     String?
   isActive  Boolean  @default(true)
@@ -63,6 +64,9 @@ model User {
   soxAuditLogs           SOXAuditLog[]
   realEstateCompliance   RealEstateCompliance[]
   dlpIncidents           DLPIncident[]
+  
+  // Team relations
+  UserTeam               UserTeam[]           @relation("UserTeams")
   
   @@map("users")
 }
@@ -986,4 +990,212 @@ model PrivacyImpactAssessment {
   @@index([approvalStatus])
   @@index([reviewDate])
   @@map("privacy_impact_assessments")
+}
+
+// =====================================================================
+// Administrative Operations Center Models  
+// =====================================================================
+
+// Enhanced Support Tickets (replacing the basic SupportTicket model)
+model TicketResponse {
+  id          String   @id @default(cuid())
+  ticketId    String
+  content     String
+  isInternal  Boolean  @default(false)
+  authorId    String
+  authorName  String
+  authorRole  String   @default("CUSTOMER")
+  attachments String[] @default([])
+  createdAt   DateTime @default(now())
+
+  @@map("ticket_responses")
+}
+
+model TicketActivity {
+  id        String   @id @default(cuid())
+  ticketId  String
+  action    String
+  details   Json?
+  timestamp DateTime @default(now())
+
+  @@map("ticket_activities")
+}
+
+// Knowledge Base
+model KnowledgeBaseArticle {
+  id           String    @id @default(cuid())
+  title        String
+  content      String
+  summary      String?
+  category     String
+  tags         String[]  @default([])
+  helpful      Int       @default(0)
+  notHelpful   Int       @default(0)
+  viewCount    Int       @default(0)
+  authorId     String?
+  published    Boolean   @default(false)
+  publishedAt  DateTime?
+  lastUpdated  DateTime  @default(now())
+  createdAt    DateTime  @default(now())
+
+  @@map("knowledge_base_articles")
+}
+
+// Canned Responses
+model CannedResponse {
+  id        String    @id @default(cuid())
+  title     String
+  content   String
+  category  String
+  tags      String[]  @default([])
+  useCount  Int       @default(0)
+  lastUsed  DateTime?
+  createdBy String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("canned_responses")
+}
+
+// System Alerts
+model SystemAlert {
+  id             String    @id @default(cuid())
+  type           String
+  severity       Int
+  title          String
+  message        String
+  metadata       Json?
+  resolved       Boolean   @default(false)
+  resolvedBy     String?
+  resolvedAt     DateTime?
+  acknowledgedBy String[]  @default([])
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@map("system_alerts")
+}
+
+// Content Management - Blog Posts
+model BlogPost {
+  id             String    @id @default(cuid())
+  title          String
+  slug           String    @unique
+  content        String
+  excerpt        String?
+  category       String
+  tags           String[]  @default([])
+  authorId       String
+  published      Boolean   @default(false)
+  publishedAt    DateTime?
+  featuredImage  String?
+  seoTitle       String?
+  seoDescription String?
+  seoKeywords    String[]  @default([])
+  viewCount      Int       @default(0)
+  likes          Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@map("blog_posts")
+}
+
+// Content Management - Pages
+model Page {
+  id             String    @id @default(cuid())
+  title          String
+  slug           String    @unique
+  content        String
+  template       String?
+  published      Boolean   @default(false)
+  publishedAt    DateTime?
+  seoTitle       String?
+  seoDescription String?
+  seoKeywords    String[]  @default([])
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@map("pages")
+}
+
+// Email Templates
+model EmailTemplate {
+  id        String    @id @default(cuid())
+  name      String
+  subject   String
+  content   String
+  category  String
+  variables String[]  @default([])
+  active    Boolean   @default(true)
+  useCount  Int       @default(0)
+  lastUsed  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("email_templates")
+}
+
+// Email Campaigns
+model EmailCampaign {
+  id              String    @id @default(cuid())
+  name            String
+  subject         String
+  content         String
+  templateId      String?
+  segmentCriteria Json?
+  scheduledAt     DateTime?
+  sentAt          DateTime?
+  status          String    @default("DRAFT")
+  recipientCount  Int?
+  deliveredCount  Int?
+  openedCount     Int?
+  clickedCount    Int?
+  bouncedCount    Int?
+  createdBy       String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("email_campaigns")
+}
+
+// Team Management
+model Team {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  permissions String[] @default([])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  UserTeam UserTeam[]
+
+  @@map("teams")
+}
+
+// User Team Membership
+model UserTeam {
+  id          String   @id @default(cuid())
+  userId      String
+  teamId      String
+  role        String   @default("MEMBER")
+  permissions String[] @default([])
+  joinedAt    DateTime @default(now())
+
+  // Relations
+  user User @relation("UserTeams", fields: [userId], references: [id], onDelete: Cascade)
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, teamId])
+  @@map("user_teams")
+}
+
+// Analytics Cache
+model AnalyticsCache {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  data      Json
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("analytics_cache")
 }
