@@ -1,0 +1,11 @@
+{
+  "name": "agentradar-scrapers",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node ontario-court-bulletins.js"
+  },
+  "dependencies": {
+    "node-cron": "^3.0.3"
+  }
+}
