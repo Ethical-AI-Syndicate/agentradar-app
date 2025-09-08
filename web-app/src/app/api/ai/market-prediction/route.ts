@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AIMarketPredictionEngine } from '../../../services/aiMarketPrediction';
+import { AIMarketPredictionEngine } from '../../../../services/aiMarketPrediction';
 
 const marketPredictionEngine = new AIMarketPredictionEngine();
 

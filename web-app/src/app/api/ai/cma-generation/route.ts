@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AICMAGenerationEngine } from '../../../services/aiCMAGeneration';
+import { AICMAGenerationEngine } from '../../../../services/aiCMAGeneration';
 
 const cmaGenerationEngine = new AICMAGenerationEngine();
 

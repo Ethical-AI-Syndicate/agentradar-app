@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AILeadGenerationEngine } from '../../../services/aiLeadGeneration';
+import { AILeadGenerationEngine } from '../../../../services/aiLeadGeneration';
 
 const leadGenerationEngine = new AILeadGenerationEngine();
 
