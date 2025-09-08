@@ -45,8 +45,6 @@ const alertSchema = z.object({
   sourceUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   caseNumber: z.string().optional(),
   saleDate: z.string().optional(),
-  notifyEmail: z.boolean().default(true),
-  notifyPush: z.boolean().default(true),
 }).refine((data) => {
   if (data.minPrice && data.maxPrice && data.minPrice >= data.maxPrice) {
     return false;
@@ -75,8 +73,6 @@ export default function CreateAlertPage() {
     defaultValues: {
       priority: 'MEDIUM',
       type: 'POWER_OF_SALE',
-      notifyEmail: true,
-      notifyPush: true,
     },
   });
 

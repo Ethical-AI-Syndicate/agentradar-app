@@ -57,6 +57,13 @@ model User {
   // Customer onboarding relations
   customerSupportTickets CustomerSupportTicket[]
   
+  // Compliance relations
+  complianceAuditLogs    ComplianceAuditLog[]
+  gdprRequests           GDPRRequest[]
+  soxAuditLogs           SOXAuditLog[]
+  realEstateCompliance   RealEstateCompliance[]
+  dlpIncidents           DLPIncident[]
+  
   @@map("users")
 }
 
@@ -758,4 +765,225 @@ model WorkflowExecution {
   brokerageClient        BrokerageClient?    @relation(fields: [brokerageClientId], references: [id], onDelete: Cascade)
 
   @@map("workflow_executions")
+}
+
+// Compliance and Governance Models
+
+model ComplianceAuditLog {
+  id                String     @id @default(cuid())
+  userId            String?
+  auditId           String
+  action            String
+  regulation        String     // GDPR, SOX, RE_LICENSE, etc.
+  complianceLevel   String     @default("STANDARD") // STANDARD, HIGH, CRITICAL
+  dataAccessed      String[]   @default([])
+  ipAddress         String?
+  userAgent         String?
+  requestDetails    Json?
+  responseCode      Int?
+  processingTime    Int?       // in milliseconds
+  riskScore         Int        @default(0) // 0-100 risk assessment
+  createdAt         DateTime   @default(now())
+  retentionDate     DateTime?  // When this record expires
+
+  // Relations
+  user              User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([auditId])
+  @@index([regulation])
+  @@index([createdAt])
+  @@index([retentionDate])
+  @@map("compliance_audit_logs")
+}
+
+model GDPRRequest {
+  id                String     @id @default(cuid())
+  userId            String
+  requestType       String     // ACCESS, DELETION, PORTABILITY, RECTIFICATION
+  status            String     @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, REJECTED
+  reason            String?
+  requestDate       DateTime   @default(now())
+  completionDate    DateTime?
+  processedBy       String?    // Admin user ID
+  dataExported      Boolean    @default(false)
+  exportFormat      String?    // JSON, CSV, etc.
+  exportSize        Int?       // Size in bytes
+  legalBasis        String?    // Legal basis for processing
+  reviewNotes       String?
+  approvalRequired  Boolean    @default(false)
+  metadata          Json?
+
+  // Relations
+  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([requestType])
+  @@index([status])
+  @@index([requestDate])
+  @@map("gdpr_requests")
+}
+
+model SOXAuditLog {
+  id                    String     @id @default(cuid())
+  userId                String
+  accessType            String     // VIEW, CREATE, UPDATE, DELETE, EXPORT
+  resourceType          String     // BILLING, SUBSCRIPTION, PAYMENT, FINANCIAL_REPORT
+  resourceId            String?
+  financialAmount       Decimal?   @db.Decimal(10, 2)
+  approvedBy            String?    // Supervisor approval
+  businessJustification String
+  sessionId             String?
+  accessDuration        Int?       // in seconds
+  dataModified          Boolean    @default(false)
+  backupCreated         Boolean    @default(false)
+  riskLevel             String     @default("LOW") // LOW, MEDIUM, HIGH, CRITICAL
+  complianceFlags       String[]   @default([])
+  createdAt             DateTime   @default(now())
+
+  // Relations
+  user                  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([resourceType])
+  @@index([riskLevel])
+  @@index([createdAt])
+  @@map("sox_audit_logs")
+}
+
+model DataRetentionPolicy {
+  id                    String     @id @default(cuid())
+  policyName            String
+  dataType              String     // USER_DATA, ACTIVITY_LOGS, FINANCIAL_DATA, etc.
+  retentionPeriodDays   Int
+  policyDescription     String?
+  legalRequirement      String?    // GDPR, SOX, CCPA, etc.
+  autoDelete            Boolean    @default(true)
+  archiveBeforeDelete   Boolean    @default(true)
+  archiveLocation       String?
+  isActive              Boolean    @default(true)
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+  lastEnforced          DateTime?
+  nextEnforcement       DateTime?
+
+  @@index([dataType])
+  @@index([nextEnforcement])
+  @@index([isActive])
+  @@map("data_retention_policies")
+}
+
+model DataProcessingActivity {
+  id                        String     @id @default(cuid())
+  activityName              String
+  purpose                   String
+  legalBasis                String     // CONSENT, CONTRACT, LEGAL_OBLIGATION, etc.
+  dataSubjects              String     // Users, customers, employees, etc.
+  personalDataCategories    String[]   @default([])
+  recipients                String[]   @default([])
+  retentionPeriod           String
+  securityMeasures          String[]   @default([])
+  transfersOutsideEU        Boolean    @default(false)
+  transferSafeguards        String?
+  dataController            String
+  dataProcessor             String?
+  dpoContact                String?
+  riskAssessment            String?
+  isActive                  Boolean    @default(true)
+  createdAt                 DateTime   @default(now())
+  updatedAt                 DateTime   @updatedAt
+  lastReviewed              DateTime?
+
+  @@index([legalBasis])
+  @@index([isActive])
+  @@index([lastReviewed])
+  @@map("data_processing_activities")
+}
+
+model RealEstateCompliance {
+  id                    String     @id @default(cuid())
+  userId                String
+  licenseNumber         String
+  licenseType           String     // SALES, BROKER, etc.
+  licenseState          String
+  licenseStatus         String     @default("ACTIVE") // ACTIVE, EXPIRED, SUSPENDED
+  issueDate             DateTime
+  expirationDate        DateTime
+  verificationDate      DateTime?
+  verificationStatus    String     @default("PENDING") // PENDING, VERIFIED, FAILED
+  verificationSource    String?    // Manual, API, etc.
+  complianceFlags       String[]   @default([])
+  lastCheck             DateTime?
+  nextCheck             DateTime?
+  brokerageName         String?
+  brokerageAddress      String?
+  continuingEducation   Json?      // CE requirements
+  disciplinaryActions  String[]   @default([])
+  metadata              Json?
+
+  // Relations
+  user                  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([licenseNumber])
+  @@index([licenseStatus])
+  @@index([expirationDate])
+  @@index([nextCheck])
+  @@map("real_estate_compliance")
+}
+
+model DLPIncident {
+  id                String     @id @default(cuid())
+  userId            String?
+  incidentType      String     // SENSITIVE_DATA_EXPOSURE, UNAUTHORIZED_ACCESS, etc.
+  severity          String     @default("LOW") // LOW, MEDIUM, HIGH, CRITICAL
+  dataType          String     // SSN, CREDIT_CARD, LICENSE_NUMBER, etc.
+  detectionMethod   String     // PATTERN_MATCH, ML_DETECTION, etc.
+  location          String     // API endpoint, database query, etc.
+  originalData      String?    // Redacted original data
+  sanitizedData     String?    // What was actually returned
+  preventionAction  String     // BLOCKED, REDACTED, LOGGED
+  falsePositive     Boolean    @default(false)
+  reviewedBy        String?
+  reviewNotes       String?
+  resolvedAt        DateTime?
+  createdAt         DateTime   @default(now())
+
+  // Relations
+  user              User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([severity])
+  @@index([dataType])
+  @@index([createdAt])
+  @@map("dlp_incidents")
+}
+
+model PrivacyImpactAssessment {
+  id                      String     @id @default(cuid())
+  projectName             String
+  projectDescription      String
+  dataProtectionOfficer   String
+  projectOwner            String
+  assessmentDate          DateTime   @default(now())
+  personalDataInvolved    String[]   @default([])
+  dataSubjects            String[]   @default([])
+  processingPurpose       String
+  legalBasis              String
+  riskLevel               String     @default("MEDIUM") // LOW, MEDIUM, HIGH
+  riskMitigations         String[]   @default([])
+  privacyRisks            Json?
+  safeguards              String[]   @default([])
+  consultationRequired    Boolean    @default(false)
+  consultationCompleted   Boolean    @default(false)
+  approvalStatus          String     @default("PENDING") // PENDING, APPROVED, REJECTED
+  approvedBy              String?
+  approvalDate            DateTime?
+  reviewDate              DateTime?
+  isActive                Boolean    @default(true)
+
+  @@index([riskLevel])
+  @@index([approvalStatus])
+  @@index([reviewDate])
+  @@map("privacy_impact_assessments")
 }
