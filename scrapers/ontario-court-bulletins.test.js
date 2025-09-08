@@ -13,6 +13,27 @@ test('fetchOntarioCourtBulletins throws on HTTP error', async () => {
   mock.restoreAll();
 });
 
+test('fetchOntarioCourtBulletins times out based on COURT_SCRAPER_TIMEOUT_MS', async () => {
+  const html = '<html></html>';
+  const originalEnv = process.env.COURT_SCRAPER_TIMEOUT_MS;
+  process.env.COURT_SCRAPER_TIMEOUT_MS = '1';
+  mock.method(global, 'fetch', (_, { signal } = {}) =>
+    new Promise((resolve, reject) => {
+      signal.addEventListener('abort', () =>
+        reject(Object.assign(new Error('Aborted'), { name: 'AbortError' }))
+      );
+      setTimeout(() => resolve({ ok: true, text: async () => html }), 50);
+    })
+  );
+  await assert.rejects(fetchOntarioCourtBulletins(), /Timed out fetching bulletin/);
+  mock.restoreAll();
+  if (originalEnv === undefined) {
+    delete process.env.COURT_SCRAPER_TIMEOUT_MS;
+  } else {
+    process.env.COURT_SCRAPER_TIMEOUT_MS = originalEnv;
+  }
+});
+
 test('fetchOntarioCourtBulletins uses BULLETIN_URL override', async () => {
   const html = '<html></html>';
   const originalEnv = process.env.BULLETIN_URL;

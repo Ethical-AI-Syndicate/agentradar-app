@@ -15,12 +15,24 @@ const BULLETIN_URL =
  * @returns {Promise<{filings: {title: string, url: string}[]}>}
  */
 export async function fetchOntarioCourtBulletins() {
-  const res = await fetch(BULLETIN_URL);
-  if (!res.ok) {
-    throw new Error(`Failed to fetch bulletin: ${res.status} ${res.statusText}`);
+  const controller = new AbortController();
+  const timeoutMs = Number(process.env.COURT_SCRAPER_TIMEOUT_MS || 10000);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(BULLETIN_URL, { signal: controller.signal });
+    if (!res.ok) {
+      throw new Error(`Failed to fetch bulletin: ${res.status} ${res.statusText}`);
+    }
+    const html = await res.text();
+    return parseCourtFiling(html);
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      throw new Error('Timed out fetching bulletin');
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
   }
-  const html = await res.text();
-  return parseCourtFiling(html);
 }
 
 /**
