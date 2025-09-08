@@ -20,7 +20,10 @@ cron.schedule(
   }
 );
 
-process.on('SIGINT', async () => {
+async function shutdown() {
   await prisma.$disconnect();
   process.exit(0);
-});
+}
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);

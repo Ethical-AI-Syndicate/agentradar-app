@@ -1,8 +1,18 @@
 import { parseCourtFiling } from './parsers/court-filing-parser.js';
 import { prisma } from './db.js';
 
-const BULLETIN_URL = 'https://www.ontariocourts.ca/scj/civil/weekly-court-lists/';
+/**
+ * Ontario court bulletin base URL.
+ * Can be overridden with BULLETIN_URL env var for testing.
+ */
+const BULLETIN_URL =
+  process.env.BULLETIN_URL ||
+  'https://www.ontariocourts.ca/scj/civil/weekly-court-lists/';
 
+/**
+ * Fetch the Ontario court bulletin HTML and parse filing links.
+ * @returns {Promise<{filings: {title: string, url: string}[]}>}
+ */
 export async function fetchOntarioCourtBulletins() {
   const res = await fetch(BULLETIN_URL);
   if (!res.ok) {
@@ -12,12 +22,19 @@ export async function fetchOntarioCourtBulletins() {
   return parseCourtFiling(html);
 }
 
-// Persist filings into court_cases table with basic metadata
+/**
+ * Persist filings into the court_cases table using Prisma upserts.
+ * @param {{title: string, url: string}[]} filings
+ */
 export async function saveCourtFilings(filings) {
   for (const filing of filings) {
     await prisma.courtCase.upsert({
       where: { guid: filing.url },
-      update: {},
+      update: {
+        title: filing.title,
+        caseUrl: filing.url,
+        publishDate: new Date()
+      },
       create: {
         guid: filing.url,
         title: filing.title,
