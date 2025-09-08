@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **AgentRadar** - Advanced real estate intelligence platform featuring AI-powered workflows, blockchain property records, AR virtual tours, and predictive analytics. Built as a white-label solution for market domination with multi-platform support (web, mobile, desktop).
 
-**Current Status**: **Phase 3 Production Launch Ready** - All core systems production-ready with **REAL AI integration** (OpenAI GPT-4) replacing all mock data, **complete Stripe payment processing**, comprehensive admin portal, real-time WebSocket infrastructure, mobile platform, MLS/CRM integrations, AI automation workflows, blockchain property records, AR virtual tours, and predictive analytics dashboard. Ready for market launch.
+**Current Status**: **Phase 3 Production Launch Ready** - All core systems production-ready with **REAL AI integration** (OpenAI GPT-4) replacing all mock data, **complete Stripe payment processing**, **comprehensive MLS integration** (Repliers + bring-your-own-MLS), comprehensive admin portal, real-time WebSocket infrastructure, mobile platform, AI automation workflows, blockchain property records, AR virtual tours, and predictive analytics dashboard. Ready for market launch.
 
 ## Commands
 
@@ -168,8 +168,8 @@ RealEstateAgent-IntelligenceFeed/
 **Advanced Intelligence Services:**
 - **Real AI Integration**: OpenAI GPT-4 Turbo + Vision for property analysis, document extraction, lead scoring
 - **Payment Processing**: Complete Stripe integration with 3-tier subscription model ($197-$1997/month)
+- **MLS Integration**: Repliers primary + bring-your-own-MLS with custom provider support
 - **Real-time Infrastructure**: WebSocket server with Redis Cloud scaling
-- **MLS/CRM Integration**: 10+ provider support with intelligent data sync
 - **AI Automation**: Workflow engine with decision trees and smart contracts
 - **Blockchain**: Immutable property records with consensus protocol
 - **AR Virtual Tours**: Multi-framework AR support with AI staging
@@ -251,6 +251,25 @@ RealEstateAgent-IntelligenceFeed/
 - `GET /usage` - Current usage and limits
 - `POST /create-portal-session` - Customer billing portal
 
+### MLS Integration System (`/api/mls`)
+**Service**: `repliers-mls-service.ts` - Comprehensive MLS integration with extensible provider support
+- **Primary Integration**: Repliers MLS with standardized property data access
+- **Custom Providers**: Bring-your-own-MLS with flexible authentication (Bearer, API Key, Basic, OAuth)
+- **Multi-Provider Search**: Search across all configured providers simultaneously
+- **Intelligent Caching**: 15-minute search cache, 1-hour property details, 2-hour market stats
+- **Rate Limiting**: Configurable per-provider (100 RPM default Repliers, 60 RPM custom)
+- **Field Mapping**: Flexible dot-notation field mapping for any API response format
+
+**MLS Endpoints**:
+- `GET /search` - Multi-provider property search with filtering
+- `GET /listing/:id` - Detailed property information
+- `GET /market-stats` - Regional market statistics
+- `GET /providers` - Provider status and health monitoring
+- `POST /providers/custom` - Add custom MLS provider (Admin)
+- `DELETE /providers/custom/:id` - Remove custom provider (Admin)
+- `POST /providers/test` - Test provider configuration before adding
+- `GET /examples/config` - Configuration templates for common MLS types
+
 ### Alert Types & Enums
 ```typescript
 enum AlertType {
@@ -317,6 +336,12 @@ STRIPE_SECRET_KEY=sk_your_stripe_secret_key
 STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_your_publishable_key
 
+# MLS Integration (PRODUCTION READY)
+REPLIERS_API_KEY=your_repliers_api_key_here
+REPLIERS_ENDPOINT=https://api.repliers.ca/v1
+REPLIERS_REGION=GTA
+REPLIERS_RATE_LIMIT=100
+
 # MCP Configuration  
 ENABLE_MOCK_DATA=true
 MCP_SERVER_PORT=3001
@@ -382,10 +407,10 @@ npx prisma studio          # GUI for data inspection
 ### ✅ Phase 3 Production Launch READY
 - **REAL AI Integration** with OpenAI GPT-4 Turbo + Vision (NO MORE MOCK DATA)
 - **Complete Stripe Payment Processing** with 3-tier subscription model and customer portal
+- **Comprehensive MLS Integration** with Repliers + bring-your-own-MLS extensible provider system
 - **Production-Ready API Backend** with authentication, admin portal, alerts, preferences  
 - **Real-time WebSocket Infrastructure** with Redis Cloud scaling and multi-level caching
 - **Mobile Platform** (React Native + Expo) with offline capabilities and AR integration
-- **MLS/CRM Integration Hub** supporting 10+ major providers with intelligent sync
 - **AI Automation Workflows** with decision trees and sophisticated workflow types
 - **Blockchain Property Records** with immutable history and smart contracts
 - **AR Virtual Tours** with AI staging and multi-framework support
@@ -394,11 +419,10 @@ npx prisma studio          # GUI for data inspection
 - **Advanced Intelligence Services** (ML pipelines, market orchestration, municipal monitoring)
 
 ### 🔄 Remaining Phase 3 Items
-1. **MLS Data Integration** (Real TREB/RETS data feeds)
-2. **Email Notifications** (SendGrid production integration)
-3. **Production Deployment** (AWS/Vercel with SSL and monitoring)
-4. **Load Testing** (1000+ concurrent users validation)
-5. **Security Audit** (Penetration testing and compliance)
+1. **Email Notifications** (SendGrid production integration)
+2. **Production Deployment** (AWS/Vercel with SSL and monitoring)
+3. **Load Testing** (1000+ concurrent users validation)
+4. **Security Audit** (Penetration testing and compliance)
 
 ## Production Readiness Checklist
 
@@ -489,11 +513,13 @@ The platform leverages sophisticated service architecture:
 - Real-time WebSocket infrastructure supporting thousands of concurrent users
 - Redis Cloud integration for horizontal scaling and performance optimization
 
-**Production AI & Payment Integration:**
+**Production AI, Payment & MLS Integration:**
 - `openaiService.ts` - OpenAI GPT-4 Turbo and Vision integration with budget controls and fallback systems
 - `stripeService.ts` - Complete payment processing with subscription management, webhooks, and customer portal
+- `repliers-mls-service.ts` - Comprehensive MLS integration with Repliers + bring-your-own-MLS extensible provider system
 - `/api/payments/*` - 11 production-ready payment endpoints with usage tracking and analytics
 - `/api/ai/*` - Real AI endpoints replacing all mock data with production-grade error handling
+- `/api/mls/*` - 8 MLS endpoints supporting multi-provider search, custom provider management, and health monitoring
 
 This architecture enables AgentRadar to process massive amounts of market data in real-time, provide intelligent insights with real AI, handle subscription billing at scale, and deliver immersive property experiences while maintaining enterprise-grade performance and reliability.
 
@@ -501,9 +527,9 @@ This architecture enables AgentRadar to process massive amounts of market data i
 
 ### Launch Readiness Status
 🟢 **AI System**: Production-ready with OpenAI GPT-4 integration  
-🟢 **Payment System**: Production-ready with Stripe integration  
+🟢 **Payment System**: Production-ready with Stripe integration
+🟢 **MLS Integration**: Production-ready with Repliers + bring-your-own-MLS system
 🟢 **Core Platform**: All API endpoints operational with 93+ tests  
-🟠 **Data Integration**: MLS connections pending real provider agreements  
 🟠 **Notifications**: Email system requires SendGrid production setup  
 
 ### No Mock Data Policy

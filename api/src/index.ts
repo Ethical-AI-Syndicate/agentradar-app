@@ -29,6 +29,7 @@ import aiRoutes from './routes/ai';
 import realtimeRoutes from './routes/realtime.js';
 import cacheRoutes from './routes/cache.js';
 import paymentRoutes from './routes/payments';
+import mlsRoutes from './routes/mls';
 // import courtProcessingRoutes from './routes/courtProcessing'; // Temporarily disabled
 
 // Load environment variables
@@ -118,6 +119,7 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/realtime', realtimeRoutes);
 app.use('/api/cache', cacheRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/mls', mlsRoutes);
 // app.use('/api/court-processing', courtProcessingRoutes); // Temporarily disabled
 
 // API documentation endpoint
@@ -144,6 +146,7 @@ app.get('/api', (req, res) => {
       realtime: '/api/realtime',
       cache: '/api/cache',
       payments: '/api/payments',
+      mls: '/api/mls',
       // courtProcessing: '/api/court-processing' // Temporarily disabled
     },
     health: '/health'
