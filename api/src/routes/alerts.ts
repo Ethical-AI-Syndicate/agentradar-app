@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import { createLogger } from '../utils/logger';
-import { PrismaClient, AlertType, Priority, AlertStatus } from '../generated/prisma';
+import { AlertType, Priority, AlertStatus } from '@prisma/client';
 import { authenticateToken, optionalAuthentication } from '../middleware/auth';
 import { AlertMatcher } from '../services/alertMatcher';
+import { AlertRepository } from '../repositories/AlertRepository';
 
 const router = Router();
 const logger = createLogger();
-const prisma = new PrismaClient();
+const alertRepository = new AlertRepository();
 const alertMatcher = new AlertMatcher();
 
 // GET /api/alerts
@@ -19,52 +20,51 @@ router.get('/', optionalAuthentication, async (req, res, next) => {
       priority,
       city,
       status = AlertStatus.ACTIVE,
-      userId
+      search,
+      minValue,
+      maxValue
     } = req.query;
 
-    const pageNum = parseInt(page as string);
-    const limitNum = parseInt(limit as string);
-    const skip = (pageNum - 1) * limitNum;
+    const userId = req.user?.id;
 
-    // Build filter conditions
-    const where: any = {
+    // Build filter
+    const filter: any = {
       status: status as AlertStatus
     };
 
     if (type && Object.values(AlertType).includes(type as AlertType)) {
-      where.alertType = type as AlertType;
+      filter.type = type as AlertType;
     }
     if (priority && Object.values(Priority).includes(priority as Priority)) {
-      where.priority = priority as Priority;
+      filter.priority = priority as Priority;
     }
     if (city) {
-      where.city = { contains: city as string, mode: 'insensitive' };
+      filter.city = city as string;
+    }
+    if (search) {
+      filter.search = search as string;
+    }
+    if (minValue) {
+      filter.minValue = parseInt(minValue as string);
+    }
+    if (maxValue) {
+      filter.maxValue = parseInt(maxValue as string);
+    }
+    if (userId) {
+      filter.userId = userId;
     }
 
-    // Get alerts with pagination
-    const [alerts, total] = await Promise.all([
-      prisma.alert.findMany({
-        where,
-        skip,
-        take: limitNum,
-        orderBy: [
-          { priority: 'desc' },
-          { createdAt: 'desc' }
-        ]
-      }),
-      prisma.alert.count({ where })
-    ]);
+    const result = await alertRepository.findMany(
+      filter,
+      parseInt(page as string),
+      parseInt(limit as string)
+    );
 
-    logger.info(`Retrieved ${alerts.length} alerts (page ${pageNum})`);
+    logger.info(`Retrieved ${result.data.length} alerts (page ${result.pagination.page})`);
     
     res.json({
-      alerts,
-      pagination: {
-        page: pageNum,
-        limit: limitNum,
-        total,
-        pages: Math.ceil(total / limitNum)
-      }
+      alerts: result.data,
+      pagination: result.pagination
     });
   } catch (error) {
     logger.error('Error fetching alerts:', error);

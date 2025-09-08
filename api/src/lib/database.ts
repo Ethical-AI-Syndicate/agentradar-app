@@ -1,36 +1,59 @@
 import { PrismaClient } from '@prisma/client';
-import { createLogger } from '../utils/logger';
 
-const logger = createLogger();
+declare global {
+  var __prisma: PrismaClient | undefined;
+}
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
+const DATABASE_URL = process.env.DATABASE_URL;
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+if (!DATABASE_URL) {
+  throw new Error('DATABASE_URL environment variable is not defined');
+}
+
+export const prisma = globalThis.__prisma || new PrismaClient({
+  datasources: {
+    db: {
+      url: DATABASE_URL
+    }
+  },
+  log: process.env.NODE_ENV === 'development' ? ['query', 'error'] : ['error'],
+  errorFormat: 'pretty',
 });
 
 if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma;
+  globalThis.__prisma = prisma;
 }
 
-export async function connectDatabase() {
+export async function connectDatabase(): Promise<void> {
   try {
     await prisma.$connect();
-    logger.info('🗄️  Connected to PostgreSQL database');
-    return true;
+    console.log('✅ Database connected successfully');
   } catch (error) {
-    logger.error('Failed to connect to database:', error);
-    return false;
+    console.error('❌ Database connection failed:', error);
+    throw error;
   }
 }
 
-export async function disconnectDatabase() {
+export async function disconnectDatabase(): Promise<void> {
   try {
     await prisma.$disconnect();
-    logger.info('🗄️  Disconnected from PostgreSQL database');
+    console.log('✅ Database disconnected successfully');
   } catch (error) {
-    logger.error('Error disconnecting from database:', error);
+    console.error('❌ Database disconnection failed:', error);
+  }
+}
+
+export async function healthCheck(): Promise<{ status: string; timestamp: Date }> {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    return {
+      status: 'healthy',
+      timestamp: new Date()
+    };
+  } catch (error) {
+    return {
+      status: 'unhealthy',
+      timestamp: new Date()
+    };
   }
 }

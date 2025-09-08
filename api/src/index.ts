@@ -10,7 +10,7 @@ import { errorHandler } from './middleware/errorHandler';
 import { notFound } from './middleware/notFound';
 import { initializeServices, shutdownServices } from './services';
 import { createRealtimeService } from './services/realtime/realtimeService.js';
-// import { connectDatabase, disconnectDatabase } from './lib/database';
+import { connectDatabase, disconnectDatabase, healthCheck as dbHealthCheck } from './lib/database';
 
 // Routes
 import authRoutes from './routes/auth';
@@ -91,9 +91,10 @@ app.use(morgan('combined', {
   }
 }));
 
-// Health check endpoint (including WebSocket status)
+// Health check endpoint (including WebSocket and Database status)
 app.get('/health', async (req, res) => {
   const realtimeStats = realtimeService ? await realtimeService.healthCheck() : { status: 'not_initialized' };
+  const databaseStats = await dbHealthCheck();
   
   res.json({
     status: 'healthy',
@@ -102,6 +103,7 @@ app.get('/health', async (req, res) => {
     environment: process.env.NODE_ENV,
     version: '1.0.0',
     services: {
+      database: databaseStats,
       realtime: realtimeStats
     }
   });
@@ -179,7 +181,7 @@ process.on('SIGTERM', async () => {
     await realtimeService.shutdown();
   }
   await shutdownServices();
-  // await disconnectDatabase();
+  await disconnectDatabase();
   process.exit(0);
 });
 
@@ -189,14 +191,14 @@ process.on('SIGINT', async () => {
     await realtimeService.shutdown();
   }
   await shutdownServices();
-  // await disconnectDatabase();
+  await disconnectDatabase();
   process.exit(0);
 });
 
 // Start server only if not in test environment
 if (process.env.NODE_ENV !== 'test') {
   const server = httpServer.listen(PORT, async () => {
-    // await connectDatabase();
+    await connectDatabase();
     
     // Initialize real-time services
     try {
