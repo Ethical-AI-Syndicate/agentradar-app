@@ -68,7 +68,7 @@ export default function DashboardPage() {
         }
 
         // Handle stats
-        if (statsResponse.status === 'fulfilled' && statsResponse.value.success) {
+        if (statsResponse.status === 'fulfilled' && statsResponse.value.success && statsResponse.value.data) {
           setStats(statsResponse.value.data);
         } else if (statsResponse.status === 'rejected') {
           console.error('Failed to load stats:', statsResponse.reason);
@@ -259,14 +259,14 @@ export default function DashboardPage() {
                               <p className="text-sm text-gray-600 capitalize">
                                 {alert.type.replace('_', ' ')} • ${alert.estimatedValue?.toLocaleString()}
                               </p>
-                              {alert.daysUntilSale && (
+                              {alert.saleDate && (
                                 <p className="text-sm text-orange-600">
-                                  Sale in {alert.daysUntilSale} days
+                                  Sale Date: {new Date(alert.saleDate).toLocaleDateString()}
                                 </p>
                               )}
                             </div>
                             <span className={`px-2 py-1 rounded-full text-xs ${
-                              alert.priority === 'high' 
+                              alert.priority === 'HIGH' || alert.priority === 'URGENT'
                                 ? 'bg-red-100 text-red-800' 
                                 : 'bg-yellow-100 text-yellow-800'
                             }`}>
@@ -305,14 +305,14 @@ export default function DashboardPage() {
                           <div>
                             <p className="font-medium">{property.address}</p>
                             <p className="text-sm text-gray-600">
-                              {property.type} • ${property.price.toLocaleString()}
+                              {property.propertyType || 'Property'} • ${property.price?.toLocaleString() || 'Price TBD'}
                             </p>
                             <p className="text-sm text-green-600">
-                              ROI: {property.roi}
+                              {property.isFavorite ? '★ Favorite' : 'Saved Property'}
                             </p>
                           </div>
                           <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                            {property.status}
+                            Saved
                           </span>
                         </div>
                       </div>

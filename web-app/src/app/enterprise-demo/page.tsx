@@ -414,7 +414,7 @@ export default function EnterpriseDemoPage() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3">
-                        {demoFeatures[0].demoData.recentAlerts.map((alert) => (
+                        {demoFeatures[0]?.demoData?.recentAlerts?.map((alert) => (
                           <div key={alert.id} className="flex items-center justify-between p-3 bg-slate-700/50 rounded-lg">
                             <div>
                               <div className="text-white font-medium">{alert.address}</div>

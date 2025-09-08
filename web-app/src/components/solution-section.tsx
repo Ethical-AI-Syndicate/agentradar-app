@@ -284,7 +284,7 @@ export function SolutionSection() {
           <Button 
             size="lg"
             className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-6 h-auto text-lg font-semibold"
-            onClick={() => document.querySelector('[data-early-adopter-trigger]')?.click()}
+            onClick={() => (document.querySelector('[data-early-adopter-trigger]') as HTMLElement)?.click()}
           >
             Start Building Your Intelligence Advantage
             <ArrowRight className="ml-2 h-5 w-5" />

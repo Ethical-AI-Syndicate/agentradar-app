@@ -21,6 +21,8 @@ import preferencesRoutes from './routes/preferences';
 // import monitoringRoutes from './routes/monitoring'; // Temporarily disabled
 import customerOnboardingRoutes from './routes/customer-onboarding';
 import complianceRoutes from './routes/compliance';
+import leadQualificationRoutes from './routes/leadQualification';
+import competitiveAnalysisRoutes from './routes/competitiveAnalysis';
 // import courtProcessingRoutes from './routes/courtProcessing'; // Temporarily disabled
 
 // Load environment variables
@@ -93,6 +95,8 @@ app.use('/api/preferences', preferencesRoutes);
 // app.use('/api/monitoring', monitoringRoutes); // Temporarily disabled
 app.use('/api/customer-onboarding', customerOnboardingRoutes);
 app.use('/api/compliance', complianceRoutes);
+app.use('/api/leads', leadQualificationRoutes);
+app.use('/api/competitive', competitiveAnalysisRoutes);
 // app.use('/api/court-processing', courtProcessingRoutes); // Temporarily disabled
 
 // API documentation endpoint
@@ -113,6 +117,8 @@ app.get('/api', (req, res) => {
       // monitoring: '/api/monitoring', // Temporarily disabled
       customerOnboarding: '/api/customer-onboarding',
       compliance: '/api/compliance',
+      leadQualification: '/api/leads',
+      competitiveAnalysis: '/api/competitive',
       // courtProcessing: '/api/court-processing' // Temporarily disabled
     },
     health: '/health'

@@ -3,8 +3,13 @@ import { headers } from 'next/headers';
 import Stripe from 'stripe';
 import { PrismaClient, SubscriptionTier, SubscriptionStatus } from '@prisma/client';
 
+// Extended Stripe subscription type to include the property we need
+interface StripeSubscriptionWithPeriod extends Stripe.Subscription {
+  current_period_end: number;
+}
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20.acacia',
+  apiVersion: '2025-08-27.basil',
 });
 
 const prisma = new PrismaClient();
@@ -106,7 +111,7 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription) {
         subscriptionTier,
         subscriptionStatus: status,
         subscriptionId: subscription.id,
-        subscriptionCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+        subscriptionCurrentPeriodEnd: new Date((subscription as StripeSubscriptionWithPeriod).current_period_end * 1000),
       },
     });
 

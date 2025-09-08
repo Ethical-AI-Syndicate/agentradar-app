@@ -1,5 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+interface DemoRequest {
+  id: string;
+  companyName: string;
+  contactName: string;
+  email: string;
+  phone?: string;
+  brokerageSize: string;
+  currentChallenges?: string;
+  demoDate?: string;
+  requestedAt: string;
+  status: string;
+  assignedSalesRep: string;
+  priority: string;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -119,7 +134,7 @@ function calculatePriority(brokerageSize: string, challenges: string): 'high' | 
   }
 }
 
-async function notifySalesTeam(demoRequest: any): Promise<void> {
+async function notifySalesTeam(demoRequest: DemoRequest): Promise<void> {
   // Mock implementation - in production, this would:
   // 1. Send Slack notification
   // 2. Create lead in CRM
@@ -138,7 +153,7 @@ async function notifySalesTeam(demoRequest: any): Promise<void> {
   await new Promise(resolve => setTimeout(resolve, 100));
 }
 
-async function sendConfirmationEmail(demoRequest: any): Promise<void> {
+async function sendConfirmationEmail(demoRequest: DemoRequest): Promise<void> {
   // Mock implementation - in production, this would:
   // 1. Use email service (SendGrid, SES, etc.)
   // 2. Send branded confirmation email
