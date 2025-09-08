@@ -104,8 +104,14 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Error fetching support tickets:', error);
+    // Temporary: Return detailed error for debugging
     return NextResponse.json(
-      { error: 'Failed to fetch support tickets' },
+      { 
+        error: 'Failed to fetch support tickets',
+        details: (error as Error).message,
+        stack: (error as Error).stack,
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     );
   }
