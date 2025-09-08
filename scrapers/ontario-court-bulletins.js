@@ -26,11 +26,17 @@ export async function fetchOntarioCourtBulletins() {
 /**
  * Persist filings into the court_cases table using Prisma upserts.
  * @param {{title: string, url: string}[]} filings
- * @param {{concurrency?: number}} [options] Optional settings
+ * @param {{concurrency?: number}} [options] Optional settings. Defaults to
+ * COURT_SCRAPER_CONCURRENCY env var or 5 if not provided.
  */
-export async function saveCourtFilings(filings, { concurrency = 5 } = {}) {
+export async function saveCourtFilings(
+  filings,
+  { concurrency } = {}
+) {
   const now = new Date();
-  const limit = pLimit(concurrency);
+  const max =
+    concurrency ?? Number(process.env.COURT_SCRAPER_CONCURRENCY || 5);
+  const limit = pLimit(max);
   await Promise.all(
     filings.map(filing =>
       limit(() =>

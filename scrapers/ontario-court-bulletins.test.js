@@ -46,3 +46,34 @@ test('saveCourtFilings upserts each filing with limited concurrency', async () =
   mock.restoreAll();
   prisma.courtCase = originalModel;
 });
+
+test('saveCourtFilings respects COURT_SCRAPER_CONCURRENCY env var', async () => {
+  const filings = Array.from({ length: 3 }, (_, i) => ({
+    title: `Case ${i + 1}`,
+    url: `https://example.com/${i + 1}.pdf`
+  }));
+  const calls = [];
+  let active = 0;
+  let maxActive = 0;
+  const originalModel = prisma.courtCase;
+  const originalEnv = process.env.COURT_SCRAPER_CONCURRENCY;
+  process.env.COURT_SCRAPER_CONCURRENCY = '1';
+  prisma.courtCase = { upsert: async () => {} };
+  mock.method(prisma.courtCase, 'upsert', async args => {
+    active++;
+    maxActive = Math.max(maxActive, active);
+    calls.push(args);
+    await sleep(5);
+    active--;
+  });
+  await saveCourtFilings(filings);
+  assert.equal(calls.length, filings.length);
+  assert(maxActive <= 1);
+  mock.restoreAll();
+  prisma.courtCase = originalModel;
+  if (originalEnv === undefined) {
+    delete process.env.COURT_SCRAPER_CONCURRENCY;
+  } else {
+    process.env.COURT_SCRAPER_CONCURRENCY = originalEnv;
+  }
+});
