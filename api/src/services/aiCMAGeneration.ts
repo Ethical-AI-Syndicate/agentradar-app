@@ -785,7 +785,7 @@ export class AICMAGenerationEngine {
         datasets: [{
           label: 'Property Values',
           data: [850000, 875000, 825000, 895000, 815000, 860000],
-          backgroundColor: ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.6)', 'rgba(54, 162, 235, 0.6)', 'rgba(54, 162, 235, 0.6)', 'rgba(54, 162, 235, 0.6)', 'rgba(54, 162, 235, 0.6)']
+          backgroundColor: 'rgba(54, 162, 235, 0.6)'
         }]
       },
       marketTrends: {
@@ -803,7 +803,7 @@ export class AICMAGenerationEngine {
         datasets: [{
           label: 'Adjustment Amount ($)',
           data: [15000, -5000, 0, 12000, 8000, 2000],
-          backgroundColor: ['rgba(255, 206, 86, 0.8)', 'rgba(255, 99, 132, 0.8)', 'rgba(201, 203, 207, 0.8)', 'rgba(75, 192, 192, 0.8)', 'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)']
+          backgroundColor: 'rgba(255, 206, 86, 0.8)'
         }]
       }
     };

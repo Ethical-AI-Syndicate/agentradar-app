@@ -160,7 +160,7 @@ router.post('/lead-generation', authenticateToken, async (req, res, next) => {
     const processingTime = Date.now() - startTime;
 
     // Calculate performance metrics
-    const hotLeads = leads.filter(lead => lead.tier === 'HOT').length;
+    const hotLeads = leads.filter(lead => lead.qualification.tier === 'HOT').length;
     const qualificationRate = hotLeads / leads.length;
     const improvement10x = qualificationRate >= 0.8; // 80% qualification rate indicates 10x improvement
 
@@ -171,8 +171,8 @@ router.post('/lead-generation', authenticateToken, async (req, res, next) => {
         summary: {
           totalLeads: leads.length,
           hotLeads,
-          warmLeads: leads.filter(lead => lead.tier === 'WARM').length,
-          coldLeads: leads.filter(lead => lead.tier === 'COLD').length,
+          warmLeads: leads.filter(lead => lead.qualification.tier === 'WARM').length,
+          coldLeads: leads.filter(lead => lead.qualification.tier === 'COLD').length,
           qualificationRate: (qualificationRate * 100).toFixed(1) + '%'
         }
       },

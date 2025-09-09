@@ -19,18 +19,18 @@ import alertRoutes from './routes/alerts';
 import propertyRoutes from './routes/properties';
 import earlyAdopterRoutes from './routes/early-adopters';
 import adminRoutes from './routes/admin';
-// import superAdminRoutes from './routes/super-admin'; // Temporarily disabled
-// import customerSupportRoutes from './routes/customer-support'; // Temporarily disabled
-// import contentManagementRoutes from './routes/content-management'; // Temporarily disabled
-// import businessOperationsRoutes from './routes/business-operations'; // Temporarily disabled
-// import emailNotificationsRoutes from './routes/email-notifications'; // Temporarily disabled
+import superAdminRoutes from './routes/super-admin';
+import customerSupportRoutes from './routes/customer-support';
+import contentManagementRoutes from './routes/content-management';
+import businessOperationsRoutes from './routes/business-operations';
+import emailNotificationsRoutes from './routes/email-notifications';
 import preferencesRoutes from './routes/preferences';
 // import monitoringRoutes from './routes/monitoring'; // Temporarily disabled
-// import customerOnboardingRoutes from './routes/customer-onboarding'; // Temporarily disabled
-// import complianceRoutes from './routes/compliance'; // Temporarily disabled
-// import leadQualificationRoutes from './routes/leadQualification'; // Temporarily disabled
-// import competitiveAnalysisRoutes from './routes/competitiveAnalysis'; // Temporarily disabled
-// import aiRoutes from './routes/ai'; // Temporarily disabled
+import customerOnboardingRoutes from './routes/customer-onboarding';
+import complianceRoutes from './routes/compliance';
+import leadQualificationRoutes from './routes/leadQualification';
+import competitiveAnalysisRoutes from './routes/competitiveAnalysis';
+import aiRoutes from './routes/ai';
 import realtimeRoutes from './routes/realtime.js';
 import cacheRoutes from './routes/cache.js';
 import paymentRoutes from './routes/payments';
@@ -116,18 +116,18 @@ app.use('/api/alerts', alertRoutes);
 app.use('/api/properties', propertyRoutes);
 app.use('/api/early-adopters', earlyAdopterRoutes);
 app.use('/api/admin', adminRoutes);
-// app.use('/api/super-admin', superAdminRoutes); // Temporarily disabled
-// app.use('/api/customer-support', customerSupportRoutes); // Temporarily disabled
-// app.use('/api/content-management', contentManagementRoutes); // Temporarily disabled
-// app.use('/api/business-operations', businessOperationsRoutes); // Temporarily disabled
-// app.use('/api/email-notifications', emailNotificationsRoutes); // Temporarily disabled
+app.use('/api/super-admin', superAdminRoutes);
+app.use('/api/customer-support', customerSupportRoutes);
+app.use('/api/content-management', contentManagementRoutes);
+app.use('/api/business-operations', businessOperationsRoutes);
+app.use('/api/email-notifications', emailNotificationsRoutes);
 app.use('/api/preferences', preferencesRoutes);
 // app.use('/api/monitoring', monitoringRoutes); // Temporarily disabled
-// app.use('/api/customer-onboarding', customerOnboardingRoutes); // Temporarily disabled
-// app.use('/api/compliance', complianceRoutes); // Temporarily disabled
-// app.use('/api/leads', leadQualificationRoutes); // Temporarily disabled
-// app.use('/api/competitive', competitiveAnalysisRoutes); // Temporarily disabled
-// app.use('/api/ai', aiRoutes); // Temporarily disabled
+app.use('/api/customer-onboarding', customerOnboardingRoutes);
+app.use('/api/compliance', complianceRoutes);
+app.use('/api/leads', leadQualificationRoutes);
+app.use('/api/competitive', competitiveAnalysisRoutes);
+app.use('/api/ai', aiRoutes);
 app.use('/api/realtime', realtimeRoutes);
 app.use('/api/cache', cacheRoutes);
 app.use('/api/payments', paymentRoutes);
@@ -148,18 +148,18 @@ app.get('/api', (req, res) => {
       properties: '/api/properties',
       earlyAdopters: '/api/early-adopters',
       admin: '/api/admin',
-      // superAdmin: '/api/super-admin', // Temporarily disabled
-      // customerSupport: '/api/customer-support', // Temporarily disabled
-      // contentManagement: '/api/content-management', // Temporarily disabled
-      // businessOperations: '/api/business-operations', // Temporarily disabled
-      // emailNotifications: '/api/email-notifications', // Temporarily disabled
+      superAdmin: '/api/super-admin',
+      customerSupport: '/api/customer-support',
+      contentManagement: '/api/content-management',
+      businessOperations: '/api/business-operations',
+      emailNotifications: '/api/email-notifications',
       preferences: '/api/preferences',
       // monitoring: '/api/monitoring', // Temporarily disabled
-      // customerOnboarding: '/api/customer-onboarding', // Temporarily disabled
-      // compliance: '/api/compliance', // Temporarily disabled
-      // leadQualification: '/api/leads', // Temporarily disabled
-      // competitiveAnalysis: '/api/competitive', // Temporarily disabled
-      // ai: '/api/ai', // Temporarily disabled
+      customerOnboarding: '/api/customer-onboarding',
+      compliance: '/api/compliance',
+      leadQualification: '/api/leads',
+      competitiveAnalysis: '/api/competitive',
+      ai: '/api/ai',
       realtime: '/api/realtime',
       cache: '/api/cache',
       payments: '/api/payments',

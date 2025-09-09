@@ -866,11 +866,13 @@ export class AILeadGenerationEngine {
     };
   }
   
-  private async generateInitialInsights(trigger: string, source: string): Promise<Partial<GeneratedLead['aiInsights']>> {
+  private async generateInitialInsights(trigger: string, source: string): Promise<GeneratedLead['aiInsights']> {
     return {
       personalizedMessage: `Hi! I noticed you might be considering a real estate decision based on ${trigger.toLowerCase()}. I'd love to help you navigate the current market conditions.`,
       recommendedApproach: source === 'REFERRAL_NETWORK' ? 'Warm, relationship-focused' : 'Professional, value-first',
-      conversionProbability: Math.random() * 0.4 + 0.3
+      conversionProbability: Math.random() * 0.4 + 0.3,
+      valueProposition: ['Expert market knowledge', 'Personalized service'],
+      objectionHandling: ['Address timing concerns', 'Provide market data']
     };
   }
   
