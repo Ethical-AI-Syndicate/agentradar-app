@@ -396,11 +396,7 @@ export class CustomerSupportSystem {
                 lastName: true
               }
             },
-            _count: {
-              select: {
-                responses: true
-              }
-            }
+            _count: true
           },
           orderBy: { [sortBy]: sortOrder },
           skip: (page - 1) * limit,
