@@ -18,7 +18,7 @@ export default function AdminRoute({ children }: AdminRouteProps) {
   useEffect(() => {
     if (!loading) {
       if (!user) {
-        router.push('/login?redirect=/admin');
+        router.push('/admin/login');
         return;
       }
 
