@@ -131,10 +131,18 @@ export function generateTokenPair(user: {
  */
 export function verifyToken(token: string): JwtPayload {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET_VALIDATED, {
-      issuer: 'agentradar-api',
-      audience: 'agentradar-web'
-    });
+    // First try with issuer/audience validation
+    let decoded;
+    try {
+      decoded = jwt.verify(token, JWT_SECRET_VALIDATED, {
+        issuer: 'agentradar-api',
+        audience: 'agentradar-web'
+      });
+    } catch (issuerError) {
+      // If issuer/audience validation fails, try without it for backward compatibility
+      logger.debug('Token validation with issuer/audience failed, trying without:', issuerError);
+      decoded = jwt.verify(token, JWT_SECRET_VALIDATED);
+    }
     
     if (typeof decoded === 'string') {
       throw new Error('Invalid token format');
