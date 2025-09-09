@@ -8,7 +8,7 @@
  */
 
 import Redis from 'ioredis';
-import { LRUCache } from 'lru-cache';
+const LRUCache = require('lru-cache');
 import crypto from 'crypto';
 
 export class CacheManager {

@@ -1,4 +1,8 @@
+import { Router } from 'express';
 import { prisma } from '../lib/database';
+import { authenticateToken } from '../middleware/auth';
+
+const router = Router();
 
 interface CompetitorProfile {
   id: string;
@@ -149,7 +153,7 @@ export class CompetitiveAnalysisService {
       id: 'kw-command',
       name: 'Keller Williams Command',
       category: 'DIRECT',
-      fundingStage: 'PRIVATE',
+      fundingStage: 'PUBLIC',
       employees: 4000,
       primaryMarkets: ['US', 'Canada', 'International'],
       pricingModel: 'SUBSCRIPTION',
@@ -764,3 +768,16 @@ export class CompetitiveAnalysisService {
 }
 
 export const competitiveAnalysisService = new CompetitiveAnalysisService();
+
+// GET /api/competitive/analysis
+router.get('/analysis', authenticateToken, async (req, res) => {
+  try {
+    const analysis = await competitiveAnalysisService.generateCompetitiveAnalysis();
+    res.json({ success: true, data: analysis });
+  } catch (error) {
+    console.error('Competitive analysis error:', error);
+    res.status(500).json({ success: false, error: 'Failed to generate competitive analysis' });
+  }
+});
+
+export default router;

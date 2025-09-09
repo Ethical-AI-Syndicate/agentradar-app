@@ -1,6 +1,6 @@
 import express from 'express';
 import { leadQualificationService } from '../services/leadQualificationService';
-import { requireAuth } from '../middleware/auth';
+import { authenticateToken } from '../middleware/auth';
 import { body, query, validationResult } from 'express-validator';
 
 const router = express.Router();
@@ -10,7 +10,7 @@ const router = express.Router();
  * Qualify a new lead and assign to sales rep
  */
 router.post('/qualify', [
-  requireAuth,
+  authenticateToken,
   body('contactInfo.name').trim().isLength({ min: 2, max: 100 }).withMessage('Contact name is required (2-100 characters)'),
   body('contactInfo.email').isEmail().normalizeEmail().withMessage('Valid email is required'),
   body('contactInfo.company').trim().isLength({ min: 2, max: 200 }).withMessage('Company name is required'),
@@ -66,7 +66,7 @@ router.post('/qualify', [
  * Get leads ready for outreach
  */
 router.get('/outreach', [
-  requireAuth,
+  authenticateToken,
   query('salesRep').optional().trim().isLength({ min: 2, max: 100 }),
   query('priority').optional().isIn(['HIGH', 'MEDIUM', 'LOW']),
   query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1-100')
@@ -110,7 +110,7 @@ router.get('/outreach', [
  * Update lead score based on new interactions
  */
 router.put('/:leadId/score', [
-  requireAuth,
+  authenticateToken,
   body('emailOpens').optional().isInt({ min: 0, max: 100 }),
   body('linkClicks').optional().isInt({ min: 0, max: 50 }),
   body('demoAttended').optional().isBoolean(),
@@ -151,7 +151,7 @@ router.put('/:leadId/score', [
  * Get lead conversion metrics and analytics
  */
 router.get('/metrics', [
-  requireAuth,
+  authenticateToken,
   query('dateFrom').isISO8601().withMessage('Valid dateFrom is required'),
   query('dateTo').isISO8601().withMessage('Valid dateTo is required')
 ], async (req, res) => {
@@ -201,7 +201,7 @@ router.get('/metrics', [
  * Log sales activity for a lead
  */
 router.post('/:leadId/activity', [
-  requireAuth,
+  authenticateToken,
   body('activityType').isIn([
     'CALL_ATTEMPTED', 'CALL_COMPLETED', 'EMAIL_SENT', 'EMAIL_RESPONDED',
     'DEMO_SCHEDULED', 'DEMO_COMPLETED', 'PROPOSAL_SENT', 'CONTRACT_SENT',
@@ -271,7 +271,7 @@ router.post('/:leadId/activity', [
  * Get sales dashboard data with lead pipeline
  */
 router.get('/dashboard', [
-  requireAuth,
+  authenticateToken,
   query('salesRep').optional().trim().isLength({ min: 2, max: 100 }),
   query('period').optional().isIn(['TODAY', 'WEEK', 'MONTH', 'QUARTER'])
 ], async (req, res) => {

@@ -4,7 +4,7 @@
   "description": "AgentRadar API Server - Real Estate Intelligence Platform",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc --project tsconfig.production.json",
+    "build": "node build.js",
     "dev": "nodemon src/index.ts",
     "start": "node dist/index.js",
     "db:generate": "prisma generate",
@@ -68,10 +68,12 @@
     "dotenv": "^16.6.1",
     "express": "^5.1.0",
     "express-rate-limit": "^8.1.0",
+    "express-validator": "^7.2.1",
     "helmet": "^8.1.0",
     "ioredis": "^5.7.0",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
+    "lru-cache": "^5.1.1",
     "morgan": "^1.10.1",
     "openai": "^5.20.0",
     "stripe": "^18.5.0"
