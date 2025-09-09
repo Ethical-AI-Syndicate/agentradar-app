@@ -33,9 +33,12 @@ export async function authenticateToken(
 ): Promise<void> {
   try {
     const authHeader = req.headers.authorization;
+    logger.debug(`Auth attempt - Headers: ${JSON.stringify(req.headers)}`);
+    
     const token = extractTokenFromHeader(authHeader);
     
     if (!token) {
+      logger.warn(`No token provided for ${req.path}`);
       res.status(401).json({ 
         error: 'Authentication required',
         message: 'No token provided'
@@ -43,8 +46,11 @@ export async function authenticateToken(
       return;
     }
 
+    logger.debug(`Token extracted: ${token.substring(0, 20)}...`);
+
     // Verify token
     const decoded: JwtPayload = verifyToken(token);
+    logger.debug(`Token decoded successfully for user: ${decoded.userId}`);
     
     // Get user from database to ensure they still exist and are active
     const user = await prisma.user.findUnique({
@@ -61,6 +67,7 @@ export async function authenticateToken(
     });
 
     if (!user) {
+      logger.warn(`User not found in database: ${decoded.userId}`);
       res.status(401).json({ 
         error: 'Authentication failed',
         message: 'User not found'
@@ -69,6 +76,7 @@ export async function authenticateToken(
     }
 
     if (!user.isActive) {
+      logger.warn(`User account inactive: ${user.email}`);
       res.status(401).json({ 
         error: 'Authentication failed',
         message: 'User account is inactive'
@@ -79,13 +87,14 @@ export async function authenticateToken(
     // Attach user to request
     req.user = user;
     
-    logger.info(`User authenticated: ${user.email}`);
+    logger.info(`✅ User authenticated successfully: ${user.email} (${user.role})`);
     next();
     
   } catch (error: any) {
-    logger.error('Authentication error:', error);
+    logger.error(`❌ Authentication error for ${req.path}:`, error);
     
     if (error.message === 'Token expired') {
+      logger.warn('Token expired');
       res.status(401).json({ 
         error: 'Authentication failed',
         message: 'Token expired',
@@ -95,6 +104,7 @@ export async function authenticateToken(
     }
     
     if (error.message === 'Invalid token') {
+      logger.warn('Invalid token');
       res.status(401).json({ 
         error: 'Authentication failed',
         message: 'Invalid token',
@@ -103,6 +113,7 @@ export async function authenticateToken(
       return;
     }
     
+    logger.warn('Token verification failed');
     res.status(401).json({ 
       error: 'Authentication failed',
       message: 'Invalid or malformed token'
