@@ -163,10 +163,10 @@ router.delete('/property/:propertyId',
 );
 
 /**
- * Invalidate market cache
- * DELETE /api/cache/market/:region?
+ * Invalidate market cache for specific region
+ * DELETE /api/cache/market/:region
  */
-router.delete('/market/:region?', 
+router.delete('/market/:region', 
   authenticateToken, 
   requireAdmin, 
   async (req, res) => {
@@ -177,9 +177,34 @@ router.delete('/market/:region?',
       
       res.json({
         success: true,
-        message: region 
-          ? `Market cache invalidated for ${region}` 
-          : 'All market cache invalidated',
+        message: `Market cache invalidated for ${region}`,
+        invalidatedBy: req.user.email,
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      res.status(500).json({
+        error: 'Failed to invalidate market cache',
+        details: error.message
+      });
+    }
+  }
+);
+
+/**
+ * Invalidate all market cache
+ * DELETE /api/cache/market
+ */
+router.delete('/market', 
+  authenticateToken, 
+  requireAdmin, 
+  async (req, res) => {
+    try {
+      await invalidateMarketCache();
+      
+      res.json({
+        success: true,
+        message: 'All market cache invalidated',
         invalidatedBy: req.user.email,
         timestamp: new Date().toISOString()
       });
