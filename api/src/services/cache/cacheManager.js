@@ -7,11 +7,11 @@
  * L3: CDN edge caching (external)
  */
 
-import Redis from 'ioredis';
+const Redis = require('ioredis');
 const LRUCache = require('lru-cache');
-import crypto from 'crypto';
+const crypto = require('crypto');
 
-export class CacheManager {
+class CacheManager {
   constructor() {
     // L1 Cache: In-memory LRU cache
     this.l1Cache = new LRUCache({
@@ -560,13 +560,20 @@ export class CacheManager {
 // Export singleton instance
 let cacheManagerInstance = null;
 
-export function createCacheManager() {
+function createCacheManager() {
   if (!cacheManagerInstance) {
     cacheManagerInstance = new CacheManager();
   }
   return cacheManagerInstance;
 }
 
-export function getCacheManager() {
+function getCacheManager() {
   return cacheManagerInstance;
 }
+
+// CommonJS exports
+module.exports = {
+  CacheManager,
+  createCacheManager,
+  getCacheManager
+};

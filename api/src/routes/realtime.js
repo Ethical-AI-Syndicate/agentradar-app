@@ -4,8 +4,7 @@
  */
 
 import express from 'express';
-import { authenticate } from '../middleware/auth.js';
-import { requireAdmin } from '../middleware/adminAuth.js';
+import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 import { getRealtimeService } from '../services/realtime/realtimeService.js';
 import { body, validationResult } from 'express-validator';
 
@@ -15,7 +14,7 @@ const router = express.Router();
  * Get WebSocket server status and statistics
  * GET /api/realtime/status
  */
-router.get('/status', authenticate, async (req, res) => {
+router.get('/status', authenticateToken, async (req, res) => {
   try {
     const realtimeService = getRealtimeService();
     
@@ -48,7 +47,7 @@ router.get('/status', authenticate, async (req, res) => {
  * POST /api/realtime/test-alert
  */
 router.post('/test-alert', 
-  authenticate,
+  authenticateToken,
   requireAdmin,
   [
     body('userId').notEmpty().withMessage('User ID is required'),
@@ -109,7 +108,7 @@ router.post('/test-alert',
  * POST /api/realtime/broadcast
  */
 router.post('/broadcast',
-  authenticate,
+  authenticateToken,
   requireAdmin,
   [
     body('title').notEmpty().withMessage('Title is required'),
@@ -165,7 +164,7 @@ router.post('/broadcast',
  * POST /api/realtime/market-update
  */
 router.post('/market-update',
-  authenticate,
+  authenticateToken,
   requireAdmin,
   [
     body('region').notEmpty().withMessage('Region is required'),
@@ -219,7 +218,7 @@ router.post('/market-update',
  * POST /api/realtime/property-change
  */
 router.post('/property-change',
-  authenticate,
+  authenticateToken,
   [
     body('propertyId').notEmpty().withMessage('Property ID is required'),
     body('changes.type').notEmpty().withMessage('Change type is required'),
@@ -273,7 +272,7 @@ router.post('/property-change',
  * GET /api/realtime/connected-users
  */
 router.get('/connected-users', 
-  authenticate, 
+  authenticateToken, 
   requireAdmin, 
   async (req, res) => {
     try {
@@ -309,7 +308,7 @@ router.get('/connected-users',
  * POST /api/realtime/process-listing
  */
 router.post('/process-listing',
-  authenticate,
+  authenticateToken,
   [
     body('listing.id').notEmpty().withMessage('Listing ID is required'),
     body('listing.address').notEmpty().withMessage('Listing address is required'),

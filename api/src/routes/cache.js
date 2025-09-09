@@ -4,8 +4,7 @@
  */
 
 import express from 'express';
-import { authenticate } from '../middleware/auth.js';
-import { requireAdmin } from '../middleware/adminAuth.js';
+import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 import { getCacheManager } from '../services/cache/cacheManager.js';
 import { 
   getCacheHealthStatus, 
@@ -23,7 +22,7 @@ const router = express.Router();
  * Get cache status and statistics
  * GET /api/cache/status
  */
-router.get('/status', authenticate, requireAdmin, async (req, res) => {
+router.get('/status', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const health = await getCacheHealthStatus();
     res.json({
@@ -43,7 +42,7 @@ router.get('/status', authenticate, requireAdmin, async (req, res) => {
  * Clear all cache
  * POST /api/cache/clear
  */
-router.post('/clear', authenticate, requireAdmin, async (req, res) => {
+router.post('/clear', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const cacheManager = getCacheManager();
     
@@ -74,7 +73,7 @@ router.post('/clear', authenticate, requireAdmin, async (req, res) => {
  * Get specific cached data
  * GET /api/cache/data/:pattern
  */
-router.get('/data/:pattern', authenticate, requireAdmin, async (req, res) => {
+router.get('/data/:pattern', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const cacheManager = getCacheManager();
     const { pattern } = req.params;
@@ -110,7 +109,7 @@ router.get('/data/:pattern', authenticate, requireAdmin, async (req, res) => {
  * DELETE /api/cache/user/:userId
  */
 router.delete('/user/:userId', 
-  authenticate, 
+  authenticateToken, 
   requireAdmin, 
   async (req, res) => {
     try {
@@ -139,7 +138,7 @@ router.delete('/user/:userId',
  * DELETE /api/cache/property/:propertyId
  */
 router.delete('/property/:propertyId', 
-  authenticate, 
+  authenticateToken, 
   requireAdmin, 
   async (req, res) => {
     try {
@@ -168,7 +167,7 @@ router.delete('/property/:propertyId',
  * DELETE /api/cache/market/:region?
  */
 router.delete('/market/:region?', 
-  authenticate, 
+  authenticateToken, 
   requireAdmin, 
   async (req, res) => {
     try {
@@ -199,7 +198,7 @@ router.delete('/market/:region?',
  * DELETE /api/cache/pattern
  */
 router.delete('/pattern',
-  authenticate,
+  authenticateToken,
   requireAdmin,
   [
     body('pattern').notEmpty().withMessage('Pattern is required')
@@ -248,7 +247,7 @@ router.delete('/pattern',
  * POST /api/cache/warm/user/:userId
  */
 router.post('/warm/user/:userId', 
-  authenticate, 
+  authenticateToken, 
   requireAdmin, 
   async (req, res) => {
     try {
@@ -277,7 +276,7 @@ router.post('/warm/user/:userId',
  * POST /api/cache/warm/popular
  */
 router.post('/warm/popular', 
-  authenticate, 
+  authenticateToken, 
   requireAdmin, 
   async (req, res) => {
     try {
@@ -304,7 +303,7 @@ router.post('/warm/popular',
  * POST /api/cache/data/:pattern
  */
 router.post('/data/:pattern',
-  authenticate,
+  authenticateToken,
   requireAdmin,
   [
     body('data').notEmpty().withMessage('Data is required'),
@@ -356,7 +355,7 @@ router.post('/data/:pattern',
  * Get cache metrics for monitoring dashboard
  * GET /api/cache/metrics
  */
-router.get('/metrics', authenticate, requireAdmin, async (req, res) => {
+router.get('/metrics', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const cacheManager = getCacheManager();
     
@@ -391,7 +390,7 @@ router.get('/metrics', authenticate, requireAdmin, async (req, res) => {
  * Test cache performance
  * POST /api/cache/test
  */
-router.post('/test', authenticate, requireAdmin, async (req, res) => {
+router.post('/test', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const cacheManager = getCacheManager();
     

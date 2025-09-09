@@ -327,7 +327,7 @@ router.get('/dashboard', [
  * Get nurturing sequence status for a lead
  */
 router.get('/nurture/:leadId', [
-  requireAuth
+  authenticateToken
 ], async (req, res) => {
   try {
     const { leadId } = req.params;

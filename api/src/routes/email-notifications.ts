@@ -39,8 +39,8 @@ router.use(emailRateLimit);
 // =============================================================================
 
 // Apply authentication to all admin routes
-router.use('/admin/*', authenticateToken);
-router.use('/admin/*', requireAdmin);
+router.use('/admin', authenticateToken);
+router.use('/admin', requireAdmin);
 
 /**
  * POST /api/email-notifications/admin/send

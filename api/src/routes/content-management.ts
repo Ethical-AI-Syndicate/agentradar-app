@@ -182,8 +182,9 @@ router.get('/pages/:slug', async (req: Request, res: Response) => {
 // =============================================================================
 
 // Apply authentication to all admin routes
-router.use('/admin/*', authenticateToken);
-router.use('/admin/*', requireAdmin);
+// Apply authentication middleware to all admin routes
+router.use('/admin', authenticateToken);
+router.use('/admin', requireAdmin);
 
 /**
  * GET /api/content-management/admin/dashboard
