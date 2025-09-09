@@ -3,26 +3,27 @@
   "name": "agentradar-api",
   "builds": [
     {
-      "src": "src/server.js",
+      "src": "minimal-server.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/src/server.js"
+      "dest": "/minimal-server.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/src/server.js"
+      "dest": "/minimal-server.js"
     }
   ],
   "env": {
     "NODE_ENV": "production"
   },
   "functions": {
-    "src/server.js": {
-      "includeFiles": "src/**"
+    "minimal-server.js": {
+      "memory": 1024,
+      "maxDuration": 10
     }
   }
 }
