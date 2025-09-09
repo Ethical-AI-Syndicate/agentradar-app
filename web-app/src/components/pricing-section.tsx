@@ -164,8 +164,8 @@ export function PricingSection() {
               className="relative"
             >
               {plan.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white border-0 px-4 py-1">
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                  <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white border-0 px-4 py-1 shadow-lg">
                     Most Popular
                   </Badge>
                 </div>

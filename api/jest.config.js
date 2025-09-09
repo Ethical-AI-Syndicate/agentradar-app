@@ -60,7 +60,7 @@ module.exports = {
   globalSetup: '<rootDir>/src/__tests__/setup/global-setup.ts',
   globalTeardown: '<rootDir>/src/__tests__/setup/global-teardown.ts',
   // Module name mapping for cleaner imports
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@tests/(.*)$': '<rootDir>/src/__tests__/$1'
   },

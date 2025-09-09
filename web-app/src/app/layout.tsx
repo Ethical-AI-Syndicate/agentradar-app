@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ChatbotProvider } from "@/components/chatbot-provider";
+import { CookieConsent } from "@/components/cookie-consent";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import "./globals.css";
@@ -34,6 +35,7 @@ export default function RootLayout({
         <AuthProvider>
           <ChatbotProvider>
             {children}
+            <CookieConsent />
           </ChatbotProvider>
         </AuthProvider>
         <Analytics />

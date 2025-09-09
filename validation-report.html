@@ -1,0 +1,97 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AgentRadar Production Validation Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .header { background: #f8f9fa; padding: 20px; border-radius: 8px; }
+        .summary { display: flex; gap: 20px; margin: 20px 0; }
+        .metric { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .pass { color: #28a745; }
+        .fail { color: #dc3545; }
+        .test-result { margin: 10px 0; padding: 10px; border-left: 4px solid #ddd; }
+        .test-result.pass { border-color: #28a745; background: #f8fff8; }
+        .test-result.fail { border-color: #dc3545; background: #fff8f8; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 AgentRadar Production Validation Report</h1>
+        <p>Generated: 2025-09-09T12:48:00.185Z</p>
+        <p>Validation URL: https://agentradar.app</p>
+    </div>
+    
+    <div class="summary">
+        <div class="metric">
+            <h3>Total Tests</h3>
+            <div style="font-size: 2em; font-weight: bold;">3</div>
+        </div>
+        <div class="metric">
+            <h3>Passed</h3>
+            <div style="font-size: 2em; font-weight: bold; color: #28a745;">1</div>
+        </div>
+        <div class="metric">
+            <h3>Failed</h3>
+            <div style="font-size: 2em; font-weight: bold; color: #dc3545;">2</div>
+        </div>
+        <div class="metric">
+            <h3>Success Rate</h3>
+            <div style="font-size: 2em; font-weight: bold;">33%</div>
+        </div>
+    </div>
+    
+    <h2>Test Results</h2>
+    
+        <div class="test-result pass">
+            <strong>FUNC_001</strong>: Main platform page load
+            <div style="margin-top: 5px;">
+                <span class="pass">PASS</span>
+                
+                
+            </div>
+        </div>
+    
+        <div class="test-result fail">
+            <strong>API_001</strong>: API health endpoint
+            <div style="margin-top: 5px;">
+                <span class="fail">FAIL</span>
+                <div style="color: #dc3545; margin-top: 5px;">Error: Health check failed (status: 525)</div>
+                <div style="color: #ffc107; margin-top: 5px;">Fix: Debug API server deployment</div>
+            </div>
+        </div>
+    
+        <div class="test-result fail">
+            <strong>TEST_001</strong>: Automated test suite
+            <div style="margin-top: 5px;">
+                <span class="fail">FAIL</span>
+                <div style="color: #dc3545; margin-top: 5px;">Error: Command failed: cd api && npm test
+Error: Jest: Got error running globalSetup - /home/mike/claude-projects/active/RealEstateAgent-IntelligenceFeed/api/src/__tests__/setup/global-setup.ts, reason: [TSError: [96msrc/__tests__/setup/global-setup.ts[0m:[93m418[0m:[93m9[0m - [91merror[0m[90m TS2322: [0mType '"TEST"' is not assignable to type 'DataSource'.
+
+[7m418[0m         source: 'TEST',
+[7m   [0m [91m        ~~~~~~[0m
+
+  [96m../node_modules/.prisma/client/index.d.ts[0m:[93m61943[0m:[93m5[0m
+    [7m61943[0m     source: $Enums.DataSource
+    [7m     [0m [96m    ~~~~~~[0m
+    The expected type comes from property 'source' which is declared here on type '(Without<AlertCreateInput, AlertUncheckedCreateInput> & AlertUncheckedCreateInput) | (Without<...> & AlertCreateInput)']
+    at runGlobalHook (/home/mike/claude-projects/active/RealEstateAgent-IntelligenceFeed/node_modules/@jest/core/build/runGlobalHook.js:124:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runJest (/home/mike/claude-projects/active/RealEstateAgent-IntelligenceFeed/node_modules/@jest/core/build/runJest.js:327:5)
+    at async _run10000 (/home/mike/claude-projects/active/RealEstateAgent-IntelligenceFeed/node_modules/@jest/core/build/cli/index.js:343:7)
+    at async runCLI (/home/mike/claude-projects/active/RealEstateAgent-IntelligenceFeed/node_modules/@jest/core/build/cli/index.js:198:3)
+    at async Object.run (/home/mike/claude-projects/active/RealEstateAgent-IntelligenceFeed/node_modules/jest-cli/build/run.js:130:37)
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /home/mike/claude-projects/active/RealEstateAgent-IntelligenceFeed/api
+npm error workspace @agentradar/api@1.0.0
+npm error location /home/mike/claude-projects/active/RealEstateAgent-IntelligenceFeed/api
+npm error command failed
+npm error command sh -c COLLECT_COVERAGE=false jest
+</div>
+                <div style="color: #ffc107; margin-top: 5px;">Fix: Review and fix failing tests</div>
+            </div>
+        </div>
+    
+</body>
+</html>

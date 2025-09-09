@@ -413,6 +413,9 @@ async function seedTestData(prisma: PrismaClient): Promise<void> {
       data: {
         id: `test-alert-${i}`,
         title: `Test Alert ${i}`,
+        description: `Test description for alert ${i}`,
+        address: `${Math.floor(Math.random() * 9999)} Test Street, ${cities[i % cities.length]}`,
+        source: 'MANUAL_ENTRY',
         alertType: alertTypes[i % alertTypes.length] as any,
         priority: priorities[i % priorities.length] as any,
         city: cities[i % cities.length],
@@ -432,7 +435,7 @@ async function seedTestData(prisma: PrismaClient): Promise<void> {
       alertTypes: ['POWER_OF_SALE', 'ESTATE_SALE'],
       cities: ['Toronto', 'Vancouver'],
       minPriority: 'MEDIUM',
-      maxDistance: 50,
+      maxDistanceKm: 50,
       minOpportunityScore: 60,
     },
   });
