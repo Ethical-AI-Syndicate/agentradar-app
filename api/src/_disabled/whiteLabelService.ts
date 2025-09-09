@@ -3,7 +3,7 @@
  * Automated white-label customization and branding management
  */
 
-import { PrismaClient } from '../generated/prisma';
+import { PrismaClient } from "@prisma/client"
 import { createLogger } from '../utils/logger';
 import { promises as fs } from 'fs';
 import path from 'path';

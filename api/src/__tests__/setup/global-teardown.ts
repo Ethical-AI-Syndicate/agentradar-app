@@ -4,7 +4,7 @@
  * Runs once after all tests to clean up the test environment
  */
 
-import { PrismaClient } from '../../generated/prisma';
+import { PrismaClient } from "@prisma/client"
 
 export default async function globalTeardown(): Promise<void> {
   console.log('🧹 Starting global test cleanup...');

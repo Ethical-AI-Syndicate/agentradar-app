@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { PrismaClient, SubscriptionTier } from '../generated/prisma';
+import { PrismaClient, SubscriptionTier } from "@prisma/client"
 import { createLogger } from '../utils/logger';
 import { hashPassword, verifyPassword, validatePasswordStrength } from '../utils/password';
 import { generateTokenPair, verifyToken, extractTokenFromHeader } from '../utils/jwt';

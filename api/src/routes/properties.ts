@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { createLogger } from '../utils/logger';
-import { PrismaClient, AlertType, Priority } from '../generated/prisma';
+import { PrismaClient, AlertType, Priority } from "@prisma/client"
 
 const router = Router();
 const logger = createLogger();

@@ -6,7 +6,13 @@
 
 import Joi from 'joi';
 import { Request, Response, NextFunction } from 'express';
-import DOMPurify from 'isomorphic-dompurify';
+// Note: DOMPurify removed as dependency was cleaned up
+
+function sanitizeString(input: string): string {
+  return input.replace(/<script[^>]*>.*?<\/script>/gi, '')
+              .replace(/<[^>]*>/g, '')
+              .trim();
+}
 import { AlertType, Priority, UserRole, SubscriptionTier } from '@prisma/client';
 
 // ============================================================================
@@ -99,7 +105,7 @@ export const alertValidationSchema = Joi.object({
     .required()
     .custom((value, helpers) => {
       // XSS prevention
-      const sanitized = DOMPurify.sanitize(value);
+      const sanitized = sanitizeString(value);
       if (sanitized !== value) {
         return helpers.error('any.invalid');
       }
@@ -131,7 +137,7 @@ export const alertValidationSchema = Joi.object({
     .optional()
     .custom((value, helpers) => {
       if (!value) return value;
-      const sanitized = DOMPurify.sanitize(value);
+      const sanitized = sanitizeString(value);
       if (sanitized !== value) {
         return helpers.error('any.invalid');
       }
@@ -167,7 +173,7 @@ export const alertValidationSchema = Joi.object({
     .optional()
     .custom((value, helpers) => {
       if (!value) return value;
-      const sanitized = DOMPurify.sanitize(value);
+      const sanitized = sanitizeString(value);
       if (sanitized !== value) {
         return helpers.error('any.invalid');
       }
@@ -312,7 +318,7 @@ export const supportTicketValidationSchema = Joi.object({
     .max(200)
     .required()
     .custom((value, helpers) => {
-      const sanitized = DOMPurify.sanitize(value);
+      const sanitized = sanitizeString(value);
       if (sanitized !== value) {
         return helpers.error('any.invalid');
       }
@@ -325,7 +331,7 @@ export const supportTicketValidationSchema = Joi.object({
     .max(5000)
     .required()
     .custom((value, helpers) => {
-      const sanitized = DOMPurify.sanitize(value);
+      const sanitized = sanitizeString(value);
       if (sanitized !== value) {
         return helpers.error('any.invalid');
       }
@@ -429,7 +435,7 @@ export function preventSqlInjection(req: Request, res: Response, next: NextFunct
 export function preventXSS(req: Request, res: Response, next: NextFunction) {
   function sanitizeObject(obj: any): any {
     if (typeof obj === 'string') {
-      return DOMPurify.sanitize(obj);
+      return sanitizeString(obj);
     } else if (Array.isArray(obj)) {
       return obj.map(sanitizeObject);
     } else if (typeof obj === 'object' && obj !== null) {

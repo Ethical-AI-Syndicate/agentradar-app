@@ -5,7 +5,7 @@
  * and running common test scenarios.
  */
 
-import { PrismaClient, SubscriptionTier, UserRole, AlertType, AlertStatus, Priority } from '../../generated/prisma';
+import { PrismaClient, SubscriptionTier, UserRole, AlertType, AlertStatus, Priority } from "@prisma/client"
 import * as jsonwebtoken from 'jsonwebtoken';
 import bcryptjs from 'bcryptjs';
 import request from 'supertest';

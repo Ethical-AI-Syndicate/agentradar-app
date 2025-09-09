@@ -3,7 +3,7 @@
  * Intelligent automation for customer lifecycle management
  */
 
-import { PrismaClient } from '../generated/prisma';
+import { PrismaClient } from "@prisma/client"
 import { createLogger } from '../utils/logger';
 import { sendEmail } from '../utils/email';
 import { CustomerOnboardingService } from './customerOnboardingService';

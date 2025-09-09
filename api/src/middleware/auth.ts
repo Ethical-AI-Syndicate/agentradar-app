@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { PrismaClient } from '../generated/prisma';
+import { PrismaClient } from "@prisma/client"
 import { verifyToken, extractTokenFromHeader, JwtPayload } from '../utils/jwt';
 import { createLogger } from '../utils/logger';
 

@@ -3,7 +3,7 @@
  * Comprehensive brokerage client onboarding and lifecycle management
  */
 
-import { PrismaClient } from '../generated/prisma';
+import { PrismaClient } from "@prisma/client"
 import { createLogger } from '../utils/logger';
 import { sendEmail } from '../utils/email';
 

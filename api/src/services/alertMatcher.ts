@@ -1,4 +1,4 @@
-import { PrismaClient, Alert, AlertPreference, User } from '../generated/prisma';
+import { PrismaClient, Alert, AlertPreference, User } from "@prisma/client"
 import { createLogger } from '../utils/logger';
 
 const logger = createLogger();
