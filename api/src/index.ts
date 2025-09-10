@@ -149,22 +149,7 @@ app.get("/health", async (req, res) => {
   }
 });
 
-// API Routes - Conditional mounting based on deployment context
-const isAPISubdomain = process.env.VERCEL_URL?.includes('api.') || 
-                       process.env.API_SUBDOMAIN === 'true' || 
-                       process.env.VERCEL_BRANCH_URL?.includes('api.');
-
-// Middleware to detect API subdomain from host header
-app.use((req, res, next) => {
-  const host = req.get('host');
-  const isSubdomainRequest = host?.includes('api.agentradar.app') || 
-                            host?.includes('api.') ||
-                            req.headers['x-vercel-host'] === 'api.agentradar.app';
-  req.isAPISubdomain = isSubdomainRequest;
-  next();
-});
-
-// Routes without /api prefix (for API subdomain)
+// API Routes - Clean configuration for dedicated API project
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/alerts", alertRoutes);
@@ -194,37 +179,6 @@ app.use("/lms", lmsRoutes);
 app.use("/chatbot", chatbotRoutes);
 app.use("/sso", ssoRoutes);
 app.use('/court-processing', courtProcessingRoutes);
-
-// Standard routes with /api prefix (for main domain)
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/alerts", alertRoutes);
-app.use("/api/properties", propertyRoutes);
-app.use("/api/early-adopters", earlyAdopterRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/super-admin", superAdminRoutes);
-app.use("/api/customer-support", customerSupportRoutes);
-app.use("/api/content-management", contentManagementRoutes);
-app.use("/api/business-operations", businessOperationsRoutes);
-app.use("/api/email-notifications", emailNotificationsRoutes);
-app.use("/api/preferences", preferencesRoutes);
-app.use('/api/monitoring', monitoringRoutes);
-app.use("/api/customer-onboarding", customerOnboardingRoutes);
-app.use("/api/compliance", complianceRoutes);
-app.use("/api/leads", leadQualificationRoutes);
-app.use("/api/competitive", competitiveAnalysisRoutes);
-app.use("/api/ai", aiRoutes);
-app.use("/api/realtime", realtimeRoutes);
-app.use("/api/cache", cacheRoutes);
-app.use("/api/payments", paymentRoutes);
-app.use("/api/mls", mlsRoutes);
-app.use("/api/court-filings", courtFilingRoutes);
-app.use("/api/estate-sales", estateSalesRoutes);
-app.use("/api/property", propertyAnalysisRoutes);
-app.use("/api/lms", lmsRoutes);
-app.use("/api/chatbot", chatbotRoutes);
-app.use("/api/sso", ssoRoutes);
-app.use('/api/court-processing', courtProcessingRoutes);
 
 // API documentation endpoint
 app.get("/api", (req, res) => {

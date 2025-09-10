@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "agentradar-api",
   "installCommand": "cd .. && npm install --ignore-scripts && cd api && npm install",
   "buildCommand": "cd .. && npx prisma generate && cd api && npm run build",
   "builds": [
@@ -8,7 +7,8 @@
       "src": "src/index.ts",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["src/**", "prisma/**", "dist/**", "../node_modules/**", "../prisma/**"]
+        "maxLambdaSize": "50mb",
+        "includeFiles": ["src/**", "dist/**", "../node_modules/**", "../prisma/**"]
       }
     }
   ],
@@ -105,10 +105,5 @@
     "REPLIERS_ENDPOINT": "https://api.repliers.ca/v1",
     "REPLIERS_REGION": "GTA",
     "ENABLE_MOCK_DATA": "false"
-  },
-  "functions": {
-    "src/index.ts": {
-      "maxDuration": 30
-    }
   }
 }
