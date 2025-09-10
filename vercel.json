@@ -8,10 +8,6 @@
     {
       "source": "/health",
       "destination": "/api/health"
-    },
-    {
-      "source": "/api/auth/:path*",
-      "destination": "/api/auth/:path*"
     }
   ],
   "env": {

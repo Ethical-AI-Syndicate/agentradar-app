@@ -149,36 +149,72 @@ app.get("/health", async (req, res) => {
   }
 });
 
-// API Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/alerts", alertRoutes);
-app.use("/api/properties", propertyRoutes);
-app.use("/api/early-adopters", earlyAdopterRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/super-admin", superAdminRoutes);
-app.use("/api/customer-support", customerSupportRoutes);
-app.use("/api/content-management", contentManagementRoutes);
-app.use("/api/business-operations", businessOperationsRoutes);
-app.use("/api/email-notifications", emailNotificationsRoutes);
-app.use("/api/preferences", preferencesRoutes);
-app.use('/api/monitoring', monitoringRoutes);
-app.use("/api/customer-onboarding", customerOnboardingRoutes);
-app.use("/api/compliance", complianceRoutes);
-app.use("/api/leads", leadQualificationRoutes);
-app.use("/api/competitive", competitiveAnalysisRoutes);
-app.use("/api/ai", aiRoutes);
-app.use("/api/realtime", realtimeRoutes);
-app.use("/api/cache", cacheRoutes);
-app.use("/api/payments", paymentRoutes);
-app.use("/api/mls", mlsRoutes);
-app.use("/api/court-filings", courtFilingRoutes);
-app.use("/api/estate-sales", estateSalesRoutes);
-app.use("/api/property", propertyAnalysisRoutes);
-app.use("/api/lms", lmsRoutes);
-app.use("/api/chatbot", chatbotRoutes);
-app.use("/api/sso", ssoRoutes);
-app.use('/api/court-processing', courtProcessingRoutes);
+// API Routes - Conditional mounting based on deployment context
+const isAPISubdomain = process.env.VERCEL_URL?.includes('api.') || process.env.API_SUBDOMAIN === 'true';
+
+if (isAPISubdomain) {
+  // API subdomain routes (api.agentradar.app) - without /api prefix
+  app.use("/auth", authRoutes);
+  app.use("/users", userRoutes);
+  app.use("/alerts", alertRoutes);
+  app.use("/properties", propertyRoutes);
+  app.use("/early-adopters", earlyAdopterRoutes);
+  app.use("/admin", adminRoutes);
+  app.use("/super-admin", superAdminRoutes);
+  app.use("/customer-support", customerSupportRoutes);
+  app.use("/content-management", contentManagementRoutes);
+  app.use("/business-operations", businessOperationsRoutes);
+  app.use("/email-notifications", emailNotificationsRoutes);
+  app.use("/preferences", preferencesRoutes);
+  app.use('/monitoring', monitoringRoutes);
+  app.use("/customer-onboarding", customerOnboardingRoutes);
+  app.use("/compliance", complianceRoutes);
+  app.use("/leads", leadQualificationRoutes);
+  app.use("/competitive", competitiveAnalysisRoutes);
+  app.use("/ai", aiRoutes);
+  app.use("/realtime", realtimeRoutes);
+  app.use("/cache", cacheRoutes);
+  app.use("/payments", paymentRoutes);
+  app.use("/mls", mlsRoutes);
+  app.use("/court-filings", courtFilingRoutes);
+  app.use("/estate-sales", estateSalesRoutes);
+  app.use("/property", propertyAnalysisRoutes);
+  app.use("/lms", lmsRoutes);
+  app.use("/chatbot", chatbotRoutes);
+  app.use("/sso", ssoRoutes);
+  app.use('/court-processing', courtProcessingRoutes);
+} else {
+  // Standard routes with /api prefix (for integrated deployment)
+  app.use("/api/auth", authRoutes);
+  app.use("/api/users", userRoutes);
+  app.use("/api/alerts", alertRoutes);
+  app.use("/api/properties", propertyRoutes);
+  app.use("/api/early-adopters", earlyAdopterRoutes);
+  app.use("/api/admin", adminRoutes);
+  app.use("/api/super-admin", superAdminRoutes);
+  app.use("/api/customer-support", customerSupportRoutes);
+  app.use("/api/content-management", contentManagementRoutes);
+  app.use("/api/business-operations", businessOperationsRoutes);
+  app.use("/api/email-notifications", emailNotificationsRoutes);
+  app.use("/api/preferences", preferencesRoutes);
+  app.use('/api/monitoring', monitoringRoutes);
+  app.use("/api/customer-onboarding", customerOnboardingRoutes);
+  app.use("/api/compliance", complianceRoutes);
+  app.use("/api/leads", leadQualificationRoutes);
+  app.use("/api/competitive", competitiveAnalysisRoutes);
+  app.use("/api/ai", aiRoutes);
+  app.use("/api/realtime", realtimeRoutes);
+  app.use("/api/cache", cacheRoutes);
+  app.use("/api/payments", paymentRoutes);
+  app.use("/api/mls", mlsRoutes);
+  app.use("/api/court-filings", courtFilingRoutes);
+  app.use("/api/estate-sales", estateSalesRoutes);
+  app.use("/api/property", propertyAnalysisRoutes);
+  app.use("/api/lms", lmsRoutes);
+  app.use("/api/chatbot", chatbotRoutes);
+  app.use("/api/sso", ssoRoutes);
+  app.use('/api/court-processing', courtProcessingRoutes);
+}
 
 // API documentation endpoint
 app.get("/api", (req, res) => {

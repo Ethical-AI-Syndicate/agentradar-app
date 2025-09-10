@@ -1,0 +1,80 @@
+{
+  "version": 2,
+  "name": "agentradar-api", 
+  "builds": [
+    {
+      "src": "src/index.ts",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["src/**", "prisma/**", "dist/**"]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/health",
+      "dest": "src/index.ts"
+    },
+    {
+      "src": "/auth/(.*)",
+      "dest": "src/index.ts"
+    },
+    {
+      "src": "/users/(.*)",
+      "dest": "src/index.ts"
+    },
+    {
+      "src": "/admin/(.*)",
+      "dest": "src/index.ts"
+    },
+    {
+      "src": "/alerts/(.*)",
+      "dest": "src/index.ts"
+    },
+    {
+      "src": "/properties/(.*)",
+      "dest": "src/index.ts"
+    },
+    {
+      "src": "/payments/(.*)",
+      "dest": "src/index.ts"
+    },
+    {
+      "src": "/billing/(.*)",
+      "dest": "src/index.ts"
+    },
+    {
+      "src": "/support/(.*)",
+      "dest": "src/index.ts"
+    },
+    {
+      "src": "/contact/(.*)",
+      "dest": "src/index.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "src/index.ts"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production",
+    "API_SUBDOMAIN": "true",
+    "DATABASE_URL": "postgresql://neondb_owner:npg_MkmTsgf5hRL6@ep-damp-band-ado7eaqx-pooler.c-2.us-east-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require",
+    "JWT_SECRET": "agentradar-enterprise-jwt-secret-2025-production-@$1mPl3X_K3y!",
+    "RATE_LIMIT_WINDOW_MS": "900000",
+    "RATE_LIMIT_MAX_REQUESTS": "100",
+    "SENDGRID_API_KEY": "SG.production-key-configure_in_vercel_dashboard",
+    "EMAIL_FROM": "AgentRadar <noreply@agentradar.app>",
+    "OPENAI_API_KEY": "sk-proj-production_key_configure_in_vercel_dashboard",
+    "STRIPE_SECRET_KEY": "sk_live_production_key_configure_in_vercel_dashboard",
+    "REPLIERS_API_KEY": "production-key-configure_in_vercel_dashboard",
+    "REPLIERS_ENDPOINT": "https://api.repliers.ca/v1",
+    "REPLIERS_REGION": "GTA",
+    "ENABLE_MOCK_DATA": "false"
+  },
+  "functions": {
+    "src/index.ts": {
+      "maxDuration": 30
+    }
+  }
+}
