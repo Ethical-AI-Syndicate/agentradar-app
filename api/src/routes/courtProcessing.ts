@@ -1,43 +1,67 @@
 import express from 'express';
 import { authenticateToken, requireAdmin } from '../middleware/auth';
-import validateRequest from '../middleware/validation';
-import { z } from 'zod';
+import { validateRequest } from '../middleware/validation';
+import Joi from 'joi';
 import { createLogger } from '../utils/logger';
 
 const router = express.Router();
 const logger = createLogger();
 
 // Court filing submission schema
-const courtFilingSchema = z.object({
-  courtName: z.string().min(1),
-  caseNumber: z.string().min(1),
-  filingType: z.enum(['POWER_OF_SALE', 'FORECLOSURE', 'ESTATE', 'BANKRUPTCY', 'TAX_SALE']),
-  propertyAddress: z.string().min(1),
-  legalDescription: z.string().optional(),
-  filingDate: z.string().datetime(),
-  hearingDate: z.string().datetime().optional(),
-  amount: z.number().positive().optional(),
-  status: z.enum(['FILED', 'SCHEDULED', 'HEARING', 'CLOSED', 'APPEALED']),
-  documents: z.array(z.object({
-    name: z.string(),
-    type: z.string(),
-    url: z.string().url().optional(),
-    content: z.string().optional()
+const courtFilingSchema = Joi.object({
+  courtName: Joi.string().trim().min(1).required(),
+  caseNumber: Joi.string().trim().min(1).required(),
+  filingType: Joi.string().valid('POWER_OF_SALE', 'FORECLOSURE', 'ESTATE', 'BANKRUPTCY', 'TAX_SALE').required(),
+  propertyAddress: Joi.string().trim().min(1).required(),
+  legalDescription: Joi.string().trim().allow('').optional(),
+  filingDate: Joi.date().iso().required(),
+  hearingDate: Joi.date().iso().allow(null).optional(),
+  amount: Joi.number().positive().allow(null).optional(),
+  status: Joi.string().valid('FILED', 'SCHEDULED', 'HEARING', 'CLOSED', 'APPEALED').required(),
+  documents: Joi.array().items(Joi.object({
+    name: Joi.string().trim().required(),
+    type: Joi.string().trim().required(),
+    url: Joi.string().uri().allow('').optional(),
+    content: Joi.string().allow('').optional()
   })).optional(),
-  parties: z.array(z.object({
-    name: z.string(),
-    role: z.enum(['PLAINTIFF', 'DEFENDANT', 'TRUSTEE', 'LAWYER']),
-    contact: z.string().optional()
+  parties: Joi.array().items(Joi.object({
+    name: Joi.string().trim().required(),
+    role: Joi.string().valid('PLAINTIFF', 'DEFENDANT', 'TRUSTEE', 'LAWYER').required(),
+    contact: Joi.string().trim().allow('').optional()
   })).optional()
 });
 
 // Processing queue item schema
-const queueItemSchema = z.object({
-  source: z.string(),
-  rawData: z.any(),
-  priority: z.enum(['LOW', 'NORMAL', 'HIGH', 'URGENT']),
-  retryCount: z.number().min(0).optional(),
-  scheduledFor: z.string().datetime().optional()
+const queueItemSchema = Joi.object({
+  source: Joi.string().trim().min(1).required(),
+  rawData: Joi.any().required(),
+  priority: Joi.string().valid('LOW', 'NORMAL', 'HIGH', 'URGENT').default('NORMAL'),
+  retryCount: Joi.number().min(0).default(0).optional(),
+  scheduledFor: Joi.date().iso().allow(null).optional()
+});
+
+// Update court filing schema (partial)
+const updateCourtFilingSchema = Joi.object({
+  courtName: Joi.string().trim().min(1).optional(),
+  caseNumber: Joi.string().trim().min(1).optional(),
+  filingType: Joi.string().valid('POWER_OF_SALE', 'FORECLOSURE', 'ESTATE', 'BANKRUPTCY', 'TAX_SALE').optional(),
+  propertyAddress: Joi.string().trim().min(1).optional(),
+  legalDescription: Joi.string().trim().allow('').optional(),
+  filingDate: Joi.date().iso().optional(),
+  hearingDate: Joi.date().iso().allow(null).optional(),
+  amount: Joi.number().positive().allow(null).optional(),
+  status: Joi.string().valid('FILED', 'SCHEDULED', 'HEARING', 'CLOSED', 'APPEALED').optional(),
+  documents: Joi.array().items(Joi.object({
+    name: Joi.string().trim().required(),
+    type: Joi.string().trim().required(),
+    url: Joi.string().uri().allow('').optional(),
+    content: Joi.string().allow('').optional()
+  })).optional(),
+  parties: Joi.array().items(Joi.object({
+    name: Joi.string().trim().required(),
+    role: Joi.string().valid('PLAINTIFF', 'DEFENDANT', 'TRUSTEE', 'LAWYER').required(),
+    contact: Joi.string().trim().allow('').optional()
+  })).optional()
 });
 
 // Get court processing queue status
@@ -232,7 +256,7 @@ router.post('/filings', authenticateToken, validateRequest(courtFilingSchema), a
 });
 
 // Update court filing
-router.put('/filings/:filingId', authenticateToken, validateRequest(courtFilingSchema.partial()), async (req, res) => {
+router.put('/filings/:filingId', authenticateToken, validateRequest(updateCourtFilingSchema), async (req, res) => {
   try {
     const { filingId } = req.params;
     const updateData = req.body;

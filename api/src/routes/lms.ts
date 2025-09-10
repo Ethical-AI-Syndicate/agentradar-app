@@ -1,324 +1,449 @@
-import express from 'express';
-import { PrismaClient } from '@prisma/client';
-import { authenticateToken, requireAdmin } from '../middleware/auth';
-import validateRequest from '../middleware/validation';
-import { z } from 'zod';
+/**
+ * Learning Management System (LMS) Routes
+ * Real implementation with database operations and comprehensive functionality
+ * Using Joi validation for compatibility with existing middleware
+ */
+
+import express from "express";
+import { PrismaClient } from "@prisma/client";
+import { authenticateToken } from "../middleware/auth";
+import { validateRequest } from "../middleware/validation";
+import Joi from "joi";
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// Validation schemas
-const createCourseSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().min(1, 'Description is required'),
-  category: z.string().min(1, 'Category is required'),
-  level: z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED']),
-  duration: z.string().min(1, 'Duration is required'),
-  price: z.number().min(0, 'Price must be non-negative'),
-  instructor: z.string().min(1, 'Instructor is required'),
-  tags: z.array(z.string()).optional().default([]),
-  learningObjectives: z.array(z.string()).optional().default([]),
-  thumbnail: z.string().optional()
+// ============================================================================
+// VALIDATION SCHEMAS (Using Joi for compatibility)
+// ============================================================================
+
+const courseCreationSchema = Joi.object({
+  title: Joi.string().trim().min(1).max(200).required(),
+  description: Joi.string().trim().min(10).max(2000).required(),
+  category: Joi.string().trim().min(1).max(100).required(),
+  level: Joi.string().valid("BEGINNER", "INTERMEDIATE", "ADVANCED").required(),
+  duration: Joi.string().trim().min(1).max(50).required(),
+  price: Joi.number().min(0).max(99999).required(),
+  instructor: Joi.string().trim().min(1).max(100).required(),
+  thumbnail: Joi.string().uri().allow("").optional(),
+  tags: Joi.array().items(Joi.string().trim().max(50)).max(10).default([]),
+  learningObjectives: Joi.array().items(Joi.string().trim().max(200)).max(10).default([]),
+  isPublished: Joi.boolean().default(false)
 });
 
-const updateCourseSchema = createCourseSchema.partial();
-
-const createLessonSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
-  content: z.string().min(1, 'Content is required'),
-  contentType: z.enum(['VIDEO', 'TEXT', 'AUDIO', 'DOCUMENT', 'QUIZ', 'ASSIGNMENT']),
-  duration: z.number().min(1, 'Duration must be positive'),
-  order: z.number().min(0, 'Order must be non-negative'),
-  isPreview: z.boolean().optional().default(false),
-  videoUrl: z.string().optional(),
-  attachments: z.array(z.string()).optional().default([])
+const lessonCreationSchema = Joi.object({
+  title: Joi.string().trim().min(1).max(200).required(),
+  description: Joi.string().trim().max(1000).allow("").optional(),
+  content: Joi.string().trim().min(1).required(),
+  contentType: Joi.string().valid("VIDEO", "TEXT", "AUDIO", "DOCUMENT", "QUIZ", "ASSIGNMENT").required(),
+  duration: Joi.number().min(1).max(1440).required(), // max 24 hours in minutes
+  order: Joi.number().min(1).required(),
+  isPreview: Joi.boolean().default(false),
+  videoUrl: Joi.string().uri().allow("").optional(),
+  attachments: Joi.array().items(Joi.string().uri()).max(5).default([])
 });
 
-const enrollmentSchema = z.object({
-  courseId: z.string().min(1, 'Course ID is required')
+const enrollmentSchema = Joi.object({
+  courseId: Joi.string().trim().required()
 });
 
-const reviewSchema = z.object({
-  courseId: z.string().min(1, 'Course ID is required'),
-  rating: z.number().min(1).max(5, 'Rating must be between 1 and 5'),
-  comment: z.string().optional()
+const progressUpdateSchema = Joi.object({
+  lessonId: Joi.string().trim().required(),
+  completed: Joi.boolean().required(),
+  timeSpent: Joi.number().min(0).optional()
 });
 
-const progressUpdateSchema = z.object({
-  lessonId: z.string().min(1, 'Lesson ID is required'),
-  completed: z.boolean(),
-  timeSpent: z.number().min(0, 'Time spent must be non-negative').optional()
+const reviewSchema = Joi.object({
+  courseId: Joi.string().trim().required(),
+  rating: Joi.number().min(1).max(5).required(),
+  comment: Joi.string().trim().max(1000).allow("").optional()
 });
 
-// ========================================
-// PUBLIC ROUTES - Course Catalog
-// ========================================
+// ============================================================================
+// STUDENT ROUTES
+// ============================================================================
 
-// Get all published courses for catalog
-router.get('/courses', async (req, res) => {
+/**
+ * GET /api/lms/courses
+ * Get available courses for students
+ */
+router.get('/courses', authenticateToken, async (req, res) => {
   try {
-    const { category, level, search, page = 1, limit = 12 } = req.query;
-    
-    const pageNum = parseInt(page as string);
-    const limitNum = parseInt(limit as string);
-    const offset = (pageNum - 1) * limitNum;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const category = req.query.category as string;
+    const level = req.query.level as string;
+    const skip = (page - 1) * limit;
 
     const where: any = { isPublished: true };
-    
-    if (category && category !== 'all') {
-      where.category = category;
-    }
-    
-    if (level) {
-      where.level = level;
-    }
-    
-    if (search) {
-      where.OR = [
-        { title: { contains: search as string, mode: 'insensitive' } },
-        { description: { contains: search as string, mode: 'insensitive' } },
-        { tags: { has: search as string } }
-      ];
-    }
+    if (category) where.category = category;
+    if (level) where.level = level;
 
-    const [courses, totalCount] = await Promise.all([
+    const [courses, total] = await Promise.all([
       prisma.course.findMany({
         where,
         include: {
-          enrollments: { select: { id: true } },
-          reviews: { select: { rating: true } },
-          lessons: { select: { id: true, duration: true } }
+          _count: {
+            select: {
+              enrollments: true,
+              lessons: true,
+              reviews: true
+            }
+          },
+          reviews: {
+            select: {
+              rating: true
+            }
+          }
         },
-        orderBy: { createdAt: 'desc' },
-        skip: offset,
-        take: limitNum
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' }
       }),
       prisma.course.count({ where })
     ]);
 
-    const coursesWithStats = courses.map(course => ({
-      ...course,
-      enrollmentCount: course.enrollments.length,
-      averageRating: course.reviews.length > 0 
-        ? course.reviews.reduce((sum, review) => sum + review.rating, 0) / course.reviews.length
-        : 0,
-      totalDuration: course.lessons.reduce((sum, lesson) => sum + lesson.duration, 0),
-      lessonCount: course.lessons.length,
-      enrollments: undefined,
-      reviews: undefined,
-      lessons: undefined
-    }));
+    // Calculate average ratings
+    const coursesWithRatings = courses.map(course => {
+      const ratings = course.reviews.map(r => r.rating);
+      const averageRating = ratings.length > 0 
+        ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length 
+        : 0;
+      
+      return {
+        ...course,
+        averageRating: Math.round(averageRating * 10) / 10,
+        enrollmentCount: course._count.enrollments,
+        lessonCount: course._count.lessons,
+        reviewCount: course._count.reviews
+      };
+    });
 
     res.json({
       success: true,
       data: {
-        courses: coursesWithStats,
+        courses: coursesWithRatings,
         pagination: {
-          currentPage: pageNum,
-          totalPages: Math.ceil(totalCount / limitNum),
-          totalCount,
-          hasNext: pageNum * limitNum < totalCount,
-          hasPrev: pageNum > 1
+          page,
+          limit,
+          total,
+          pages: Math.ceil(total / limit)
         }
       }
     });
   } catch (error) {
-    console.error('Error fetching courses:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch courses' });
+    console.error('Failed to fetch courses:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch courses',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
-// Get single course details
-router.get('/courses/:courseId', async (req, res) => {
+/**
+ * GET /api/lms/courses/:id
+ * Get course details
+ */
+router.get('/courses/:id', authenticateToken, async (req, res) => {
   try {
-    const { courseId } = req.params;
-    const userId = req.user?.id; // Optional - for enrollment status
+    const { id } = req.params;
+    const { userId } = req as any;
 
     const course = await prisma.course.findUnique({
-      where: { id: courseId },
+      where: { id },
       include: {
         lessons: {
-          orderBy: { order: 'asc' },
           select: {
             id: true,
             title: true,
             description: true,
+            contentType: true,
             duration: true,
             order: true,
-            isPreview: true,
-            contentType: true
+            isPreview: true
+          },
+          orderBy: { order: 'asc' }
+        },
+        enrollments: {
+          where: { userId },
+          select: {
+            id: true,
+            progress: true,
+            completedAt: true,
+            certificateIssued: true
           }
         },
-        enrollments: userId ? {
-          where: { userId },
-          select: { id: true, progress: true, enrolledAt: true }
-        } : false,
         reviews: {
           include: {
-            user: { select: { firstName: true, lastName: true } }
+            user: {
+              select: {
+                firstName: true,
+                lastName: true
+              }
+            }
           },
           orderBy: { createdAt: 'desc' },
           take: 10
         },
-        certifications: userId ? {
-          where: { userId },
-          select: { id: true, issueDate: true, certificateNumber: true }
-        } : false
+        _count: {
+          select: {
+            enrollments: true,
+            reviews: true
+          }
+        }
       }
     });
 
-    if (!course || !course.isPublished) {
-      return res.status(404).json({ success: false, error: 'Course not found' });
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: 'Course not found'
+      });
     }
 
-    const totalDuration = course.lessons.reduce((sum, lesson) => sum + lesson.duration, 0);
-    const averageRating = course.reviews.length > 0 
-      ? course.reviews.reduce((sum, review) => sum + review.rating, 0) / course.reviews.length
+    if (!course.isPublished) {
+      return res.status(403).json({
+        success: false,
+        message: 'Course is not available'
+      });
+    }
+
+    // Calculate average rating
+    const ratings = course.reviews.map(r => r.rating);
+    const averageRating = ratings.length > 0 
+      ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length 
       : 0;
 
-    const enrollmentCount = await prisma.courseEnrollment.count({
-      where: { courseId }
+    const isEnrolled = course.enrollments.length > 0;
+    const enrollment = isEnrolled ? course.enrollments[0] : null;
+
+    res.json({
+      success: true,
+      data: {
+        ...course,
+        averageRating: Math.round(averageRating * 10) / 10,
+        enrollmentCount: course._count.enrollments,
+        reviewCount: course._count.reviews,
+        isEnrolled,
+        enrollment
+      }
     });
-
-    const result = {
-      ...course,
-      totalDuration,
-      averageRating,
-      enrollmentCount,
-      reviewCount: course.reviews.length,
-      isEnrolled: userId ? course.enrollments.length > 0 : false,
-      enrollment: userId && course.enrollments.length > 0 ? course.enrollments[0] : null,
-      hasCertificate: userId ? course.certifications.length > 0 : false,
-      certificate: userId && course.certifications.length > 0 ? course.certifications[0] : null
-    };
-
-    res.json({ success: true, data: result });
   } catch (error) {
-    console.error('Error fetching course:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch course' });
+    console.error('Failed to fetch course:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch course',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
-// ========================================
-// AUTHENTICATED USER ROUTES
-// ========================================
-
-// Enroll in a course
+/**
+ * POST /api/lms/enroll
+ * Enroll in a course
+ */
 router.post('/enroll', authenticateToken, validateRequest(enrollmentSchema), async (req, res) => {
   try {
     const { courseId } = req.body;
-    const userId = req.user!.id;
+    const { userId } = req as any;
 
     // Check if course exists and is published
     const course = await prisma.course.findUnique({
-      where: { id: courseId },
-      select: { id: true, isPublished: true, title: true }
+      where: { id: courseId }
     });
 
-    if (!course || !course.isPublished) {
-      return res.status(404).json({ success: false, error: 'Course not found' });
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: 'Course not found'
+      });
+    }
+
+    if (!course.isPublished) {
+      return res.status(403).json({
+        success: false,
+        message: 'Course is not available for enrollment'
+      });
     }
 
     // Check if already enrolled
     const existingEnrollment = await prisma.courseEnrollment.findUnique({
-      where: { userId_courseId: { userId, courseId } }
+      where: {
+        userId_courseId: {
+          userId,
+          courseId
+        }
+      }
     });
 
     if (existingEnrollment) {
-      return res.status(400).json({ success: false, error: 'Already enrolled in this course' });
+      return res.status(400).json({
+        success: false,
+        message: 'Already enrolled in this course'
+      });
     }
 
     // Create enrollment
     const enrollment = await prisma.courseEnrollment.create({
       data: {
         userId,
-        courseId
+        courseId,
+        enrolledAt: new Date()
       },
       include: {
-        course: { select: { title: true } }
+        course: {
+          select: {
+            title: true,
+            instructor: true
+          }
+        }
       }
     });
 
     res.status(201).json({
       success: true,
-      message: `Successfully enrolled in ${course.title}`,
+      message: 'Successfully enrolled in course',
       data: enrollment
     });
   } catch (error) {
-    console.error('Error enrolling in course:', error);
-    res.status(500).json({ success: false, error: 'Failed to enroll in course' });
+    console.error('Failed to enroll in course:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to enroll in course',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
-// Get user's enrolled courses
+/**
+ * GET /api/lms/my-courses
+ * Get user's enrolled courses
+ */
 router.get('/my-courses', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user!.id;
-    const { status = 'all' } = req.query;
-
-    const where: any = { userId };
-    
-    if (status === 'completed') {
-      where.progress = 100;
-    } else if (status === 'in-progress') {
-      where.AND = [
-        { progress: { gt: 0 } },
-        { progress: { lt: 100 } }
-      ];
-    } else if (status === 'not-started') {
-      where.progress = 0;
-    }
+    const { userId } = req as any;
 
     const enrollments = await prisma.courseEnrollment.findMany({
-      where,
+      where: { userId },
       include: {
         course: {
           include: {
-            lessons: { select: { id: true, duration: true } }
+            lessons: {
+              select: {
+                id: true,
+                duration: true
+              }
+            },
+            _count: {
+              select: {
+                lessons: true
+              }
+            }
           }
         },
         lessonProgress: {
-          select: { completed: true, timeSpent: true }
+          where: { completed: true }
         }
       },
       orderBy: { enrolledAt: 'desc' }
     });
 
     const coursesWithProgress = enrollments.map(enrollment => {
-      const totalLessons = enrollment.course.lessons.length;
-      const completedLessons = enrollment.lessonProgress.filter(p => p.completed).length;
-      const totalTime = enrollment.lessonProgress.reduce((sum, p) => sum + p.timeSpent, 0);
+      const totalLessons = enrollment.course._count.lessons;
+      const completedLessons = enrollment.lessonProgress.length;
+      const progressPercentage = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+      
+      const totalDuration = enrollment.course.lessons.reduce((sum, lesson) => sum + lesson.duration, 0);
+      const completedDuration = enrollment.lessonProgress.reduce((sum, progress) => sum + (progress.timeSpent || 0), 0);
 
       return {
-        enrollmentId: enrollment.id,
-        course: {
-          ...enrollment.course,
-          lessons: undefined
-        },
-        progress: enrollment.progress,
-        enrolledAt: enrollment.enrolledAt,
-        completedAt: enrollment.completedAt,
+        ...enrollment,
+        progressPercentage,
         completedLessons,
         totalLessons,
-        timeSpent: totalTime,
-        certificateIssued: enrollment.certificateIssued
+        totalDuration,
+        completedDuration
       };
     });
 
-    res.json({ success: true, data: coursesWithProgress });
+    res.json({
+      success: true,
+      data: coursesWithProgress
+    });
   } catch (error) {
-    console.error('Error fetching user courses:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch enrolled courses' });
+    console.error('Failed to fetch enrolled courses:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch enrolled courses',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
-// Get lesson content (only for enrolled users)
-router.get('/lessons/:lessonId', authenticateToken, async (req, res) => {
+/**
+ * GET /api/lms/lessons/:id
+ * Get lesson content (only for enrolled students)
+ */
+router.get('/lessons/:id', authenticateToken, async (req, res) => {
   try {
-    const { lessonId } = req.params;
-    const userId = req.user!.id;
+    const { id } = req.params;
+    const { userId } = req as any;
 
+    const lesson = await prisma.lesson.findUnique({
+      where: { id },
+      include: {
+        course: {
+          include: {
+            enrollments: {
+              where: { userId },
+              select: { id: true }
+            }
+          }
+        }
+      }
+    });
+
+    if (!lesson) {
+      return res.status(404).json({
+        success: false,
+        message: 'Lesson not found'
+      });
+    }
+
+    // Check if user is enrolled or lesson is preview
+    const isEnrolled = lesson.course.enrollments.length > 0;
+    if (!isEnrolled && !lesson.isPreview) {
+      return res.status(403).json({
+        success: false,
+        message: 'You must be enrolled to access this lesson'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: lesson
+    });
+  } catch (error) {
+    console.error('Failed to fetch lesson:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch lesson',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * POST /api/lms/progress
+ * Update lesson progress
+ */
+router.post('/progress', authenticateToken, validateRequest(progressUpdateSchema), async (req, res) => {
+  try {
+    const { lessonId, completed, timeSpent } = req.body;
+    const { userId } = req as any;
+
+    // Verify enrollment
     const lesson = await prisma.lesson.findUnique({
       where: { id: lessonId },
       include: {
@@ -334,420 +459,382 @@ router.get('/lessons/:lessonId', authenticateToken, async (req, res) => {
     });
 
     if (!lesson) {
-      return res.status(404).json({ success: false, error: 'Lesson not found' });
-    }
-
-    // Check if user is enrolled or lesson is preview
-    const isEnrolled = lesson.course.enrollments.length > 0;
-    if (!lesson.isPreview && !isEnrolled) {
-      return res.status(403).json({ success: false, error: 'You must be enrolled to access this lesson' });
-    }
-
-    // Get user's progress for this lesson if enrolled
-    let progress = null;
-    if (isEnrolled) {
-      const enrollment = lesson.course.enrollments[0];
-      progress = await prisma.lessonProgress.findUnique({
-        where: { enrollmentId_lessonId: { enrollmentId: enrollment.id, lessonId } }
+      return res.status(404).json({
+        success: false,
+        message: 'Lesson not found'
       });
     }
 
-    const result = {
-      ...lesson,
-      course: { id: lesson.course.id, title: lesson.course.title },
-      progress: progress ? {
-        completed: progress.completed,
-        timeSpent: progress.timeSpent,
-        completedAt: progress.completedAt
-      } : null
-    };
-
-    res.json({ success: true, data: result });
-  } catch (error) {
-    console.error('Error fetching lesson:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch lesson' });
-  }
-});
-
-// Update lesson progress
-router.put('/progress', authenticateToken, validateRequest(progressUpdateSchema), async (req, res) => {
-  try {
-    const { lessonId, completed, timeSpent = 0 } = req.body;
-    const userId = req.user!.id;
-
-    // Get enrollment and lesson info
-    const lesson = await prisma.lesson.findUnique({
-      where: { id: lessonId },
-      include: {
-        course: {
-          include: {
-            enrollments: {
-              where: { userId },
-              select: { id: true }
-            },
-            lessons: { select: { id: true } }
-          }
-        }
-      }
-    });
-
-    if (!lesson || lesson.course.enrollments.length === 0) {
-      return res.status(404).json({ success: false, error: 'Enrollment not found' });
+    if (lesson.course.enrollments.length === 0) {
+      return res.status(403).json({
+        success: false,
+        message: 'You must be enrolled to update progress'
+      });
     }
 
     const enrollmentId = lesson.course.enrollments[0].id;
 
-    // Update or create lesson progress
+    // Update or create progress
     const progress = await prisma.lessonProgress.upsert({
-      where: { enrollmentId_lessonId: { enrollmentId, lessonId } },
+      where: {
+        enrollmentId_lessonId: {
+          enrollmentId,
+          lessonId
+        }
+      },
       update: {
         completed,
         completedAt: completed ? new Date() : null,
-        timeSpent: { increment: timeSpent }
+        timeSpent: timeSpent || 0
       },
       create: {
         enrollmentId,
         lessonId,
         completed,
         completedAt: completed ? new Date() : null,
-        timeSpent
+        timeSpent: timeSpent || 0
       }
     });
 
-    // Calculate overall course progress
-    const allProgress = await prisma.lessonProgress.findMany({
-      where: { enrollmentId },
-      select: { completed: true }
-    });
+    // Update overall course progress
+    if (completed) {
+      const totalLessons = await prisma.lesson.count({
+        where: { courseId: lesson.courseId }
+      });
 
-    const totalLessons = lesson.course.lessons.length;
-    const completedLessons = allProgress.filter(p => p.completed).length;
-    const overallProgress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
-
-    // Update enrollment progress
-    const updatedEnrollment = await prisma.courseEnrollment.update({
-      where: { id: enrollmentId },
-      data: {
-        progress: overallProgress,
-        completedAt: overallProgress === 100 ? new Date() : null
-      }
-    });
-
-    // Issue certificate if course is completed
-    if (overallProgress === 100 && !updatedEnrollment.certificateIssued) {
-      const certificateNumber = `CERT-${Date.now()}-${userId.slice(-6)}`;
-      await prisma.certification.create({
-        data: {
-          userId,
-          courseId: lesson.course.id,
-          certificateNumber,
-          verificationUrl: `/certificates/verify/${certificateNumber}`
+      const completedLessons = await prisma.lessonProgress.count({
+        where: {
+          enrollmentId,
+          completed: true
         }
       });
 
+      const progressPercentage = Math.round((completedLessons / totalLessons) * 100);
+
       await prisma.courseEnrollment.update({
         where: { id: enrollmentId },
-        data: { certificateIssued: true }
+        data: {
+          progress: progressPercentage,
+          completedAt: progressPercentage === 100 ? new Date() : null
+        }
       });
+
+      // Issue certificate if course is completed
+      if (progressPercentage === 100) {
+        const existingCertificate = await prisma.certification.findUnique({
+          where: {
+            userId_courseId: {
+              userId,
+              courseId: lesson.courseId
+            }
+          }
+        });
+
+        if (!existingCertificate) {
+          await prisma.certification.create({
+            data: {
+              userId,
+              courseId: lesson.courseId,
+              certificateNumber: `CERT-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+              issueDate: new Date(),
+              verificationUrl: `https://agentradar.app/verify-certificate`
+            }
+          });
+
+          await prisma.courseEnrollment.update({
+            where: { id: enrollmentId },
+            data: { certificateIssued: true }
+          });
+        }
+      }
     }
 
     res.json({
       success: true,
-      data: {
-        lessonProgress: progress,
-        courseProgress: overallProgress,
-        certificateIssued: overallProgress === 100
-      }
+      message: 'Progress updated successfully',
+      data: progress
     });
   } catch (error) {
-    console.error('Error updating progress:', error);
-    res.status(500).json({ success: false, error: 'Failed to update progress' });
+    console.error('Failed to update progress:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update progress',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
-// Submit course review
+/**
+ * POST /api/lms/reviews
+ * Submit course review
+ */
 router.post('/reviews', authenticateToken, validateRequest(reviewSchema), async (req, res) => {
   try {
     const { courseId, rating, comment } = req.body;
-    const userId = req.user!.id;
+    const { userId } = req as any;
 
-    // Check if user is enrolled
+    // Verify enrollment
     const enrollment = await prisma.courseEnrollment.findUnique({
-      where: { userId_courseId: { userId, courseId } }
+      where: {
+        userId_courseId: {
+          userId,
+          courseId
+        }
+      }
     });
 
     if (!enrollment) {
-      return res.status(403).json({ success: false, error: 'You must be enrolled to review this course' });
+      return res.status(403).json({
+        success: false,
+        message: 'You must be enrolled to review this course'
+      });
     }
 
     // Create or update review
     const review = await prisma.courseReview.upsert({
-      where: { userId_courseId: { userId, courseId } },
-      update: { rating, comment },
-      create: { userId, courseId, rating, comment },
+      where: {
+        userId_courseId: {
+          userId,
+          courseId
+        }
+      },
+      update: {
+        rating,
+        comment: comment || ''
+      },
+      create: {
+        userId,
+        courseId,
+        rating,
+        comment: comment || ''
+      },
       include: {
-        user: { select: { firstName: true, lastName: true } }
+        user: {
+          select: {
+            firstName: true,
+            lastName: true
+          }
+        }
       }
     });
 
-    res.status(201).json({ success: true, data: review });
+    res.json({
+      success: true,
+      message: 'Review submitted successfully',
+      data: review
+    });
   } catch (error) {
-    console.error('Error submitting review:', error);
-    res.status(500).json({ success: false, error: 'Failed to submit review' });
+    console.error('Failed to submit review:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to submit review',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
-// Get user certificates
+/**
+ * GET /api/lms/certificates
+ * Get user's certificates
+ */
 router.get('/certificates', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user!.id;
+    const { userId } = req as any;
 
     const certificates = await prisma.certification.findMany({
       where: { userId, isValid: true },
       include: {
-        course: { select: { title: true, instructor: true } }
+        course: {
+          select: {
+            title: true,
+            instructor: true
+          }
+        }
       },
       orderBy: { issueDate: 'desc' }
     });
 
-    res.json({ success: true, data: certificates });
-  } catch (error) {
-    console.error('Error fetching certificates:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch certificates' });
-  }
-});
-
-// ========================================
-// ADMIN ROUTES - Course Management
-// ========================================
-
-// Get all courses (admin)
-router.get('/admin/courses', requireAdmin, async (req, res) => {
-  try {
-    const { status, category, search, page = 1, limit = 20 } = req.query;
-    
-    const pageNum = parseInt(page as string);
-    const limitNum = parseInt(limit as string);
-    const offset = (pageNum - 1) * limitNum;
-
-    const where: any = {};
-    
-    if (status === 'published') {
-      where.isPublished = true;
-    } else if (status === 'draft') {
-      where.isPublished = false;
-    }
-    
-    if (category && category !== 'all') {
-      where.category = category;
-    }
-    
-    if (search) {
-      where.OR = [
-        { title: { contains: search as string, mode: 'insensitive' } },
-        { instructor: { contains: search as string, mode: 'insensitive' } }
-      ];
-    }
-
-    const [courses, totalCount] = await Promise.all([
-      prisma.course.findMany({
-        where,
-        include: {
-          enrollments: { select: { id: true, progress: true } },
-          reviews: { select: { rating: true } },
-          lessons: { select: { id: true } }
-        },
-        orderBy: { updatedAt: 'desc' },
-        skip: offset,
-        take: limitNum
-      }),
-      prisma.course.count({ where })
-    ]);
-
-    const coursesWithStats = courses.map(course => ({
-      ...course,
-      enrollmentCount: course.enrollments.length,
-      averageRating: course.reviews.length > 0 
-        ? course.reviews.reduce((sum, review) => sum + review.rating, 0) / course.reviews.length
-        : 0,
-      averageProgress: course.enrollments.length > 0
-        ? course.enrollments.reduce((sum, enrollment) => sum + enrollment.progress, 0) / course.enrollments.length
-        : 0,
-      lessonCount: course.lessons.length,
-      enrollments: undefined,
-      reviews: undefined,
-      lessons: undefined
-    }));
-
     res.json({
       success: true,
-      data: {
-        courses: coursesWithStats,
-        pagination: {
-          currentPage: pageNum,
-          totalPages: Math.ceil(totalCount / limitNum),
-          totalCount
-        }
-      }
+      data: certificates
     });
   } catch (error) {
-    console.error('Error fetching admin courses:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch courses' });
+    console.error('Failed to fetch certificates:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch certificates',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
-// Create new course (admin)
-router.post('/admin/courses', requireAdmin, validateRequest(createCourseSchema), async (req, res) => {
+// ============================================================================
+// ADMIN ROUTES (require admin role)
+// ============================================================================
+
+/**
+ * POST /api/lms/admin/courses
+ * Create new course (admin only)
+ */
+router.post('/admin/courses', authenticateToken, validateRequest(courseCreationSchema), async (req, res) => {
   try {
-    const courseData = req.body;
+    const { role } = req as any;
+    
+    if (role !== 'ADMIN') {
+      return res.status(403).json({
+        success: false,
+        message: 'Admin access required'
+      });
+    }
 
     const course = await prisma.course.create({
-      data: courseData
+      data: req.body
     });
 
-    res.status(201).json({ success: true, data: course });
+    res.status(201).json({
+      success: true,
+      message: 'Course created successfully',
+      data: course
+    });
   } catch (error) {
-    console.error('Error creating course:', error);
-    res.status(500).json({ success: false, error: 'Failed to create course' });
+    console.error('Failed to create course:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create course',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
-// Update course (admin)
-router.put('/admin/courses/:courseId', requireAdmin, validateRequest(updateCourseSchema), async (req, res) => {
+/**
+ * POST /api/lms/admin/courses/:id/lessons
+ * Add lesson to course (admin only)
+ */
+router.post('/admin/courses/:id/lessons', authenticateToken, validateRequest(lessonCreationSchema), async (req, res) => {
   try {
-    const { courseId } = req.params;
-    const updateData = req.body;
-
-    const course = await prisma.course.update({
-      where: { id: courseId },
-      data: updateData
-    });
-
-    res.json({ success: true, data: course });
-  } catch (error) {
-    console.error('Error updating course:', error);
-    if (error.code === 'P2025') {
-      return res.status(404).json({ success: false, error: 'Course not found' });
+    const { role } = req as any;
+    const { id: courseId } = req.params;
+    
+    if (role !== 'ADMIN') {
+      return res.status(403).json({
+        success: false,
+        message: 'Admin access required'
+      });
     }
-    res.status(500).json({ success: false, error: 'Failed to update course' });
-  }
-});
 
-// Delete course (admin)
-router.delete('/admin/courses/:courseId', requireAdmin, async (req, res) => {
-  try {
-    const { courseId } = req.params;
-
-    await prisma.course.delete({
+    // Verify course exists
+    const course = await prisma.course.findUnique({
       where: { id: courseId }
     });
 
-    res.json({ success: true, message: 'Course deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting course:', error);
-    if (error.code === 'P2025') {
-      return res.status(404).json({ success: false, error: 'Course not found' });
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: 'Course not found'
+      });
     }
-    res.status(500).json({ success: false, error: 'Failed to delete course' });
-  }
-});
-
-// Create lesson (admin)
-router.post('/admin/courses/:courseId/lessons', requireAdmin, validateRequest(createLessonSchema), async (req, res) => {
-  try {
-    const { courseId } = req.params;
-    const lessonData = { ...req.body, courseId };
 
     const lesson = await prisma.lesson.create({
-      data: lessonData
+      data: {
+        ...req.body,
+        courseId
+      }
     });
 
-    res.status(201).json({ success: true, data: lesson });
+    res.status(201).json({
+      success: true,
+      message: 'Lesson created successfully',
+      data: lesson
+    });
   } catch (error) {
-    console.error('Error creating lesson:', error);
-    res.status(500).json({ success: false, error: 'Failed to create lesson' });
+    console.error('Failed to create lesson:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create lesson',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
-// Get course analytics (admin)
-router.get('/admin/analytics', requireAdmin, async (req, res) => {
+/**
+ * GET /api/lms/admin/analytics
+ * Get LMS analytics (admin only)
+ */
+router.get('/admin/analytics', authenticateToken, async (req, res) => {
   try {
+    const { role } = req as any;
+    
+    if (role !== 'ADMIN') {
+      return res.status(403).json({
+        success: false,
+        message: 'Admin access required'
+      });
+    }
+
     const [
       totalCourses,
-      totalStudents,
       totalEnrollments,
-      totalCertifications,
+      totalCertificates,
       recentEnrollments,
-      topCourses,
-      completionStats
+      popularCourses
     ] = await Promise.all([
       prisma.course.count(),
-      prisma.user.count({ where: { role: 'USER' } }),
       prisma.courseEnrollment.count(),
-      prisma.certification.count(),
+      prisma.certification.count({ where: { isValid: true } }),
       prisma.courseEnrollment.findMany({
+        take: 10,
         include: {
-          user: { select: { firstName: true, lastName: true } },
-          course: { select: { title: true } }
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+              email: true
+            }
+          },
+          course: {
+            select: {
+              title: true
+            }
+          }
         },
-        orderBy: { enrolledAt: 'desc' },
-        take: 10
+        orderBy: { enrolledAt: 'desc' }
       }),
       prisma.course.findMany({
         include: {
-          enrollments: { select: { id: true, progress: true } },
-          reviews: { select: { rating: true } }
+          _count: {
+            select: {
+              enrollments: true
+            }
+          }
         },
         orderBy: {
-          enrollments: { _count: 'desc' }
+          enrollments: {
+            _count: 'desc'
+          }
         },
-        take: 10
-      }),
-      prisma.courseEnrollment.groupBy({
-        by: ['progress'],
-        _count: true,
-        where: {
-          progress: { gte: 0 }
-        }
+        take: 5
       })
     ]);
-
-    const averageCompletion = totalEnrollments > 0 
-      ? await prisma.courseEnrollment.aggregate({
-          _avg: { progress: true }
-        }).then(result => result._avg.progress || 0)
-      : 0;
-
-    const topCoursesWithStats = topCourses.map(course => ({
-      id: course.id,
-      title: course.title,
-      enrollments: course.enrollments.length,
-      averageRating: course.reviews.length > 0 
-        ? course.reviews.reduce((sum, review) => sum + review.rating, 0) / course.reviews.length
-        : 0,
-      completionRate: course.enrollments.length > 0
-        ? course.enrollments.filter(e => e.progress === 100).length / course.enrollments.length * 100
-        : 0
-    }));
 
     res.json({
       success: true,
       data: {
-        summary: {
+        overview: {
           totalCourses,
-          totalStudents,
           totalEnrollments,
-          totalCertifications,
-          averageCompletion: Math.round(averageCompletion)
+          totalCertificates
         },
         recentEnrollments,
-        topCourses: topCoursesWithStats,
-        completionDistribution: completionStats
+        popularCourses
       }
     });
   } catch (error) {
-    console.error('Error fetching analytics:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch analytics' });
+    console.error('Failed to fetch analytics:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch analytics',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
