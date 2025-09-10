@@ -138,7 +138,7 @@ export class StripeService {
     }
 
     this.stripe = new Stripe(secretKey, {
-      apiVersion: '2025-08-27.basil'
+      apiVersion: '2024-04-10'
     });
   }
 

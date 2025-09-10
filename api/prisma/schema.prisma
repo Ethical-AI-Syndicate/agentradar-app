@@ -1,3 +1,6 @@
+// AgentRadar Database Schema
+// Real Estate Intelligence Platform
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,166 +10,285 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// User Management
 model User {
-  id                           String                 @id @default(cuid())
-  email                        String                 @unique
-  firstName                    String
-  lastName                     String
-  password                     String
-  phone                        String?
-  isActive                     Boolean                @default(true)
-  role                         UserRole               @default(USER)
-  subscriptionTier             SubscriptionTier       @default(FREE)
-  stripeCustomerId             String?                @unique
-  subscriptionId               String?                @unique
-  company                      String?
-  location                     String?
-  teamSize                     String?
-  monthlyDeals                 String?
-  primaryFocus                 String?
-  techComfort                  String?
-  currentChallenges            String[]
-  licenseNumber                String?
-  province                     String?                @default("ON")
-  brokerage                    String?
-  licenseVerified              Boolean                @default(false)
-  licenseVerifiedAt            DateTime?
-  createdAt                    DateTime               @default(now())
-  updatedAt                    DateTime               @updatedAt
-  lastLogin                    DateTime?
-  subscriptionCurrentPeriodEnd DateTime?
-  subscriptionStatus           SubscriptionStatus     @default(INACTIVE)
-  activityLogs                 ActivityLog[]
-  adminActions                 AdminAction[]          @relation("AdminActions")
-  alertPreferences             AlertPreference?
-  savedProperties              SavedProperty[]
-  ticketMessages               SupportTicketMessage[] @relation("TicketMessages")
-  assignedTickets              SupportTicket[]        @relation("TicketAssignee")
-  supportTickets               SupportTicket[]        @relation("UserTickets")
-  userAlerts                   UserAlert[]
-  usageRecords                 UsageRecord[]
-  propertyAnalyses             PropertyAnalysis[]
-  courseEnrollments            CourseEnrollment[]
-  courseReviews                CourseReview[]
-  certifications               Certification[]
-  ssoUser                      SSOUser?
-
+  id        String   @id @default(cuid())
+  email     String   @unique
+  firstName String
+  lastName  String
+  password  String
+  phone     String?
+  isActive  Boolean  @default(true)
+  role      UserRole @default(USER)
+  
+  // Subscription info
+  subscriptionTier              SubscriptionTier   @default(FREE)
+  stripeCustomerId              String?            @unique
+  subscriptionId                String?            @unique
+  subscriptionStatus            SubscriptionStatus @default(INACTIVE)
+  subscriptionCurrentPeriodEnd  DateTime?
+  
+  // Profile info
+  company          String?
+  location         String?
+  teamSize         String?
+  monthlyDeals     String?
+  primaryFocus     String?
+  techComfort      String?
+  currentChallenges String[]
+  
+  // Real estate info
+  licenseNumber    String?
+  brokerage        String?
+  province         String?
+  licenseVerified  Boolean @default(false)
+  licenseVerifiedAt DateTime?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastLogin DateTime?
+  
+  // Relations
+  alertPreferences AlertPreference[]
+  userAlerts       UserAlert[]
+  savedProperties  SavedProperty[]
+  activityLogs     ActivityLog[]
+  
+  // Admin relations
+  supportTickets      SupportTicket[]      @relation("UserTickets")
+  assignedTickets     SupportTicket[]      @relation("TicketAssignee")
+  ticketMessages      SupportTicketMessage[] @relation("TicketMessages")
+  adminActions        AdminAction[]        @relation("AdminActions")
+  
+  // Content management relations
+  blogPosts           BlogPost[]           @relation("BlogPosts")
+  helpArticles        HelpArticle[]        @relation("HelpArticles")
+  assignedContacts    ContactSubmission[]  @relation("AssignedContacts")
+  assignedDemos       DemoRequest[]        @relation("AssignedDemos")
+  
+  // LMS relations
+  courseEnrollments   CourseEnrollment[]
+  lessonProgress      LessonProgress[]
+  courseReviews       CourseReview[]
+  certificates        Certificate[]
+  
+  // Chatbot relations
+  chatConversations   ChatConversation[]
+  
+  // SSO relations
+  ssoProviderId       String?
+  ssoProvider         SSOProvider? @relation(fields: [ssoProviderId], references: [id])
+  ssoSessions         SSOSession[]
+  ssoUsers            SSOUser[]
+  
+  // Usage and analytics relations
+  usageRecords        UsageRecord[]
+  propertyAnalyses    PropertyAnalysis[]
+  
   @@map("users")
 }
 
-model Alert {
-  id                String      @id @default(cuid())
-  title             String
-  description       String
-  address           String
-  city              String
-  province          String      @default("ON")
-  postalCode        String?
-  alertType         AlertType
-  source            DataSource
-  status            AlertStatus @default(ACTIVE)
-  priority          Priority    @default(MEDIUM)
-  opportunityScore  Int         @default(0)
-  timelineMonths    Int?
-  propertyType      String?
-  estimatedValue    Int?
-  lotSize           String?
-  bedrooms          Int?
-  bathrooms         Float?
-  courtFileNumber   String?
-  courtDate         DateTime?
-  courtCaseId       String?
-  probateNumber     String?
-  executorName      String?
-  executorContact   String?
-  applicationNumber String?
-  municipalOffice   String?
-  applicationDate   DateTime?
-  latitude          Float?
-  longitude         Float?
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  discoveredAt      DateTime    @default(now())
-  courtCase         CourtCase?  @relation(fields: [courtCaseId], references: [id])
-  userAlerts        UserAlert[]
+// Product Catalogue
+model Product {
+  id          String @id @default(cuid())
+  name        String
+  description String
+  stripePriceId String @unique
+  
+  // Pricing
+  price       Decimal @db.Decimal(10, 2)
+  currency    String  @default("usd")
+  interval    String  // month, year
+  
+  // Product details
+  tier        SubscriptionTier
+  features    String[] // Array of feature descriptions
+  maxAlerts   Int?     // Max alerts per month/year
+  maxUsers    Int?     // Max team members
+  
+  // Status
+  isActive    Boolean @default(true)
+  isPopular   Boolean @default(false)
+  
+  // Display
+  displayOrder Int?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("products")
+}
 
+// Property Alerts System
+model Alert {
+  id          String      @id @default(cuid())
+  title       String
+  description String
+  
+  // Property details
+  address     String
+  city        String
+  province    String      @default("ON")
+  postalCode  String?
+  
+  // Alert metadata
+  alertType   AlertType
+  source      DataSource
+  status      AlertStatus @default(ACTIVE)
+  priority    Priority    @default(MEDIUM)
+  
+  // Opportunity scoring
+  opportunityScore Int     @default(0) // 0-100
+  timelineMonths   Int?    // Estimated months to market
+  
+  // Property details
+  propertyType     String?
+  estimatedValue   Int?    // In CAD cents
+  lotSize          String?
+  bedrooms         Int?
+  bathrooms        Float?
+  
+  // Court/Legal info (for power of sale)
+  courtFileNumber  String?
+  courtDate        DateTime?
+  courtCaseId      String? // Link to CourtCase if originated from court data
+  
+  // Estate info
+  probateNumber    String?
+  executorName     String?
+  executorContact  String?
+  
+  // Development info
+  applicationNumber String?
+  municipalOffice  String?
+  applicationDate  DateTime?
+  
+  // Geographic data
+  latitude  Float?
+  longitude Float?
+  
+  // Timestamps
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  discoveredAt DateTime @default(now())
+  
+  // Relations  
+  userAlerts UserAlert[]
+  courtCase  CourtCase? @relation(fields: [courtCaseId], references: [id])
+  
   @@map("alerts")
 }
 
+// User-Alert Relationship (Many-to-Many)
 model UserAlert {
-  id           String    @id @default(cuid())
-  userId       String
-  alertId      String
+  id       String @id @default(cuid())
+  userId   String
+  alertId  String
+  
+  // Notification status
   isNotified   Boolean   @default(false)
   notifiedAt   DateTime?
   isViewed     Boolean   @default(false)
   viewedAt     DateTime?
   isBookmarked Boolean   @default(false)
-  createdAt    DateTime  @default(now())
-  alert        Alert     @relation(fields: [alertId], references: [id], onDelete: Cascade)
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  alert Alert @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  
   @@unique([userId, alertId])
   @@map("user_alerts")
 }
 
+// Alert Preferences
 model AlertPreference {
-  id                  String      @id @default(cuid())
-  userId              String      @unique
-  cities              String[]    @default([])
-  maxDistanceKm       Int         @default(50)
-  propertyTypes       String[]    @default([])
-  minValue            Int?
-  maxValue            Int?
-  minBedrooms         Int?
-  maxBedrooms         Int?
-  alertTypes          AlertType[]
-  minPriority         Priority    @default(LOW)
-  minOpportunityScore Int         @default(0)
-  emailNotifications  Boolean     @default(true)
-  smsNotifications    Boolean     @default(false)
-  pushNotifications   Boolean     @default(true)
-  maxAlertsPerDay     Int         @default(10)
-  quietHoursStart     String?
-  quietHoursEnd       String?
-  createdAt           DateTime    @default(now())
-  updatedAt           DateTime    @updatedAt
-  user                User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  id     String @id @default(cuid())
+  userId String
+  
+  // Geographic preferences
+  cities          String[] @default([])
+  maxDistanceKm   Int      @default(50)
+  
+  // Property preferences
+  propertyTypes   String[] @default([])
+  minValue        Int?     // In CAD cents
+  maxValue        Int?     // In CAD cents
+  minBedrooms     Int?
+  maxBedrooms     Int?
+  
+  // Alert preferences
+  alertTypes      AlertType[]
+  minPriority     Priority     @default(LOW)
+  minOpportunityScore Int      @default(0)
+  
+  // Notification preferences
+  emailNotifications  Boolean @default(true)
+  smsNotifications    Boolean @default(false)
+  pushNotifications   Boolean @default(true)
+  
+  // Timing preferences
+  maxAlertsPerDay     Int     @default(10)
+  quietHoursStart     String? // "22:00"
+  quietHoursEnd       String? // "08:00"
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId])
   @@map("alert_preferences")
 }
 
+// Saved Properties
 model SavedProperty {
-  id        String   @id @default(cuid())
-  userId    String
-  alertId   String
-  notes     String?
-  tags      String[] @default([])
+  id       String @id @default(cuid())
+  userId   String
+  alertId  String
+  
+  // User notes
+  notes    String?
+  tags     String[] @default([])
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
   @@unique([userId, alertId])
   @@map("saved_properties")
 }
 
+// Activity Logging
 model ActivityLog {
   id        String       @id @default(cuid())
   userId    String?
   action    ActivityType
-  details   Json?
+  details   Json?        // Flexible JSON field for activity details
   ipAddress String?
   userAgent String?
-  createdAt DateTime     @default(now())
-  user      User?        @relation(fields: [userId], references: [id])
-
+  
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
   @@map("activity_logs")
 }
 
+// Early Adopter Tokens
 model EarlyAdopterToken {
-  id                String    @id @default(cuid())
-  token             String    @unique @default(cuid())
-  email             String    @unique
+  id       String @id @default(cuid())
+  token    String @unique @default(cuid())
+  email    String @unique
+  
+  // Form data
   firstName         String
   lastName          String
   phone             String
@@ -177,153 +299,109 @@ model EarlyAdopterToken {
   primaryFocus      String
   currentChallenges String[]
   techComfort       String
-  isUsed            Boolean   @default(false)
-  usedAt            DateTime?
-  userId            String?   @unique
-  discountPercent   Int       @default(50)
-  expiresAt         DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-
+  
+  // Token status
+  isUsed      Boolean   @default(false)
+  usedAt      DateTime?
+  userId      String?   @unique
+  
+  // Benefits
+  discountPercent Int @default(50)
+  expiresAt       DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
   @@map("early_adopter_tokens")
 }
 
+// Court Bulletin Cases
 model CourtCase {
-  id              String                @id @default(cuid())
-  guid            String                @unique
+  id              String @id @default(cuid())
+  guid            String @unique // CanLII stable identifier
   title           String
   neutralCitation String?
   court           CourtType
   publishDate     DateTime
   caseUrl         String
+  
+  // Raw case content
   summary         String?
-  fullText        String?
-  addresses       String[]              @default([])
-  municipalities  String[]              @default([])
-  parties         String[]              @default([])
-  statutes        String[]              @default([])
-  caseTypes       RealEstateCaseType[]  @default([])
-  riskLevel       RiskLevel             @default(LOW)
-  isProcessed     Boolean               @default(false)
-  nerProcessed    Boolean               @default(false)
-  classified      Boolean               @default(false)
-  source          String
-  metadata        Json?
-  createdAt       DateTime              @default(now())
-  updatedAt       DateTime              @updatedAt
-  alerts          Alert[]
-  processingQueue CaseProcessingQueue[]
-
+  fullText        String? // Store full case text for NER processing
+  
+  // NER Extracted Data
+  addresses       String[] @default([]) // Extracted property addresses
+  municipalities  String[] @default([]) // Extracted municipalities  
+  parties         String[] @default([]) // Extracted party names
+  statutes        String[] @default([]) // Referenced statutes
+  
+  // Case Classification
+  caseTypes       RealEstateCaseType[] @default([])
+  riskLevel       RiskLevel @default(LOW)
+  
+  // Processing Status
+  isProcessed     Boolean @default(false)
+  nerProcessed    Boolean @default(false)
+  classified      Boolean @default(false)
+  
+  // Metadata
+  source          String // RSS feed source
+  metadata        Json? // Additional structured data
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  alerts Alert[] // Cases can trigger multiple alerts
+  processingQueue CaseProcessingQueue[] // Processing queue entries for this case
+  
   @@index([court, publishDate])
   @@index([isProcessed, nerProcessed])
   @@map("court_cases")
 }
 
+// Court Case Processing Queue
 model CaseProcessingQueue {
-  id          String           @id @default(cuid())
+  id          String @id @default(cuid())
   caseId      String
   processType ProcessingType
   status      ProcessingStatus @default(PENDING)
-  priority    Int              @default(5)
-  attempts    Int              @default(0)
-  maxAttempts Int              @default(3)
+  priority    Int @default(5) // 1-10, higher = more urgent
+  
+  // Processing details
+  attempts    Int @default(0)
+  maxAttempts Int @default(3)
   error       String?
-  scheduledAt DateTime         @default(now())
+  
+  // Timing
+  scheduledAt DateTime @default(now())
   startedAt   DateTime?
   completedAt DateTime?
-  case        CourtCase        @relation(fields: [caseId], references: [id], onDelete: Cascade)
-
+  
+  // Relations
+  case CourtCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  
   @@index([status, priority])
   @@index([scheduledAt])
   @@map("case_processing_queue")
 }
 
-model SupportTicket {
-  id           String                 @id @default(cuid())
-  userId       String
-  title        String
-  description  String
-  status       SupportTicketStatus    @default(OPEN)
-  priority     SupportTicketPriority  @default(MEDIUM)
-  category     String?
-  assignedToId String?
-  resolution   String?
-  resolvedAt   DateTime?
-  resolvedBy   String?
-  createdAt    DateTime               @default(now())
-  updatedAt    DateTime               @updatedAt
-  messages     SupportTicketMessage[]
-  assignedTo   User?                  @relation("TicketAssignee", fields: [assignedToId], references: [id])
-  user         User                   @relation("UserTickets", fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("support_tickets")
-}
-
-model SupportTicketMessage {
-  id          String        @id @default(cuid())
-  ticketId    String
-  userId      String
-  message     String
-  isFromAdmin Boolean       @default(false)
-  attachments String[]      @default([])
-  createdAt   DateTime      @default(now())
-  ticket      SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  user        User          @relation("TicketMessages", fields: [userId], references: [id])
-
-  @@map("support_ticket_messages")
-}
-
-model AdminAction {
-  id          String   @id @default(cuid())
-  adminId     String
-  action      String
-  targetType  String
-  targetId    String?
-  description String
-  metadata    Json?
-  createdAt   DateTime @default(now())
-  admin       User     @relation("AdminActions", fields: [adminId], references: [id])
-
-  @@map("admin_actions")
-}
-
-model SystemSetting {
-  id          String   @id @default(cuid())
-  key         String   @unique
-  value       String
-  description String?
-  category    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@map("system_settings")
-}
-
-model products {
-  id            String           @id
-  name          String
-  description   String
-  stripePriceId String           @unique
-  price         Decimal          @db.Decimal(10, 2)
-  currency      String           @default("usd")
-  interval      String
-  tier          SubscriptionTier
-  features      String[]
-  maxAlerts     Int?
-  maxUsers      Int?
-  isActive      Boolean          @default(true)
-  isPopular     Boolean          @default(false)
-  displayOrder  Int?
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime
-}
-
+// Enums
 enum SubscriptionTier {
   FREE
   SOLO_AGENT
-  PROFESSIONAL
+  PROFESSIONAL  
   TEAM_ENTERPRISE
   WHITE_LABEL
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  INACTIVE
+  PAST_DUE
+  CANCELLED
+  TRIALING
+  INCOMPLETE
 }
 
 enum AlertType {
@@ -370,11 +448,11 @@ enum ActivityType {
 }
 
 enum CourtType {
-  ONSC
-  ONCA
-  ONCJ
-  ONSCDC
-  OLT
+  ONSC      // Ontario Superior Court of Justice
+  ONCA      // Ontario Court of Appeal  
+  ONCJ      // Ontario Court of Justice
+  ONSCDC    // Ontario Superior Court of Justice - Divisional Court
+  OLT       // Ontario Land Tribunal (formerly OMB)
 }
 
 enum RealEstateCaseType {
@@ -434,116 +512,381 @@ enum SupportTicketPriority {
   URGENT
 }
 
-enum SubscriptionStatus {
+// Support Ticket System
+model SupportTicket {
+  id          String                 @id @default(cuid())
+  userId      String
+  title       String
+  description String
+  status      SupportTicketStatus    @default(OPEN)
+  priority    SupportTicketPriority  @default(MEDIUM)
+  category    String?                // billing, technical, feature_request
+  
+  // Admin assignment
+  assignedToId String?
+  assignedTo   User?   @relation("TicketAssignee", fields: [assignedToId], references: [id])
+  
+  // Resolution
+  resolution  String?
+  resolvedAt  DateTime?
+  resolvedBy  String?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user      User                   @relation("UserTickets", fields: [userId], references: [id], onDelete: Cascade)
+  messages  SupportTicketMessage[]
+  
+  @@map("support_tickets")
+}
+
+model SupportTicketMessage {
+  id         String  @id @default(cuid())
+  ticketId   String
+  userId     String
+  message    String
+  isFromAdmin Boolean @default(false)
+  
+  // Attachments
+  attachments String[] @default([])
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  
+  // Relations
+  ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user   User          @relation("TicketMessages", fields: [userId], references: [id])
+  
+  @@map("support_ticket_messages")
+}
+
+// Admin Action Logging
+model AdminAction {
+  id          String @id @default(cuid())
+  adminId     String
+  action      String  // create_user, update_subscription, etc.
+  targetType  String  // user, alert, ticket
+  targetId    String?
+  description String
+  metadata    Json?   // Additional action data
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  
+  // Relations
+  admin User @relation("AdminActions", fields: [adminId], references: [id])
+  
+  @@map("admin_actions")
+}
+
+// System Settings
+model SystemSetting {
+  id          String @id @default(cuid())
+  key         String @unique
+  value       String
+  description String?
+  category    String? // email, notifications, api
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("system_settings")
+}
+
+// Contact Form Submissions
+model ContactSubmission {
+  id            String            @id @default(cuid())
+  name          String
+  email         String
+  company       String?
+  phone         String?
+  subject       String?
+  message       String
+  contactMethod String?           // preferred contact method
+  status        ContactStatus     @default(NEW)
+  assignedToId  String?
+  notes         String?
+  
+  // Timestamps
+  submittedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  assignedTo User? @relation("AssignedContacts", fields: [assignedToId], references: [id])
+  
+  @@map("contact_submissions")
+}
+
+// Blog Management System
+model BlogPost {
+  id              String        @id @default(cuid())
+  title           String
+  slug            String        @unique
+  content         String        // Rich text content
+  excerpt         String?       // Short description
+  authorId        String
+  status          BlogStatus    @default(DRAFT)
+  featuredImage   String?       // Image URL
+  seoTitle        String?       // SEO title (max 60 chars)
+  seoDescription  String?       // SEO description (max 160 chars)
+  tags            String[]      @default([])
+  category        String?
+  viewCount       Int           @default(0)
+  publishedAt     DateTime?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  author User @relation("BlogPosts", fields: [authorId], references: [id])
+  
+  @@map("blog_posts")
+}
+
+// Career/Job Management System
+model JobPosting {
+  id                String           @id @default(cuid())
+  title             String
+  department        String?
+  location          String
+  employmentType    EmploymentType
+  experienceLevel   ExperienceLevel
+  salaryRangeMin    Int?             // In cents
+  salaryRangeMax    Int?             // In cents
+  salaryCurrency    String           @default("CAD")
+  description       String           // Rich text job description
+  requirements      String?          // Rich text requirements
+  benefits          String?          // Rich text benefits
+  applicationDeadline DateTime?
+  status            JobPostingStatus @default(ACTIVE)
+  remoteWork        Boolean          @default(false)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  applications JobApplication[]
+  
+  @@map("job_postings")
+}
+
+model JobApplication {
+  id                String              @id @default(cuid())
+  jobPostingId      String
+  applicantName     String
+  applicantEmail    String
+  applicantPhone    String?
+  resumeUrl         String?             // File URL
+  coverLetter       String?
+  applicationStatus ApplicationStatus   @default(SUBMITTED)
+  notes             String?
+  
+  // Timestamps
+  appliedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  jobPosting JobPosting @relation(fields: [jobPostingId], references: [id], onDelete: Cascade)
+  
+  @@map("job_applications")
+}
+
+// Help Center System
+model HelpArticle {
+  id               String        @id @default(cuid())
+  title            String
+  slug             String        @unique
+  content          String        // Rich text content
+  category         String
+  subcategory      String?
+  orderIndex       Int           @default(0)
+  status           BlogStatus    @default(DRAFT)
+  authorId         String
+  viewCount        Int           @default(0)
+  helpfulVotes     Int           @default(0)
+  notHelpfulVotes  Int           @default(0)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  author User @relation("HelpArticles", fields: [authorId], references: [id])
+  
+  @@map("help_articles")
+}
+
+model HelpCategory {
+  id          String @id @default(cuid())
+  name        String @unique
+  description String?
+  icon        String? // Icon name or URL
+  orderIndex  Int    @default(0)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("help_categories")
+}
+
+// Demo Request System
+model DemoRequest {
+  id              String          @id @default(cuid())
+  name            String
+  email           String
+  company         String?
+  phone           String?
+  companySize     String?
+  useCase         String?
+  preferredTime   String?
+  status          DemoStatus      @default(REQUESTED)
+  scheduledAt     DateTime?
+  demoNotes       String?
+  assignedToId    String?
+  
+  // Timestamps
+  requestedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  assignedTo User? @relation("AssignedDemos", fields: [assignedToId], references: [id])
+  
+  @@map("demo_requests")
+}
+
+// Additional Enums
+enum ContactStatus {
+  NEW
+  CONTACTED
+  RESOLVED
+}
+
+enum BlogStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+}
+
+enum ExperienceLevel {
+  ENTRY
+  MID
+  SENIOR
+  EXECUTIVE
+}
+
+enum JobPostingStatus {
   ACTIVE
-  INACTIVE
-  PAST_DUE
+  PAUSED
+  CLOSED
+}
+
+enum ApplicationStatus {
+  SUBMITTED
+  REVIEWING
+  INTERVIEW
+  REJECTED
+  HIRED
+}
+
+enum DemoStatus {
+  REQUESTED
+  SCHEDULED
+  COMPLETED
   CANCELLED
-  TRIALING
-  INCOMPLETE
 }
 
-model UsageRecord {
-  id            String   @id @default(cuid())
-  userId        String
-  feature       String
-  requestCount  Int      @default(1)
-  resultCount   Int?
-  responseTime  Int?     // milliseconds
-  timestamp     DateTime @default(now())
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, timestamp])
-  @@index([userId, feature, timestamp])
-  @@map("usage_records")
-}
-
-model PropertyAnalysis {
-  id             String   @id @default(cuid())
-  userId         String
-  address        String
-  analysisData   String   // JSON data
-  confidence     Float
-  estimatedValue Int
-  overallScore   Int
-  timestamp      DateTime @default(now())
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, timestamp])
-  @@map("property_analyses")
-}
-
+// Learning Management System Models
 model Course {
-  id                  String               @id @default(cuid())
-  title               String
-  description         String
-  category            String
-  level               CourseLevel
-  duration            String
-  price               Int
-  instructor          String
-  thumbnail           String?
-  isPublished         Boolean              @default(false)
-  tags                String[]
-  learningObjectives  String[]
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  lessons             Lesson[]
-  enrollments         CourseEnrollment[]
-  reviews             CourseReview[]
-  certifications      Certification[]
-
+  id           String   @id @default(cuid())
+  title        String
+  description  String
+  category     String
+  level        String   // Beginner, Intermediate, Advanced
+  duration     String
+  price        Int      @default(0)
+  instructor   String?
+  isPublished  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relations
+  enrollments  CourseEnrollment[]
+  lessons      Lesson[]
+  reviews      CourseReview[]
+  certificates Certificate[]
+  
   @@map("courses")
 }
 
 model Lesson {
-  id          String           @id @default(cuid())
+  id          String   @id @default(cuid())
   courseId    String
   title       String
   description String?
-  content     String
-  contentType ContentType
-  duration    Int              // in minutes
+  content     String?
+  contentType String   @default("text") // text, video, quiz, etc.
   order       Int
-  isPreview   Boolean          @default(false)
+  duration    Int?     // in minutes
   videoUrl    String?
-  attachments String[]         // file URLs
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  course      Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  isPreview   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  course      Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
   progress    LessonProgress[]
-
+  
   @@map("lessons")
 }
 
 model CourseEnrollment {
-  id                String           @id @default(cuid())
-  userId            String
-  courseId          String
-  enrolledAt        DateTime         @default(now())
-  completedAt       DateTime?
-  progress          Int              @default(0) // percentage
-  certificateIssued Boolean          @default(false)
-  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course            Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  lessonProgress    LessonProgress[]
-
+  id         String   @id @default(cuid())
+  userId     String
+  courseId   String
+  enrolledAt DateTime @default(now())
+  completedAt DateTime?
+  progress   Float    @default(0) // 0-100 percentage
+  certificateIssued Boolean @default(false)
+  
+  // Relations
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course     Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessonProgress LessonProgress[]
+  
   @@unique([userId, courseId])
   @@map("course_enrollments")
 }
 
 model LessonProgress {
-  id           String           @id @default(cuid())
+  id         String   @id @default(cuid())
+  userId     String
+  lessonId   String
   enrollmentId String
-  lessonId     String
-  completed    Boolean          @default(false)
-  completedAt  DateTime?
-  timeSpent    Int              @default(0) // in minutes
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-  enrollment   CourseEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
-  lesson       Lesson           @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-
+  status     String   // STARTED, IN_PROGRESS, COMPLETED
+  completed  Boolean  @default(false)
+  completedAt DateTime?
+  timeSpent  Int      @default(0) // in seconds
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  // Relations
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson     Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  enrollment CourseEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  
   @@unique([enrollmentId, lessonId])
   @@map("lesson_progress")
 }
@@ -555,111 +898,159 @@ model CourseReview {
   rating    Int      // 1-5
   comment   String?
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
+  
+  // Relations
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
   @@unique([userId, courseId])
   @@map("course_reviews")
 }
 
-model Certification {
-  id                String   @id @default(cuid())
-  userId            String
-  courseId          String
-  issueDate         DateTime @default(now())
-  expiryDate        DateTime?
-  certificateNumber String   @unique
-  verificationUrl   String?
-  isValid           Boolean  @default(true)
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course            Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
+model Certificate {
+  id              String   @id @default(cuid())
+  userId          String
+  courseId        String
+  certificateId   String @unique
+  certificateNumber String @unique
+  isValid         Boolean @default(true)
+  issueDate       DateTime @default(now())
+  issuedAt        DateTime @default(now())
+  expiresAt       DateTime?
+  verificationUrl String?
+  
+  // Relations
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course      Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
   @@unique([userId, courseId])
-  @@map("certifications")
+  @@map("certificates")
 }
 
-enum CourseLevel {
-  BEGINNER
-  INTERMEDIATE
-  ADVANCED
+// Chatbot Models
+model ChatConversation {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  ChatMessage[]
+  
+  @@map("chat_conversations")
 }
 
-enum ContentType {
-  VIDEO
-  TEXT
-  AUDIO
-  DOCUMENT
-  QUIZ
-  ASSIGNMENT
+model ChatMessage {
+  id             String   @id @default(cuid())
+  conversationId String
+  role           String   // user, assistant
+  content        String
+  createdAt      DateTime @default(now())
+  
+  // Relations
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  
+  @@map("chat_messages")
 }
 
+// SSO Models
 model SSOProvider {
-  id               String         @id @default(cuid())
-  name             String
-  type             SSOType
-  domain           String         @unique
-  entityId         String?        // SAML Entity ID
-  ssoUrl           String?        // SAML SSO URL
-  sloUrl           String?        // SAML Single Logout URL
-  certificate      String?        // SAML Certificate
-  clientId         String?        // OAuth2 Client ID
-  clientSecret     String?        // OAuth2 Client Secret
-  authUrl          String?        // OAuth2 Authorization URL
-  tokenUrl         String?        // OAuth2 Token URL
-  userInfoUrl      String?        // OAuth2 User Info URL
-  scopes           String[]       @default([])
-  attributeMapping Json?          // Field mapping configuration
-  isActive         Boolean        @default(true)
-  autoProvision    Boolean        @default(true)
-  defaultRole      UserRole       @default(USER)
-  defaultTier      SubscriptionTier @default(PROFESSIONAL)
-  organizationId   String?
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  users            SSOUser[]
-  sessions         SSOSession[]
-
+  id           String   @id @default(cuid())
+  name         String
+  type         String   // SAML, OAUTH2, OIDC
+  domain       String   @unique
+  ssoUrl       String
+  sloUrl       String?  // Single logout URL
+  clientId     String?
+  clientSecret String?
+  certificate  String?
+  autoProvision Boolean  @default(true)
+  defaultRole  String   @default("USER")
+  defaultTier  String   @default("FREE")
+  organizationId String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relations
+  users        User[]
+  sessions     SSOSession[]
+  ssoUsers     SSOUser[]
+  
   @@map("sso_providers")
 }
 
-model SSOUser {
-  id           String      @id @default(cuid())
-  providerId   String
-  externalId   String      // User ID from SSO provider
-  userId       String      @unique
-  email        String
-  firstName    String?
-  lastName     String?
-  attributes   Json?       // Additional user attributes from SSO
-  lastLogin    DateTime?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  provider     SSOProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+model SSOSession {
+  id         String   @id @default(cuid())
+  providerId String
+  userId     String?  // Optional for pending sessions
+  sessionId  String   @unique
+  relayState String?
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  
+  // Relations
+  provider   SSOProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  user       User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("sso_sessions")
+}
 
+model SSOUser {
+  id         String   @id @default(cuid())
+  providerId String
+  userId     String
+  externalId String   // ID from external provider
+  email      String?
+  lastLogin  DateTime?
+  metadata   Json?    // Additional user data from provider
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  // Relations
+  provider   SSOProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
   @@unique([providerId, externalId])
   @@map("sso_users")
 }
 
-model SSOSession {
-  id              String       @id @default(cuid())
-  providerId      String
-  sessionId       String       @unique
-  userId          String?
-  nameId          String?      // SAML NameID
-  sessionIndex    String?      // SAML SessionIndex
-  relayState      String?      // SAML RelayState
-  attributes      Json?        // Session attributes
-  expiresAt       DateTime
-  createdAt       DateTime     @default(now())
-  provider        SSOProvider  @relation(fields: [providerId], references: [id], onDelete: Cascade)
-
-  @@map("sso_sessions")
+// Usage Tracking Models
+model UsageRecord {
+  id        String   @id @default(cuid())
+  userId    String
+  service   String   // 'api_call', 'ai_analysis', 'mls_search', etc.
+  endpoint  String?
+  count     Int      @default(1)
+  metadata  Json?
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("usage_records")
 }
 
-enum SSOType {
-  SAML
-  OAUTH2
-  OIDC
+// Property Analysis Models
+model PropertyAnalysis {
+  id               String   @id @default(cuid())
+  userId           String
+  address          String
+  analysisType     String   // 'investment', 'market_value', 'rental', etc.
+  inputData        Json     // Property details used for analysis
+  outputData       Json     // Analysis results
+  analysisData     Json?    // Additional analysis data
+  estimatedValue   Float?   // Estimated property value
+  opportunityScore Int?     // 0-100 score
+  overallScore     Float?   // Overall analysis score
+  confidence       Float?   // 0-1 confidence score
+  timestamp        DateTime @default(now())
+  createdAt        DateTime @default(now())
+  
+  // Relations
+  user             User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("property_analyses")
 }

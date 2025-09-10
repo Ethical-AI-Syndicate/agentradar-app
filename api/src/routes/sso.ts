@@ -435,7 +435,7 @@ router.post('/logout', authenticateToken, async (req, res) => {
     const { userId } = req as any;
 
     // Find user's SSO sessions
-    const ssoUser = await prisma.sSOUser.findUnique({
+    const ssoUser = await prisma.sSOUser.findFirst({
       where: { userId },
       include: { provider: true }
     });
@@ -598,9 +598,7 @@ async function processUserAuthentication(provider: any, attributes: any): Promis
         externalId: attributes.email, // Use email as external ID
         userId: newUser.id,
         email: attributes.email,
-        firstName: attributes.firstName,
-        lastName: attributes.lastName,
-        attributes: attributes,
+        metadata: attributes,
         lastLogin: new Date()
       }
     });

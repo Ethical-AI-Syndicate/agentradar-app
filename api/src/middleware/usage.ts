@@ -101,23 +101,23 @@ export function checkUsageLimit(feature: string) {
         prisma.usageRecord.aggregate({
           where: {
             userId,
-            feature,
-            timestamp: { gte: startOfDay }
+            service: feature,
+            createdAt: { gte: startOfDay }
           },
-          _sum: { requestCount: true }
+          _sum: { count: true }
         }),
         prisma.usageRecord.aggregate({
           where: {
             userId,
-            feature,
-            timestamp: { gte: startOfMonth }
+            service: feature,
+            createdAt: { gte: startOfMonth }
           },
-          _sum: { requestCount: true }
+          _sum: { count: true }
         })
       ]);
 
-      const dailyCount = dailyUsage._sum.requestCount || 0;
-      const monthlyCount = monthlyUsage._sum.requestCount || 0;
+      const dailyCount = dailyUsage._sum.count || 0;
+      const monthlyCount = monthlyUsage._sum.count || 0;
 
       // Store usage data in request for potential use in response
       req.usageData = {
@@ -182,11 +182,12 @@ export function recordUsage(feature: string, resultCount: number = 1) {
         await prisma.usageRecord.create({
           data: {
             userId: req.user.id,
-            feature,
-            requestCount: 1,
-            resultCount,
-            timestamp: new Date(),
-            responseTime: req.startTime ? Date.now() - req.startTime : null
+            service: feature,
+            count: 1,
+            metadata: {
+              resultCount,
+              responseTime: req.startTime ? Date.now() - req.startTime : null
+            }
           }
         });
 
@@ -223,14 +224,14 @@ export async function getUserUsage(userId: string, feature?: string) {
       prisma.usageRecord.aggregate({
         where: {
           ...whereClause,
-          timestamp: { gte: startOfDay }
+          createdAt: { gte: startOfDay }
         },
-        _sum: { requestCount: true },
+        _sum: { count: true },
         _count: { id: true }
       }),
       prisma.usageRecord.aggregate({
         where: whereClause,
-        _sum: { requestCount: true, resultCount: true },
+        _sum: { count: true },
         _count: { id: true }
       }),
       prisma.user.findUnique({
@@ -248,12 +249,11 @@ export async function getUserUsage(userId: string, feature?: string) {
 
     return {
       daily: {
-        requests: dailyUsage._sum.requestCount || 0,
+        requests: dailyUsage._sum.count || 0,
         calls: dailyUsage._count.id || 0
       },
       monthly: {
-        requests: monthlyUsage._sum.requestCount || 0,
-        results: monthlyUsage._sum.resultCount || 0,
+        requests: monthlyUsage._sum.count || 0,
         calls: monthlyUsage._count.id || 0
       },
       limits: featureLimits,

@@ -488,8 +488,10 @@ router.post('/progress', authenticateToken, validateRequest(progressUpdateSchema
         timeSpent: timeSpent || 0
       },
       create: {
+        userId,
         enrollmentId,
         lessonId,
+        status: completed ? 'COMPLETED' : 'IN_PROGRESS',
         completed,
         completedAt: completed ? new Date() : null,
         timeSpent: timeSpent || 0
@@ -521,7 +523,7 @@ router.post('/progress', authenticateToken, validateRequest(progressUpdateSchema
 
       // Issue certificate if course is completed
       if (progressPercentage === 100) {
-        const existingCertificate = await prisma.certification.findUnique({
+        const existingCertificate = await prisma.certificate.findUnique({
           where: {
             userId_courseId: {
               userId,
@@ -531,13 +533,15 @@ router.post('/progress', authenticateToken, validateRequest(progressUpdateSchema
         });
 
         if (!existingCertificate) {
-          await prisma.certification.create({
+          const certificateId = `CERT-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+          await prisma.certificate.create({
             data: {
               userId,
               courseId: lesson.courseId,
-              certificateNumber: `CERT-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+              certificateId,
+              certificateNumber: certificateId,
               issueDate: new Date(),
-              verificationUrl: `https://agentradar.app/verify-certificate`
+              verificationUrl: `https://agentradar.app/verify-certificate/${certificateId}`
             }
           });
 
@@ -641,7 +645,7 @@ router.get('/certificates', authenticateToken, async (req, res) => {
   try {
     const { userId } = req as any;
 
-    const certificates = await prisma.certification.findMany({
+    const certificates = await prisma.certificate.findMany({
       where: { userId, isValid: true },
       include: {
         course: {
@@ -780,7 +784,7 @@ router.get('/admin/analytics', authenticateToken, async (req, res) => {
     ] = await Promise.all([
       prisma.course.count(),
       prisma.courseEnrollment.count(),
-      prisma.certification.count({ where: { isValid: true } }),
+      prisma.certificate.count({ where: { isValid: true } }),
       prisma.courseEnrollment.findMany({
         take: 10,
         include: {

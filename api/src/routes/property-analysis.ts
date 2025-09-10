@@ -885,6 +885,9 @@ async function recordPropertyAnalysis(userId: string, address: string, analysis:
       data: {
         userId,
         address,
+        analysisType: 'investment',
+        inputData: { address },
+        outputData: analysis as any,
         analysisData: JSON.stringify(analysis),
         confidence: analysis.valuation.confidence,
         estimatedValue: analysis.valuation.currentValue,
@@ -897,10 +900,11 @@ async function recordPropertyAnalysis(userId: string, address: string, analysis:
     await prisma.usageRecord.create({
       data: {
         userId,
-        feature: 'property_analysis',
-        requestCount: 1,
-        resultCount: 1,
-        timestamp: new Date()
+        service: 'property_analysis',
+        count: 1,
+        metadata: {
+          resultCount: 1
+        }
       }
     });
 
@@ -992,7 +996,7 @@ router.get('/analysis/:id', authenticateToken, async (req, res) => {
       success: true,
       analysis: {
         ...analysis,
-        analysisData: JSON.parse(analysis.analysisData)
+        analysisData: typeof analysis.analysisData === 'string' ? JSON.parse(analysis.analysisData) : analysis.analysisData
       }
     });
 

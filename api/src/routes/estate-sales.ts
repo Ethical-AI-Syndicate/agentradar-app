@@ -648,10 +648,11 @@ async function recordApiUsage(userId: string, feature: string, resultCount: numb
     await prisma.usageRecord.create({
       data: {
         userId,
-        feature,
-        requestCount: 1,
-        resultCount,
-        timestamp: new Date()
+        service: feature,
+        count: 1,
+        metadata: {
+          resultCount
+        }
       }
     });
   } catch (error) {

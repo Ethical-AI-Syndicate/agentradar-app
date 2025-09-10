@@ -39,9 +39,9 @@ export class AlertMatcher {
       const matches: MatchedAlert[] = [];
 
       for (const user of usersWithPreferences) {
-        if (!user.alertPreferences) continue;
+        if (!user.alertPreferences || user.alertPreferences.length === 0) continue;
         
-        const preference = user.alertPreferences;
+        const preference = user.alertPreferences[0];
         const matchResult = this.evaluateMatch(alert, preference);
         
         if (matchResult.isMatch) {
