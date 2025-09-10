@@ -29,7 +29,7 @@ import contentManagementRoutes from "./routes/content-management";
 import businessOperationsRoutes from "./routes/business-operations";
 import emailNotificationsRoutes from "./routes/email-notifications";
 import preferencesRoutes from "./routes/preferences";
-// import monitoringRoutes from './routes/monitoring'; // Temporarily disabled
+import monitoringRoutes from './routes/monitoring';
 import customerOnboardingRoutes from "./routes/customer-onboarding";
 import complianceRoutes from "./routes/compliance";
 import leadQualificationRoutes from "./routes/leadQualification";
@@ -42,7 +42,10 @@ import mlsRoutes from "./routes/mls";
 import courtFilingRoutes from "./routes/court-filings";
 import estateSalesRoutes from "./routes/estate-sales";
 import propertyAnalysisRoutes from "./routes/property-analysis";
-// import courtProcessingRoutes from './routes/courtProcessing'; // Temporarily disabled
+import lmsRoutes from "./routes/lms";
+import chatbotRoutes from "./routes/chatbot";
+import ssoRoutes from "./routes/sso";
+import courtProcessingRoutes from './routes/courtProcessing';
 
 // Load environment variables
 dotenv.config();
@@ -159,7 +162,7 @@ app.use("/api/content-management", contentManagementRoutes);
 app.use("/api/business-operations", businessOperationsRoutes);
 app.use("/api/email-notifications", emailNotificationsRoutes);
 app.use("/api/preferences", preferencesRoutes);
-// app.use('/api/monitoring', monitoringRoutes); // Temporarily disabled
+app.use('/api/monitoring', monitoringRoutes);
 app.use("/api/customer-onboarding", customerOnboardingRoutes);
 app.use("/api/compliance", complianceRoutes);
 app.use("/api/leads", leadQualificationRoutes);
@@ -172,7 +175,10 @@ app.use("/api/mls", mlsRoutes);
 app.use("/api/court-filings", courtFilingRoutes);
 app.use("/api/estate-sales", estateSalesRoutes);
 app.use("/api/property", propertyAnalysisRoutes);
-// app.use('/api/court-processing', courtProcessingRoutes); // Temporarily disabled
+app.use("/api/lms", lmsRoutes);
+app.use("/api/chatbot", chatbotRoutes);
+app.use("/api/sso", ssoRoutes);
+app.use('/api/court-processing', courtProcessingRoutes);
 
 // API documentation endpoint
 app.get("/api", (req, res) => {
@@ -194,7 +200,7 @@ app.get("/api", (req, res) => {
       businessOperations: "/api/business-operations",
       emailNotifications: "/api/email-notifications",
       preferences: "/api/preferences",
-      // monitoring: '/api/monitoring', // Temporarily disabled
+      monitoring: '/api/monitoring',
       customerOnboarding: "/api/customer-onboarding",
       compliance: "/api/compliance",
       leadQualification: "/api/leads",
@@ -206,8 +212,11 @@ app.get("/api", (req, res) => {
       mls: "/api/mls",
       courtFilings: "/api/court-filings",
       estateSales: "/api/estate-sales",
-      propertyAnalysis: "/api/property"
-      // courtProcessing: '/api/court-processing' // Temporarily disabled
+      propertyAnalysis: "/api/property",
+      lms: "/api/lms",
+      chatbot: "/api/chatbot",
+      sso: "/api/sso",
+      courtProcessing: "/api/court-processing"
     },
     health: "/health",
   });
