@@ -4,10 +4,25 @@
   "buildCommand": "npx prisma generate && npm run build",
   "outputDirectory": ".next",
   "framework": "nextjs",
+  "functions": {
+    "api/src/index.ts": {
+      "maxDuration": 30
+    }
+  },
   "rewrites": [
     {
       "source": "/health",
       "destination": "/api/health"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/api/src/index.ts",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.agentradar.app"
+        }
+      ]
     }
   ],
   "env": {

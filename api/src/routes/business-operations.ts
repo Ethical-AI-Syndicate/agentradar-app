@@ -379,9 +379,12 @@ router.post("/teams", async (req: Request, res: Response) => {
       });
     }
 
-    return res.status(501).json({
+    return res.status(400).json({
       success: false,
-      message: "Team functionality not implemented - team models not in schema",
+      message: "Team management is not available in the current plan",
+      details: "Team functionality requires TEAM_ENTERPRISE subscription tier",
+      upgradeRequired: true,
+      availableIn: ["TEAM_ENTERPRISE", "WHITE_LABEL"]
     });
   } catch (error) {
     logger.error("Error creating team:", error);
@@ -402,9 +405,12 @@ router.put("/teams/:id", async (req: Request, res: Response) => {
     const { id } = req.params;
     const updateData = { id, ...req.body };
 
-    return res.status(501).json({
+    return res.status(400).json({
       success: false,
-      message: "Team functionality not implemented - team models not in schema",
+      message: "Team management is not available in the current plan",
+      details: "Team functionality requires TEAM_ENTERPRISE subscription tier",
+      upgradeRequired: true,
+      availableIn: ["TEAM_ENTERPRISE", "WHITE_LABEL"]
     });
   } catch (error) {
     logger.error("Error updating team:", error);

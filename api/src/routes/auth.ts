@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 import axios from 'axios';
+import { sendPasswordResetEmail } from '../services/email';
 
 const router = express.Router();
 let prisma: PrismaClient | null = null;
@@ -115,11 +116,9 @@ router.post('/register', async (req, res) => {
         firstName,
         lastName,
         licenseNumber,
-        province,
         brokerage,
         phone,
         licenseVerified: licenseValid,
-        licenseVerifiedAt: licenseValid ? new Date() : null,
         subscriptionTier: 'FREE',
         subscriptionStatus: 'INACTIVE'
       }
@@ -280,7 +279,7 @@ router.post('/login', async (req, res) => {
       }
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Login successful',
       token,
@@ -343,7 +342,7 @@ router.get('/me', async (req, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       user: {
         id: user.id,
@@ -499,10 +498,18 @@ router.post('/forgot-password', async (req, res) => {
       }
     });
 
-    // TODO: Send email with reset token
-    // For now, we'll log the reset token (in production, use SendGrid)
-    console.log(`Password reset token for ${email}: ${resetToken}`);
-    console.log(`Reset URL: https://agentradar.app/reset-password?token=${resetToken}`);
+    // Send password reset email
+    const emailSent = await sendPasswordResetEmail({
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      resetToken
+    });
+
+    if (!emailSent) {
+      console.error(`Failed to send password reset email to ${email}`);
+      // Still return success to not reveal if email exists, but log the error
+    }
 
   } catch (error) {
     console.error('Forgot password error:', error);

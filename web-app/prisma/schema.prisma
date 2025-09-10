@@ -37,6 +37,11 @@ model User {
   techComfort      String?
   currentChallenges String[]
   
+  // Real estate info
+  licenseNumber    String?
+  brokerage        String?
+  licenseVerified  Boolean @default(false)
+  
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -59,6 +64,25 @@ model User {
   helpArticles        HelpArticle[]        @relation("HelpArticles")
   assignedContacts    ContactSubmission[]  @relation("AssignedContacts")
   assignedDemos       DemoRequest[]        @relation("AssignedDemos")
+  
+  // LMS relations
+  courseEnrollments   CourseEnrollment[]
+  lessonProgress      LessonProgress[]
+  courseReviews       CourseReview[]
+  certificates        Certificate[]
+  
+  // Chatbot relations
+  chatConversations   ChatConversation[]
+  
+  // SSO relations
+  ssoProviderId       String?
+  ssoProvider         SSOProvider? @relation(fields: [ssoProviderId], references: [id])
+  ssoSessions         SSOSession[]
+  ssoUsers            SSOUser[]
+  
+  // Usage and analytics relations
+  usageRecords        UsageRecord[]
+  propertyAnalyses    PropertyAnalysis[]
   
   @@map("users")
 }
@@ -780,4 +804,222 @@ enum DemoStatus {
   SCHEDULED
   COMPLETED
   CANCELLED
+}
+
+// Learning Management System Models
+model Course {
+  id           String   @id @default(cuid())
+  title        String
+  description  String
+  category     String
+  level        String   // Beginner, Intermediate, Advanced
+  duration     String
+  price        Int      @default(0)
+  isPublished  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relations
+  enrollments  CourseEnrollment[]
+  lessons      Lesson[]
+  reviews      CourseReview[]
+  certificates Certificate[]
+  
+  @@map("courses")
+}
+
+model Lesson {
+  id          String   @id @default(cuid())
+  courseId    String
+  title       String
+  content     String?
+  order       Int
+  duration    Int?     // in minutes
+  videoUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  course      Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progress    LessonProgress[]
+  
+  @@map("lessons")
+}
+
+model CourseEnrollment {
+  id         String   @id @default(cuid())
+  userId     String
+  courseId   String
+  enrolledAt DateTime @default(now())
+  completedAt DateTime?
+  
+  // Relations
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course     Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, courseId])
+  @@map("course_enrollments")
+}
+
+model LessonProgress {
+  id         String   @id @default(cuid())
+  userId     String
+  lessonId   String
+  status     String   // STARTED, IN_PROGRESS, COMPLETED
+  timeSpent  Int      @default(0) // in seconds
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  // Relations
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson     Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, lessonId])
+  @@map("lesson_progress")
+}
+
+model CourseReview {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  rating    Int      // 1-5
+  comment   String?
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, courseId])
+  @@map("course_reviews")
+}
+
+model Certificate {
+  id          String   @id @default(cuid())
+  userId      String
+  courseId    String
+  certificateId String @unique
+  issuedAt    DateTime @default(now())
+  expiresAt   DateTime?
+  
+  // Relations
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course      Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  @@map("certificates")
+}
+
+// Chatbot Models
+model ChatConversation {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  ChatMessage[]
+  
+  @@map("chat_conversations")
+}
+
+model ChatMessage {
+  id             String   @id @default(cuid())
+  conversationId String
+  role           String   // user, assistant
+  content        String
+  createdAt      DateTime @default(now())
+  
+  // Relations
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  
+  @@map("chat_messages")
+}
+
+// SSO Models
+model SSOProvider {
+  id           String   @id @default(cuid())
+  name         String
+  type         String   // SAML, OAUTH2, OIDC
+  domain       String   @unique
+  ssoUrl       String
+  clientId     String?
+  clientSecret String?
+  certificate  String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relations
+  users        User[]
+  sessions     SSOSession[]
+  ssoUsers     SSOUser[]
+  
+  @@map("sso_providers")
+}
+
+model SSOSession {
+  id         String   @id @default(cuid())
+  providerId String
+  userId     String
+  sessionId  String   @unique
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  
+  // Relations
+  provider   SSOProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("sso_sessions")
+}
+
+model SSOUser {
+  id         String   @id @default(cuid())
+  providerId String
+  userId     String
+  externalId String   // ID from external provider
+  metadata   Json?    // Additional user data from provider
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  // Relations
+  provider   SSOProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([providerId, externalId])
+  @@map("sso_users")
+}
+
+// Usage Tracking Models
+model UsageRecord {
+  id        String   @id @default(cuid())
+  userId    String
+  service   String   // 'api_call', 'ai_analysis', 'mls_search', etc.
+  endpoint  String?
+  count     Int      @default(1)
+  metadata  Json?
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("usage_records")
+}
+
+// Property Analysis Models
+model PropertyAnalysis {
+  id               String   @id @default(cuid())
+  userId           String
+  address          String
+  analysisType     String   // 'investment', 'market_value', 'rental', etc.
+  inputData        Json     // Property details used for analysis
+  outputData       Json     // Analysis results
+  opportunityScore Int?     // 0-100 score
+  createdAt        DateTime @default(now())
+  
+  // Relations
+  user             User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("property_analyses")
 }
