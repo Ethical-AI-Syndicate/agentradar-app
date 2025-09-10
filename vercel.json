@@ -1,10 +1,31 @@
 {
   "version": 2,
   "installCommand": "npm install --ignore-scripts",
-  "buildCommand": "npm run build",
+  "buildCommand": "npx prisma generate && npm run build",
   "outputDirectory": ".next",
   "framework": "nextjs",
+  "rewrites": [
+    {
+      "source": "/health",
+      "destination": "/api/health"
+    },
+    {
+      "source": "/api/auth/:path*",
+      "destination": "/api/auth/:path*"
+    }
+  ],
   "env": {
-    "SKIP_HUSKY_INSTALL": "1"
+    "SKIP_HUSKY_INSTALL": "1",
+    "NODE_ENV": "production",
+    "DATABASE_URL": "postgresql://neondb_owner:npg_MkmTsgf5hRL6@ep-damp-band-ado7eaqx-pooler.c-2.us-east-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require",
+    "JWT_SECRET": "agentradar-enterprise-jwt-secret-2025-production-@$1mPl3X_K3y!",
+    "RATE_LIMIT_WINDOW_MS": "900000",
+    "RATE_LIMIT_MAX_REQUESTS": "100",
+    "SENDGRID_API_KEY": "SG.test-key-placeholder", 
+    "EMAIL_FROM": "AgentRadar <noreply@agentradar.app>",
+    "OPENAI_API_KEY": "sk-proj-placeholder_configure_in_vercel_dashboard",
+    "STRIPE_SECRET_KEY": "sk_test_placeholder_configure_in_vercel_dashboard",
+    "REPLIERS_API_KEY": "test-key-placeholder",
+    "ENABLE_MOCK_DATA": "false"
   }
 }

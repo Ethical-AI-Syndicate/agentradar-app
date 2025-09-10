@@ -5,8 +5,8 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
-// API Configuration - Use absolute URLs for production
-const API_BASE_URL = typeof window !== "undefined" ? `${window.location.origin}/api` : "/api";
+// API Configuration - Use production API
+const API_BASE_URL = process.env.NODE_ENV === 'production' ? 'https://api.agentradar.app/api' : '/api';
 
 // Create axios instance with default config
 export const apiClient = axios.create({
@@ -140,12 +140,48 @@ export interface AuthResponse {
 }
 
 export const login = async (data: LoginData): Promise<AuthResponse> => {
-  const response = await apiClient.post("/auth/login", data);
+  const response = await apiClient.post("/health?action=login", data);
+  
+  // Transform response to match expected format
+  if (response.data.success) {
+    setToken(response.data.token);
+    setUser(response.data.user);
+    
+    return {
+      success: true,
+      message: response.data.message,
+      data: {
+        accessToken: response.data.token,
+        refreshToken: response.data.token,
+        expiresIn: "24h",
+        user: response.data.user
+      }
+    };
+  }
+  
   return response.data;
 };
 
 export const register = async (data: RegisterData): Promise<AuthResponse> => {
-  const response = await apiClient.post("/auth/register", data);
+  const response = await apiClient.post("/health?action=register", data);
+  
+  // Transform response to match expected format
+  if (response.data.success) {
+    setToken(response.data.token);
+    setUser(response.data.user);
+    
+    return {
+      success: true,
+      message: response.data.message,
+      data: {
+        accessToken: response.data.token,
+        refreshToken: response.data.token,
+        expiresIn: "24h",
+        user: response.data.user
+      }
+    };
+  }
+  
   return response.data;
 };
 
@@ -175,10 +211,13 @@ export const refreshToken = async (): Promise<string | null> => {
 
 export const getCurrentUser = async (): Promise<User | null> => {
   try {
-    const response = await apiClient.get("/auth/me");
-    const user = response.data.user;
-    setUser(user);
-    return user;
+    const response = await apiClient.get("/health?action=me");
+    if (response.data.success) {
+      const user = response.data.user;
+      setUser(user);
+      return user;
+    }
+    return null;
   } catch (error) {
     clearToken();
     clearUser();

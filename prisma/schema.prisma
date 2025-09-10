@@ -1,0 +1,470 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                           String                 @id @default(cuid())
+  email                        String                 @unique
+  firstName                    String
+  lastName                     String
+  password                     String
+  phone                        String?
+  isActive                     Boolean                @default(true)
+  role                         UserRole               @default(USER)
+  subscriptionTier             SubscriptionTier       @default(FREE)
+  stripeCustomerId             String?                @unique
+  subscriptionId               String?                @unique
+  company                      String?
+  location                     String?
+  teamSize                     String?
+  monthlyDeals                 String?
+  primaryFocus                 String?
+  techComfort                  String?
+  currentChallenges            String[]
+  licenseNumber                String?
+  province                     String?                @default("ON")
+  brokerage                    String?
+  licenseVerified              Boolean                @default(false)
+  licenseVerifiedAt            DateTime?
+  createdAt                    DateTime               @default(now())
+  updatedAt                    DateTime               @updatedAt
+  lastLogin                    DateTime?
+  subscriptionCurrentPeriodEnd DateTime?
+  subscriptionStatus           SubscriptionStatus     @default(INACTIVE)
+  activityLogs                 ActivityLog[]
+  adminActions                 AdminAction[]          @relation("AdminActions")
+  alertPreferences             AlertPreference?
+  savedProperties              SavedProperty[]
+  ticketMessages               SupportTicketMessage[] @relation("TicketMessages")
+  assignedTickets              SupportTicket[]        @relation("TicketAssignee")
+  supportTickets               SupportTicket[]        @relation("UserTickets")
+  userAlerts                   UserAlert[]
+  usageRecords                 UsageRecord[]
+  propertyAnalyses             PropertyAnalysis[]
+
+  @@map("users")
+}
+
+model Alert {
+  id                String      @id @default(cuid())
+  title             String
+  description       String
+  address           String
+  city              String
+  province          String      @default("ON")
+  postalCode        String?
+  alertType         AlertType
+  source            DataSource
+  status            AlertStatus @default(ACTIVE)
+  priority          Priority    @default(MEDIUM)
+  opportunityScore  Int         @default(0)
+  timelineMonths    Int?
+  propertyType      String?
+  estimatedValue    Int?
+  lotSize           String?
+  bedrooms          Int?
+  bathrooms         Float?
+  courtFileNumber   String?
+  courtDate         DateTime?
+  courtCaseId       String?
+  probateNumber     String?
+  executorName      String?
+  executorContact   String?
+  applicationNumber String?
+  municipalOffice   String?
+  applicationDate   DateTime?
+  latitude          Float?
+  longitude         Float?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  discoveredAt      DateTime    @default(now())
+  courtCase         CourtCase?  @relation(fields: [courtCaseId], references: [id])
+  userAlerts        UserAlert[]
+
+  @@map("alerts")
+}
+
+model UserAlert {
+  id           String    @id @default(cuid())
+  userId       String
+  alertId      String
+  isNotified   Boolean   @default(false)
+  notifiedAt   DateTime?
+  isViewed     Boolean   @default(false)
+  viewedAt     DateTime?
+  isBookmarked Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  alert        Alert     @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, alertId])
+  @@map("user_alerts")
+}
+
+model AlertPreference {
+  id                  String      @id @default(cuid())
+  userId              String      @unique
+  cities              String[]    @default([])
+  maxDistanceKm       Int         @default(50)
+  propertyTypes       String[]    @default([])
+  minValue            Int?
+  maxValue            Int?
+  minBedrooms         Int?
+  maxBedrooms         Int?
+  alertTypes          AlertType[]
+  minPriority         Priority    @default(LOW)
+  minOpportunityScore Int         @default(0)
+  emailNotifications  Boolean     @default(true)
+  smsNotifications    Boolean     @default(false)
+  pushNotifications   Boolean     @default(true)
+  maxAlertsPerDay     Int         @default(10)
+  quietHoursStart     String?
+  quietHoursEnd       String?
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  user                User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("alert_preferences")
+}
+
+model SavedProperty {
+  id        String   @id @default(cuid())
+  userId    String
+  alertId   String
+  notes     String?
+  tags      String[] @default([])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, alertId])
+  @@map("saved_properties")
+}
+
+model ActivityLog {
+  id        String       @id @default(cuid())
+  userId    String?
+  action    ActivityType
+  details   Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime     @default(now())
+  user      User?        @relation(fields: [userId], references: [id])
+
+  @@map("activity_logs")
+}
+
+model EarlyAdopterToken {
+  id                String    @id @default(cuid())
+  token             String    @unique @default(cuid())
+  email             String    @unique
+  firstName         String
+  lastName          String
+  phone             String
+  company           String
+  location          String
+  teamSize          String
+  monthlyDeals      String
+  primaryFocus      String
+  currentChallenges String[]
+  techComfort       String
+  isUsed            Boolean   @default(false)
+  usedAt            DateTime?
+  userId            String?   @unique
+  discountPercent   Int       @default(50)
+  expiresAt         DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("early_adopter_tokens")
+}
+
+model CourtCase {
+  id              String                @id @default(cuid())
+  guid            String                @unique
+  title           String
+  neutralCitation String?
+  court           CourtType
+  publishDate     DateTime
+  caseUrl         String
+  summary         String?
+  fullText        String?
+  addresses       String[]              @default([])
+  municipalities  String[]              @default([])
+  parties         String[]              @default([])
+  statutes        String[]              @default([])
+  caseTypes       RealEstateCaseType[]  @default([])
+  riskLevel       RiskLevel             @default(LOW)
+  isProcessed     Boolean               @default(false)
+  nerProcessed    Boolean               @default(false)
+  classified      Boolean               @default(false)
+  source          String
+  metadata        Json?
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  alerts          Alert[]
+  processingQueue CaseProcessingQueue[]
+
+  @@index([court, publishDate])
+  @@index([isProcessed, nerProcessed])
+  @@map("court_cases")
+}
+
+model CaseProcessingQueue {
+  id          String           @id @default(cuid())
+  caseId      String
+  processType ProcessingType
+  status      ProcessingStatus @default(PENDING)
+  priority    Int              @default(5)
+  attempts    Int              @default(0)
+  maxAttempts Int              @default(3)
+  error       String?
+  scheduledAt DateTime         @default(now())
+  startedAt   DateTime?
+  completedAt DateTime?
+  case        CourtCase        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([status, priority])
+  @@index([scheduledAt])
+  @@map("case_processing_queue")
+}
+
+model SupportTicket {
+  id           String                 @id @default(cuid())
+  userId       String
+  title        String
+  description  String
+  status       SupportTicketStatus    @default(OPEN)
+  priority     SupportTicketPriority  @default(MEDIUM)
+  category     String?
+  assignedToId String?
+  resolution   String?
+  resolvedAt   DateTime?
+  resolvedBy   String?
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  messages     SupportTicketMessage[]
+  assignedTo   User?                  @relation("TicketAssignee", fields: [assignedToId], references: [id])
+  user         User                   @relation("UserTickets", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("support_tickets")
+}
+
+model SupportTicketMessage {
+  id          String        @id @default(cuid())
+  ticketId    String
+  userId      String
+  message     String
+  isFromAdmin Boolean       @default(false)
+  attachments String[]      @default([])
+  createdAt   DateTime      @default(now())
+  ticket      SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user        User          @relation("TicketMessages", fields: [userId], references: [id])
+
+  @@map("support_ticket_messages")
+}
+
+model AdminAction {
+  id          String   @id @default(cuid())
+  adminId     String
+  action      String
+  targetType  String
+  targetId    String?
+  description String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  admin       User     @relation("AdminActions", fields: [adminId], references: [id])
+
+  @@map("admin_actions")
+}
+
+model SystemSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  description String?
+  category    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("system_settings")
+}
+
+model products {
+  id            String           @id
+  name          String
+  description   String
+  stripePriceId String           @unique
+  price         Decimal          @db.Decimal(10, 2)
+  currency      String           @default("usd")
+  interval      String
+  tier          SubscriptionTier
+  features      String[]
+  maxAlerts     Int?
+  maxUsers      Int?
+  isActive      Boolean          @default(true)
+  isPopular     Boolean          @default(false)
+  displayOrder  Int?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime
+}
+
+enum SubscriptionTier {
+  FREE
+  SOLO_AGENT
+  PROFESSIONAL
+  TEAM_ENTERPRISE
+  WHITE_LABEL
+}
+
+enum AlertType {
+  POWER_OF_SALE
+  ESTATE_SALE
+  DEVELOPMENT_APPLICATION
+  MUNICIPAL_PERMIT
+  PROBATE_FILING
+  TAX_SALE
+}
+
+enum DataSource {
+  ONTARIO_COURT_BULLETINS
+  ESTATE_FILINGS
+  MUNICIPAL_APPLICATIONS
+  DEVELOPMENT_PERMITS
+  TAX_OFFICE
+  MANUAL_ENTRY
+}
+
+enum AlertStatus {
+  ACTIVE
+  RESOLVED
+  EXPIRED
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum ActivityType {
+  USER_LOGIN
+  USER_LOGOUT
+  ALERT_VIEWED
+  ALERT_BOOKMARKED
+  PROPERTY_SAVED
+  SEARCH_PERFORMED
+  PREFERENCES_UPDATED
+  SUBSCRIPTION_CHANGED
+}
+
+enum CourtType {
+  ONSC
+  ONCA
+  ONCJ
+  ONSCDC
+  OLT
+}
+
+enum RealEstateCaseType {
+  FORECLOSURE
+  POWER_OF_SALE
+  LIEN
+  CONDO
+  RECEIVERSHIP
+  PLANNING
+  OLT_APPEAL
+  ENVIRONMENTAL
+  LABOUR_CONVICTION
+  CONSTRUCTION_LIEN
+  PLANNING_ACT
+  BIA_PROCEEDING
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ProcessingType {
+  NER_EXTRACTION
+  CASE_CLASSIFICATION
+  RISK_ASSESSMENT
+  ALERT_GENERATION
+}
+
+enum ProcessingStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum SupportTicketStatus {
+  OPEN
+  IN_PROGRESS
+  PENDING_USER
+  RESOLVED
+  CLOSED
+}
+
+enum SupportTicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  INACTIVE
+  PAST_DUE
+  CANCELLED
+  TRIALING
+  INCOMPLETE
+}
+
+model UsageRecord {
+  id            String   @id @default(cuid())
+  userId        String
+  feature       String
+  requestCount  Int      @default(1)
+  resultCount   Int?
+  responseTime  Int?     // milliseconds
+  timestamp     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, timestamp])
+  @@index([userId, feature, timestamp])
+  @@map("usage_records")
+}
+
+model PropertyAnalysis {
+  id             String   @id @default(cuid())
+  userId         String
+  address        String
+  analysisData   String   // JSON data
+  confidence     Float
+  estimatedValue Int
+  overallScore   Int
+  timestamp      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, timestamp])
+  @@map("property_analyses")
+}
