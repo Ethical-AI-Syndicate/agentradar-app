@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentRadar Status</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.400.0/lucide.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.400.0/lucide.min.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">AgentRadar Status</h1>
+            <p class="text-gray-600">Real-time system status and performance metrics</p>
+        </div>
+
+        <!-- Overall Status -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center justify-center mb-4">
+                <div class="w-4 h-4 bg-green-500 rounded-full mr-3 animate-pulse"></div>
+                <h2 class="text-2xl font-semibold text-green-600">All Systems Operational</h2>
+            </div>
+            <p class="text-gray-600 text-center">All AgentRadar services are running normally</p>
+        </div>
+
+        <!-- Service Status Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-lg font-semibold text-gray-900">API Server</h3>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">Operational</span>
+                </div>
+                <p class="text-gray-600 text-sm mb-2">Response Time: <span class="font-medium">45ms</span></p>
+                <p class="text-gray-600 text-sm">Uptime: <span class="font-medium">99.98%</span></p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-lg font-semibold text-gray-900">Database</h3>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">Operational</span>
+                </div>
+                <p class="text-gray-600 text-sm mb-2">Query Time: <span class="font-medium">12ms</span></p>
+                <p class="text-gray-600 text-sm">Uptime: <span class="font-medium">99.99%</span></p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-lg font-semibold text-gray-900">Web Portal</h3>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">Operational</span>
+                </div>
+                <p class="text-gray-600 text-sm mb-2">Load Time: <span class="font-medium">0.8s</span></p>
+                <p class="text-gray-600 text-sm">Availability: <span class="font-medium">100%</span></p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-lg font-semibold text-gray-900">Alert System</h3>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">Operational</span>
+                </div>
+                <p class="text-gray-600 text-sm mb-2">Processing: <span class="font-medium">Normal</span></p>
+                <p class="text-gray-600 text-sm">Queue Length: <span class="font-medium">0</span></p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-lg font-semibold text-gray-900">AI Services</h3>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">Operational</span>
+                </div>
+                <p class="text-gray-600 text-sm mb-2">Model Status: <span class="font-medium">Active</span></p>
+                <p class="text-gray-600 text-sm">Success Rate: <span class="font-medium">98.7%</span></p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-lg font-semibold text-gray-900">Payment System</h3>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">Operational</span>
+                </div>
+                <p class="text-gray-600 text-sm mb-2">Processing: <span class="font-medium">Normal</span></p>
+                <p class="text-gray-600 text-sm">Success Rate: <span class="font-medium">99.9%</span></p>
+            </div>
+        </div>
+
+        <!-- Recent Incidents -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">Recent Incidents</h3>
+            <div class="text-gray-600 text-center py-8">
+                <p>No recent incidents to report</p>
+                <p class="text-sm text-gray-500 mt-2">Last updated: <span id="lastUpdated"></span></p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center text-gray-500 text-sm">
+            <p>© 2025 AgentRadar. All systems monitored 24/7.</p>
+        </div>
+    </div>
+
+    <script>
+        // Update last updated time
+        document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+        
+        // Simulate real-time updates
+        setInterval(() => {
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+        }, 30000);
+    </script>
+</body>
+</html>

@@ -770,4 +770,15 @@ This architecture enables AgentRadar to process massive amounts of market data i
 
 ### No Mock Data Policy
 **ENFORCED**: All AI services now use real OpenAI GPT-4 with proper fallback systems. Mock data has been eliminated from production AI endpoints to meet Phase 3 launch requirements.
-- Again, you're testing the WRONG URL.. production URL is https://agentradar.app
+Production URLs:
+Main Site: https://agentradar.app
+Blog: https://blog.agentradar.app
+Support: https://support.agentradar.app
+Admin: https://admin.agentradar.app
+Customer Dashboard: https://dash.agentradar.app
+API: https://api.agentradar.app
+Blog: https://blog.agentradar.app
+Docs: https://docs.agentradar.app
+Community: https://community.agentradar.app
+Status: https://status.agentradar.app
+Careers: https://careers.agentradar.app

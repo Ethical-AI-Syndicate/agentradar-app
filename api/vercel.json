@@ -1,90 +1,16 @@
 {
   "version": 2,
-  "installCommand": "cd .. && npm install --ignore-scripts && cd api && npm install",
-  "buildCommand": "cd .. && npx prisma generate && cd api && npm run build",
+  "installCommand": "npm install --ignore-scripts",
   "builds": [
     {
       "src": "src/index.ts",
       "use": "@vercel/node",
       "config": {
-        "maxLambdaSize": "50mb",
-        "includeFiles": ["src/**", "dist/**", "../node_modules/**", "../prisma/**"]
+        "maxLambdaSize": "50mb"
       }
     }
   ],
   "routes": [
-    {
-      "src": "/health",
-      "dest": "src/index.ts"
-    },
-    {
-      "src": "/test",
-      "dest": "src/index.ts"
-    },
-    {
-      "src": "/auth/(.*)",
-      "dest": "src/index.ts"
-    },
-    {
-      "src": "/users/(.*)",
-      "dest": "src/index.ts"
-    },
-    {
-      "src": "/admin/(.*)",
-      "dest": "src/index.ts"
-    },
-    {
-      "src": "/alerts/(.*)",
-      "dest": "src/index.ts"
-    },
-    {
-      "src": "/properties/(.*)",
-      "dest": "src/index.ts"
-    },
-    {
-      "src": "/payments/(.*)",
-      "dest": "src/index.ts"
-    },
-    {
-      "src": "/billing/(.*)",
-      "dest": "src/index.ts"
-    },
-    {
-      "src": "/support/(.*)",
-      "dest": "src/index.ts"
-    },
-    {
-      "src": "/contact/(.*)",
-      "dest": "src/index.ts"
-    },
-    {
-      "src": "/ai/(.*)",
-      "dest": "src/index.ts"
-    },
-    {
-      "src": "/mls/(.*)",
-      "dest": "src/index.ts"
-    },
-    {
-      "src": "/preferences/(.*)",
-      "dest": "src/index.ts"
-    },
-    {
-      "src": "/early-adopters/(.*)",
-      "dest": "src/index.ts"
-    },
-    {
-      "src": "/business-operations/(.*)",
-      "dest": "src/index.ts"
-    },
-    {
-      "src": "/email-notifications/(.*)",
-      "dest": "src/index.ts"
-    },
-    {
-      "src": "/monitoring/(.*)",
-      "dest": "src/index.ts"
-    },
     {
       "src": "/(.*)",
       "dest": "src/index.ts"

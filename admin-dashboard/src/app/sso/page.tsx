@@ -252,7 +252,7 @@ export default function SSOAdminPage() {
         alert(`Test failed: ${data.error}`)
       }
     } catch (error) {
-      alert(`Test failed: ${error.message}`)
+      alert(`Test failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setIsTestingProvider(null)
     }

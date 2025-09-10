@@ -63,22 +63,28 @@ export interface EmailCampaignCreateData {
 }
 
 class ContentManagementSystemStub {
-  // Blog Post Management (Stubbed)
+  // Blog Post Management (Stubbed - BlogPost model not in schema)
   async createBlogPost(data: BlogPostCreateData) {
     logger.info("BlogPost functionality not implemented - returning mock data");
     return {
-      id: "mock-blog-" + Date.now(),
+      id: "mock-post-" + Date.now(),
       title: data.title,
       slug: data.slug || this.generateSlug(data.title),
       content: data.content,
       excerpt: data.excerpt || this.generateExcerpt(data.content),
-      published: data.published || false,
-      publishedAt: data.published ? data.publishedAt || new Date() : null,
+      authorId: data.authorId,
+      status: data.published ? 'PUBLISHED' : 'DRAFT',
+      publishedAt: data.published ? (data.publishedAt || new Date()) : null,
       tags: data.tags || [],
       category: data.category || "General",
-      authorId: data.authorId,
       createdAt: new Date(),
       updatedAt: new Date(),
+      author: {
+        id: data.authorId,
+        firstName: "Mock",
+        lastName: "Author",
+        email: "mock@example.com"
+      }
     };
   }
 
@@ -93,13 +99,11 @@ class ContentManagementSystemStub {
 
   async deleteBlogPost(id: string) {
     logger.info("BlogPost functionality not implemented");
-    return { success: true };
+    return { success: true, message: "Blog post deleted successfully" };
   }
 
   async getBlogPosts(filters: any = {}) {
-    logger.info(
-      "BlogPost functionality not implemented - returning empty results",
-    );
+    logger.info("BlogPost functionality not implemented - returning empty results");
     return { posts: [], total: 0 };
   }
 

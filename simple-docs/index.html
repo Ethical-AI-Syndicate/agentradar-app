@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentRadar Documentation - Complete Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="description" content="Complete documentation for AgentRadar platform - API reference, guides, and best practices.">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Sidebar -->
+    <div class="flex h-screen">
+        <nav class="w-64 bg-white shadow-lg overflow-y-auto">
+            <div class="p-6">
+                <h1 class="text-2xl font-bold text-blue-600 mb-6">AgentRadar Docs</h1>
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-2">Getting Started</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#quick-start" class="text-blue-600 hover:text-blue-700">Quick Start</a></li>
+                            <li><a href="#authentication" class="text-gray-600 hover:text-gray-900">Authentication</a></li>
+                            <li><a href="#dashboard" class="text-gray-600 hover:text-gray-900">Dashboard Overview</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-2">Features</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#alerts" class="text-gray-600 hover:text-gray-900">Alert System</a></li>
+                            <li><a href="#ai-analysis" class="text-gray-600 hover:text-gray-900">AI Property Analysis</a></li>
+                            <li><a href="#court-filings" class="text-gray-600 hover:text-gray-900">Court Filings</a></li>
+                            <li><a href="#estate-sales" class="text-gray-600 hover:text-gray-900">Estate Sales</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-2">API Reference</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#api-auth" class="text-gray-600 hover:text-gray-900">Authentication</a></li>
+                            <li><a href="#api-alerts" class="text-gray-600 hover:text-gray-900">Alerts API</a></li>
+                            <li><a href="#api-properties" class="text-gray-600 hover:text-gray-900">Properties API</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-2">Integrations</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#mls" class="text-gray-600 hover:text-gray-900">MLS Integration</a></li>
+                            <li><a href="#webhooks" class="text-gray-600 hover:text-gray-900">Webhooks</a></li>
+                            <li><a href="#zapier" class="text-gray-600 hover:text-gray-900">Zapier</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <header class="bg-white shadow-sm px-8 py-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900">Documentation</h1>
+                        <p class="text-gray-600">Everything you need to master AgentRadar</p>
+                    </div>
+                    <a href="https://agentradar.app" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        Go to Platform
+                    </a>
+                </div>
+            </header>
+
+            <div class="px-8 py-8">
+                <!-- Quick Start Section -->
+                <section id="quick-start" class="mb-12">
+                    <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8 rounded-lg mb-8">
+                        <h2 class="text-4xl font-bold mb-4">Get Started in Minutes</h2>
+                        <p class="text-xl text-blue-100">Set up your AgentRadar account and start receiving high-quality leads today</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                                <span class="text-2xl font-bold text-blue-600">1</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">Create Account</h3>
+                            <p class="text-gray-600">Sign up for your AgentRadar account and verify your real estate license</p>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                                <span class="text-2xl font-bold text-green-600">2</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">Set Preferences</h3>
+                            <p class="text-gray-600">Configure your alert preferences, target areas, and property types</p>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                                <span class="text-2xl font-bold text-purple-600">3</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">Start Receiving</h3>
+                            <p class="text-gray-600">Get instant notifications when new opportunities match your criteria</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Authentication Section -->
+                <section id="authentication" class="mb-12">
+                    <div class="bg-white p-8 rounded-lg shadow-md">
+                        <h2 class="text-3xl font-bold mb-6">Authentication</h2>
+                        <div class="prose max-w-none">
+                            <p class="text-gray-600 mb-4">AgentRadar uses JWT-based authentication to secure your account and data. All API requests must include a valid bearer token.</p>
+                            
+                            <h3 class="text-xl font-semibold mb-3">Getting Your API Token</h3>
+                            <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                                <code class="text-sm">
+POST https://api.agentradar.app/auth/login<br>
+Content-Type: application/json<br><br>
+{<br>
+  "email": "your-email@example.com",<br>
+  "password": "your-password"<br>
+}
+                                </code>
+                            </div>
+
+                            <h3 class="text-xl font-semibold mb-3">Using Your Token</h3>
+                            <div class="bg-gray-100 p-4 rounded-lg">
+                                <code class="text-sm">
+GET https://api.agentradar.app/alerts<br>
+Authorization: Bearer YOUR_JWT_TOKEN
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Dashboard Overview -->
+                <section id="dashboard" class="mb-12">
+                    <div class="bg-white p-8 rounded-lg shadow-md">
+                        <h2 class="text-3xl font-bold mb-6">Dashboard Overview</h2>
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div>
+                                <h3 class="text-xl font-semibold mb-4">Key Features</h3>
+                                <ul class="space-y-3">
+                                    <li class="flex items-start">
+                                        <div class="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3"></div>
+                                        <div>
+                                            <span class="font-semibold">Real-time Alerts</span>
+                                            <p class="text-gray-600 text-sm">Instant notifications for new opportunities</p>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <div class="w-2 h-2 bg-green-600 rounded-full mt-2 mr-3"></div>
+                                        <div>
+                                            <span class="font-semibold">AI Analysis</span>
+                                            <p class="text-gray-600 text-sm">Automated property valuation and insights</p>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <div class="w-2 h-2 bg-purple-600 rounded-full mt-2 mr-3"></div>
+                                        <div>
+                                            <span class="font-semibold">Market Intelligence</span>
+                                            <p class="text-gray-600 text-sm">Comprehensive market data and trends</p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold mb-4">Navigation</h3>
+                                <div class="bg-gray-100 p-4 rounded-lg">
+                                    <ul class="space-y-2 text-sm">
+                                        <li><strong>Dashboard:</strong> Overview of all activity</li>
+                                        <li><strong>Alerts:</strong> Manage your property notifications</li>
+                                        <li><strong>Properties:</strong> Saved and analyzed properties</li>
+                                        <li><strong>Analytics:</strong> Performance metrics and reports</li>
+                                        <li><strong>Settings:</strong> Account and notification preferences</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- API Reference Preview -->
+                <section id="api-reference" class="mb-12">
+                    <div class="bg-white p-8 rounded-lg shadow-md">
+                        <h2 class="text-3xl font-bold mb-6">API Reference</h2>
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div>
+                                <h3 class="text-xl font-semibold mb-4">Alerts Endpoints</h3>
+                                <div class="space-y-3">
+                                    <div class="p-3 bg-gray-50 rounded">
+                                        <code class="text-sm font-mono">GET /alerts</code>
+                                        <p class="text-gray-600 text-xs mt-1">Retrieve all alerts</p>
+                                    </div>
+                                    <div class="p-3 bg-gray-50 rounded">
+                                        <code class="text-sm font-mono">POST /alerts/{id}/bookmark</code>
+                                        <p class="text-gray-600 text-xs mt-1">Bookmark an alert</p>
+                                    </div>
+                                    <div class="p-3 bg-gray-50 rounded">
+                                        <code class="text-sm font-mono">GET /alerts/personalized</code>
+                                        <p class="text-gray-600 text-xs mt-1">Get personalized recommendations</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold mb-4">Properties Endpoints</h3>
+                                <div class="space-y-3">
+                                    <div class="p-3 bg-gray-50 rounded">
+                                        <code class="text-sm font-mono">POST /ai/analyze-property</code>
+                                        <p class="text-gray-600 text-xs mt-1">Get AI property analysis</p>
+                                    </div>
+                                    <div class="p-3 bg-gray-50 rounded">
+                                        <code class="text-sm font-mono">GET /court-filings</code>
+                                        <p class="text-gray-600 text-xs mt-1">Search court filings</p>
+                                    </div>
+                                    <div class="p-3 bg-gray-50 rounded">
+                                        <code class="text-sm font-mono">GET /estate-sales</code>
+                                        <p class="text-gray-600 text-xs mt-1">Find estate sales</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-6 text-center">
+                            <a href="https://api.agentradar.app/health" class="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                View Full API Reference
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Support Section -->
+                <section class="bg-gradient-to-r from-green-600 to-blue-600 text-white p-8 rounded-lg text-center">
+                    <h2 class="text-3xl font-bold mb-4">Need Help?</h2>
+                    <p class="text-xl mb-6">Our support team is here to help you succeed</p>
+                    <div class="flex justify-center space-x-4">
+                        <a href="https://community.agentradar.app" class="bg-white text-green-600 px-6 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                            Community Forum
+                        </a>
+                        <a href="mailto:support@agentradar.app" class="bg-white/20 text-white px-6 py-2 rounded-lg hover:bg-white/30 transition-colors">
+                            Contact Support
+                        </a>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
