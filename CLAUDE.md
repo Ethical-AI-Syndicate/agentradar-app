@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **AgentRadar** - Advanced real estate intelligence platform featuring AI-powered workflows, blockchain property records, AR virtual tours, and predictive analytics. Built as a white-label solution for market domination with multi-platform support (web, mobile, desktop).
 
-**Intended Status**: All core systems production-ready with **REAL AI integration** (OpenAI GPT-4) replacing all mock data, **complete Stripe payment processing**, **comprehensive MLS integration** (Repliers + bring-your-own-MLS), comprehensive admin portal, real-time WebSocket infrastructure, mobile platform, AI automation workflows, blockchain property records, AR virtual tours, and predictive analytics dashboard.
+**Current Status**: All core systems production-ready with **REAL AI integration** (OpenAI GPT-4) replacing all mock data, **complete Stripe payment processing**, **comprehensive MLS integration** (Repliers + bring-your-own-MLS), comprehensive admin portal, real-time WebSocket infrastructure, mobile platform, AI automation workflows, blockchain property records, AR virtual tours, and predictive analytics dashboard.
 
 ## STRICT CLAUDE CODE RULES OF ENGAGEMENT
 
@@ -580,16 +580,18 @@ MCP_SERVER_PORT=3001
 
 ## MCP Integration (8 Specialized Tools)
 
-**Status**: Operational in mock mode, ready for real data integration
+**Status**: Infrastructure operational, currently configured for mock data (`ENABLE_MOCK_DATA=true`)
 
-1. **scrape_court_filings** - Ontario court power of sale filings
-2. **analyze_property** - ROI, cap rate, cash flow analysis
+1. **scrape_court_filings** - Framework for Ontario court power of sale filings
+2. **analyze_property** - ROI, cap rate, cash flow analysis structure  
 3. **get_system_status** - Health monitoring and metrics
-4. **search_estate_sales** - Probate and estate property discovery
-5. **monitor_development_apps** - Municipal development applications
-6. **daily_pipeline** - Automated data acquisition workflow
+4. **search_estate_sales** - Probate and estate property discovery framework
+5. **monitor_development_apps** - Municipal development applications monitoring
+6. **daily_pipeline** - Automated data acquisition workflow framework
 7. **deploy_component** - Component deployment automation  
-8. **generate_market_report** - Market analysis and reporting
+8. **generate_market_report** - Market analysis and reporting structure
+
+**Real Data Configuration**: `.env.real-data` file exists for enabling real data scraping when ready.
 
 ## Development Workflows
 

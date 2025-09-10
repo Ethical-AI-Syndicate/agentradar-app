@@ -21,11 +21,13 @@
     "JWT_SECRET": "agentradar-enterprise-jwt-secret-2025-production-@$1mPl3X_K3y!",
     "RATE_LIMIT_WINDOW_MS": "900000",
     "RATE_LIMIT_MAX_REQUESTS": "100",
-    "SENDGRID_API_KEY": "SG.test-key-placeholder", 
+    "SENDGRID_API_KEY": "SG.production-key-configure_in_vercel_dashboard", 
     "EMAIL_FROM": "AgentRadar <noreply@agentradar.app>",
-    "OPENAI_API_KEY": "sk-proj-placeholder_configure_in_vercel_dashboard",
-    "STRIPE_SECRET_KEY": "sk_test_placeholder_configure_in_vercel_dashboard",
-    "REPLIERS_API_KEY": "test-key-placeholder",
+    "OPENAI_API_KEY": "sk-proj-production_key_configure_in_vercel_dashboard",
+    "STRIPE_SECRET_KEY": "sk_live_production_key_configure_in_vercel_dashboard",
+    "REPLIERS_API_KEY": "production-key-configure_in_vercel_dashboard",
+    "REPLIERS_ENDPOINT": "https://api.repliers.ca/v1",
+    "REPLIERS_REGION": "GTA",
     "ENABLE_MOCK_DATA": "false"
   }
 }

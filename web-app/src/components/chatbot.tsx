@@ -47,50 +47,33 @@ export function Chatbot({ isOpen, onToggle }: ChatbotProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Simulate RAG-based AI response
+  // Real AI response with OpenAI and RAG
   const generateResponse = async (userMessage: string): Promise<string> => {
-    // In production, this would:
-    // 1. Send user query to vector database to find relevant documents
-    // 2. Use retrieved context + user query to prompt an LLM
-    // 3. Return the LLM's response
-    
-    const lowerMessage = userMessage.toLowerCase();
-    
-    // Simple keyword-based responses for demo
-    if (lowerMessage.includes('pricing') || lowerMessage.includes('cost') || lowerMessage.includes('price')) {
-      return "AgentRadar offers flexible pricing: Individual agents pay $99/month, teams (5+ agents) get $79/month per agent, and enterprise (50+ agents) costs $49/month per agent. All plans include unlimited property alerts, court filing intelligence, and mobile/web access. Would you like me to help you choose the right plan?";
-    }
-    
-    if (lowerMessage.includes('trial') || lowerMessage.includes('free')) {
-      return "Yes! We offer a 14-day free trial with no credit card required. You'll get full access to all features including property alerts, court filing intelligence, and market analytics. Would you like me to help you get started?";
-    }
-    
-    if (lowerMessage.includes('court') || lowerMessage.includes('filing') || lowerMessage.includes('power of sale')) {
-      return "AgentRadar monitors court filings across Ontario to identify power of sale properties, foreclosures, and estate sales 6-12 months before they hit MLS. Our AI analyzes legal documents and extracts property details, giving you a significant competitive advantage. You'll receive real-time alerts when properties match your criteria.";
-    }
-    
-    if (lowerMessage.includes('mobile') || lowerMessage.includes('app')) {
-      return "Our mobile app is currently in development and will launch in Q1 2026. It will include push notifications for new opportunities, mobile-optimized property details, and the ability to save and share properties. Currently, our web platform is fully responsive and works great on mobile browsers.";
-    }
-    
-    if (lowerMessage.includes('integration') || lowerMessage.includes('crm') || lowerMessage.includes('api')) {
-      return "AgentRadar offers API access for enterprise clients to integrate with existing CRM systems. We also provide webhook notifications and can export data in various formats. Our team can help with custom integrations for larger organizations. Would you like to discuss your specific integration needs?";
-    }
-    
-    if (lowerMessage.includes('support') || lowerMessage.includes('help')) {
-      return "We provide comprehensive support including email support, live chat during business hours, video onboarding sessions, and a detailed help center. Enterprise clients get dedicated support and priority response times. You can also schedule a call with our founder Mike Holownych directly.";
-    }
-    
-    if (lowerMessage.includes('data') || lowerMessage.includes('source')) {
-      return "AgentRadar aggregates data from multiple sources: Ontario court systems for power of sale and foreclosure filings, municipal databases for development applications, probate court records for estate sales, and public property records. All data is processed by our AI to extract relevant information and scored for investment potential.";
-    }
+    try {
+      const response = await fetch('/api/chatbot/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          conversationId: `conv_${Date.now()}` // Generate unique conversation ID
+        })
+      });
 
-    if (lowerMessage.includes('investor') || lowerMessage.includes('investment') || lowerMessage.includes('funding')) {
-      return "AgentRadar is currently seeking pre-seed angel investment of $500K - $1.2M to accelerate growth and expand across Canada. We have a clear path to revenue with strong early traction. If you're interested in learning more about this investment opportunity, I can connect you with our founder Mike Holownych.";
+      const data = await response.json();
+      
+      if (data.success) {
+        return data.data.message;
+      } else {
+        throw new Error(data.error || 'Failed to get response');
+      }
+    } catch (error) {
+      console.error('Error getting AI response:', error);
+      
+      // Fallback response if API fails
+      return "I'm having trouble connecting right now, but I'd be happy to help! AgentRadar provides real estate intelligence through court filing monitoring and AI-powered opportunity scoring. For immediate assistance, you can contact support@agentradar.app or schedule a demo with our founder Mike Holownych. What specific information can I help you find?";
     }
-    
-    // Default response
-    return "I'd be happy to help you with information about AgentRadar! I can answer questions about our pricing, features, court filing intelligence, mobile apps, integrations, support options, or getting started. You can also ask me about specific real estate investment strategies or how our platform works. What specifically would you like to know?";
   };
 
   const handleSendMessage = async () => {

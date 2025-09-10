@@ -64,6 +64,7 @@
     "build:all": "npm run build:web && npm run build:api && npm run build:scrapers",
     "build:web": "cd web-app && npm run build",
     "build:api": "cd api && npm run build",
+    "build:scrapers": "echo 'Scrapers build completed - no compilation needed'",
     "whitelabel:init": "node scripts/white-label-automation.js init",
     "whitelabel:deploy": "node scripts/white-label-automation.js deploy",
     "brokerage:onboard": "node scripts/brokerage-onboarding.js onboard",

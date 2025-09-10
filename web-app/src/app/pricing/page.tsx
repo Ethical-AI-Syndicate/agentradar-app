@@ -115,9 +115,9 @@ export default function PricingPage() {
       id: 'enterprise',
       name: 'Enterprise',
       description: 'Complete platform with white-label capabilities for large brokerages',
-      monthlyPrice: 399,
-      yearlyPrice: 3990, // 2 months free
-      pricePerAgent: 399,
+      monthlyPrice: 0, // Custom pricing
+      yearlyPrice: 0, // Custom pricing
+      pricePerAgent: 0, // Custom pricing
       targetMarket: 'Large Brokerages & Enterprises',
       enterprise: true,
       features: [
@@ -309,21 +309,32 @@ export default function PricingPage() {
                     <p className="text-slate-400 text-sm mb-4">{tier.description}</p>
                     
                     <div className="mb-4">
-                      <div className="text-4xl font-bold text-white mb-1">
-                        ${getEffectivePrice(tier).toLocaleString()}
-                        <span className="text-lg text-slate-400 font-normal">
-                          /{isYearly ? 'year' : 'month'}
-                        </span>
-                      </div>
-                      {isYearly && getSavings(tier) > 0 && (
-                        <div className="text-green-400 text-sm">
-                          Save ${getSavings(tier)} annually
+                      {tier.enterprise ? (
+                        <div className="text-4xl font-bold text-white mb-1">
+                          Custom Pricing
+                          <div className="text-lg text-slate-400 font-normal mt-1">
+                            Starting at $1,997/month
+                          </div>
                         </div>
-                      )}
-                      {tier.pricePerAgent && (
-                        <div className="text-slate-400 text-sm">
-                          ${tier.pricePerAgent}/agent/{isYearly ? 'year' : 'month'}
-                        </div>
+                      ) : (
+                        <>
+                          <div className="text-4xl font-bold text-white mb-1">
+                            ${getEffectivePrice(tier).toLocaleString()}
+                            <span className="text-lg text-slate-400 font-normal">
+                              /{isYearly ? 'year' : 'month'}
+                            </span>
+                          </div>
+                          {isYearly && getSavings(tier) > 0 && (
+                            <div className="text-green-400 text-sm">
+                              Save ${getSavings(tier)} annually
+                            </div>
+                          )}
+                          {tier.pricePerAgent && (
+                            <div className="text-slate-400 text-sm">
+                              ${tier.pricePerAgent}/agent/{isYearly ? 'year' : 'month'}
+                            </div>
+                          )}
+                        </>
                       )}
                     </div>
 

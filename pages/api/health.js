@@ -559,70 +559,43 @@ export default async function handler(req, res) {
       }
 
       try {
-        // For now, return structured mock data that matches real MLS format
-        // This will be replaced with actual Repliers API integration
-        const listings = [];
-        const sampleListings = [
-          {
-            id: 'W8234567',
-            address: '123 Main Street, Toronto, ON M5V 1A1',
-            price: 1250000,
-            bedrooms: 3,
-            bathrooms: 2,
-            squareFootage: 1800,
-            propertyType: 'Detached',
-            yearBuilt: 2015,
-            listingDate: '2025-01-01',
-            status: 'Active',
-            description: 'Beautiful family home in downtown Toronto with modern finishes and open concept layout.',
-            images: [
-              'https://example.com/listing1-front.jpg',
-              'https://example.com/listing1-living.jpg'
-            ],
-            agent: {
-              name: 'Sarah Johnson',
-              brokerage: 'Royal LePage',
-              phone: '(416) 555-0123'
-            }
-          },
-          {
-            id: 'C7891234',
-            address: '456 Oak Avenue, Toronto, ON M4W 2B2',
-            price: 895000,
-            bedrooms: 2,
-            bathrooms: 2,
-            squareFootage: 1200,
-            propertyType: 'Condo',
-            yearBuilt: 2018,
-            listingDate: '2024-12-28',
-            status: 'Active',
-            description: 'Luxury condo with stunning city views, premium amenities, and prime location.',
-            images: [
-              'https://example.com/listing2-view.jpg',
-              'https://example.com/listing2-kitchen.jpg'
-            ],
-            agent: {
-              name: 'Michael Chen',
-              brokerage: 'Century 21',
-              phone: '(416) 555-0456'
-            }
-          }
-        ];
+        // Production Repliers MLS API integration
+        if (!process.env.REPLIERS_API_KEY) {
+          return res.status(503).json({ 
+            success: false, 
+            error: 'MLS service not configured',
+            note: 'REPLIERS_API_KEY environment variable required'
+          });
+        }
 
-        // Filter based on criteria
-        const filteredListings = sampleListings.filter(listing => {
-          if (priceMin && listing.price < priceMin) return false;
-          if (priceMax && listing.price > priceMax) return false;
-          if (bedrooms && listing.bedrooms < bedrooms) return false;
-          if (bathrooms && listing.bathrooms < bathrooms) return false;
-          if (propertyType && listing.propertyType.toLowerCase() !== propertyType.toLowerCase()) return false;
-          return true;
+        const repliers = await fetch(`${process.env.REPLIERS_ENDPOINT || 'https://api.repliers.ca/v1'}/search`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.REPLIERS_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            location: city,
+            priceMin,
+            priceMax,
+            bedrooms,
+            bathrooms,
+            propertyType,
+            limit,
+            region: process.env.REPLIERS_REGION || 'GTA'
+          })
         });
 
+        if (!repliers.ok) {
+          throw new Error(`Repliers API error: ${repliers.status}`);
+        }
+
+        const data = await repliers.json();
+        
         return res.status(200).json({
           success: true,
-          results: filteredListings.slice(0, limit),
-          totalFound: filteredListings.length,
+          results: data.listings || [],
+          totalFound: data.total || 0,
           searchCriteria: {
             city,
             priceMin: priceMin || null,
@@ -637,7 +610,7 @@ export default async function handler(req, res) {
 
       } catch (error) {
         console.error('MLS Search Error:', error);
-        return res.status(500).json({ success: false, error: 'MLS search failed' });
+        return res.status(500).json({ success: false, error: 'MLS search failed', details: error.message });
       }
     }
 
@@ -650,71 +623,31 @@ export default async function handler(req, res) {
       }
 
       try {
-        // Mock detailed listing data
-        const listingDetails = {
-          id: id,
-          address: '123 Main Street, Toronto, ON M5V 1A1',
-          price: 1250000,
-          bedrooms: 3,
-          bathrooms: 2,
-          squareFootage: 1800,
-          propertyType: 'Detached',
-          yearBuilt: 2015,
-          listingDate: '2025-01-01',
-          status: 'Active',
-          description: 'Beautiful family home in downtown Toronto with modern finishes and open concept layout. Features include hardwood floors throughout, stainless steel appliances, granite countertops, and a private backyard.',
-          features: [
-            'Hardwood Floors',
-            'Granite Countertops',
-            'Stainless Steel Appliances',
-            'Private Backyard',
-            'Central Air',
-            'Updated Kitchen',
-            'Master Ensuite'
-          ],
-          images: [
-            'https://example.com/listing-front.jpg',
-            'https://example.com/listing-living.jpg',
-            'https://example.com/listing-kitchen.jpg',
-            'https://example.com/listing-master.jpg',
-            'https://example.com/listing-backyard.jpg'
-          ],
-          floorPlans: [
-            'https://example.com/listing-floorplan-main.jpg',
-            'https://example.com/listing-floorplan-upper.jpg'
-          ],
-          agent: {
-            name: 'Sarah Johnson',
-            brokerage: 'Royal LePage',
-            phone: '(416) 555-0123',
-            email: 'sarah.johnson@royallepage.com',
-            photo: 'https://example.com/agent-sarah.jpg'
-          },
-          neighborhood: {
-            name: 'Downtown Core',
-            walkScore: 95,
-            transitScore: 90,
-            schools: [
-              'Toronto Elementary School (8/10)',
-              'Central High School (9/10)'
-            ],
-            amenities: [
-              'Grocery stores within 500m',
-              'Restaurants and cafes',
-              'Parks and recreation',
-              'Public transit access'
-            ]
-          },
-          propertyTax: 8500,
-          maintenanceFee: 0,
-          lotSize: '40x120 ft',
-          parking: '2-car garage',
-          heating: 'Gas forced air',
-          cooling: 'Central air',
-          basement: 'Finished',
-          mlsNumber: id,
-          daysOnMarket: 8
-        };
+        // Production Repliers MLS API integration
+        if (!process.env.REPLIERS_API_KEY) {
+          return res.status(503).json({ 
+            success: false, 
+            error: 'MLS service not configured',
+            note: 'REPLIERS_API_KEY environment variable required'
+          });
+        }
+
+        const repliers = await fetch(`${process.env.REPLIERS_ENDPOINT || 'https://api.repliers.ca/v1'}/listing/${id}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${process.env.REPLIERS_API_KEY}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!repliers.ok) {
+          if (repliers.status === 404) {
+            return res.status(404).json({ success: false, error: 'Listing not found' });
+          }
+          throw new Error(`Repliers API error: ${repliers.status}`);
+        }
+
+        const listingDetails = await repliers.json();
 
         return res.status(200).json({
           success: true,
@@ -725,7 +658,7 @@ export default async function handler(req, res) {
 
       } catch (error) {
         console.error('MLS Listing Error:', error);
-        return res.status(500).json({ success: false, error: 'Failed to fetch listing details' });
+        return res.status(500).json({ success: false, error: 'Failed to fetch listing details', details: error.message });
       }
     }
 
@@ -734,55 +667,33 @@ export default async function handler(req, res) {
       const { city = 'Toronto' } = req.query;
 
       try {
-        // Mock market statistics data
-        const marketStats = {
-          city: city,
-          period: 'December 2024',
-          averagePrice: 1125000,
-          medianPrice: 985000,
-          totalListings: 2847,
-          newListings: 156,
-          soldListings: 89,
-          averageDaysOnMarket: 23,
-          priceChange: {
-            monthOverMonth: 2.1,
-            yearOverYear: -3.8
+        // Production Repliers MLS API integration
+        if (!process.env.REPLIERS_API_KEY) {
+          return res.status(503).json({ 
+            success: false, 
+            error: 'MLS service not configured',
+            note: 'REPLIERS_API_KEY environment variable required'
+          });
+        }
+
+        const repliers = await fetch(`${process.env.REPLIERS_ENDPOINT || 'https://api.repliers.ca/v1'}/market-stats`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.REPLIERS_API_KEY}`,
+            'Content-Type': 'application/json'
           },
-          inventoryLevels: {
-            totalActive: 1205,
-            monthsOfInventory: 4.2
-          },
-          propertyTypes: {
-            'Detached': {
-              averagePrice: 1450000,
-              totalListings: 1138,
-              averageDaysOnMarket: 28
-            },
-            'Condo': {
-              averagePrice: 685000,
-              totalListings: 956,
-              averageDaysOnMarket: 18
-            },
-            'Townhouse': {
-              averagePrice: 985000,
-              totalListings: 453,
-              averageDaysOnMarket: 21
-            },
-            'Semi-Detached': {
-              averagePrice: 1125000,
-              totalListings: 300,
-              averageDaysOnMarket: 25
-            }
-          },
-          priceRanges: {
-            'Under $500k': 89,
-            '$500k-$750k': 234,
-            '$750k-$1M': 445,
-            '$1M-$1.5M': 567,
-            '$1.5M-$2M': 298,
-            'Over $2M': 214
-          }
-        };
+          body: JSON.stringify({
+            location: city,
+            region: process.env.REPLIERS_REGION || 'GTA',
+            period: 'current'
+          })
+        });
+
+        if (!repliers.ok) {
+          throw new Error(`Repliers API error: ${repliers.status}`);
+        }
+
+        const marketStats = await repliers.json();
 
         return res.status(200).json({
           success: true,
@@ -793,7 +704,7 @@ export default async function handler(req, res) {
 
       } catch (error) {
         console.error('MLS Market Stats Error:', error);
-        return res.status(500).json({ success: false, error: 'Failed to fetch market statistics' });
+        return res.status(500).json({ success: false, error: 'Failed to fetch market statistics', details: error.message });
       }
     }
 
@@ -802,7 +713,7 @@ export default async function handler(req, res) {
       let databaseStatus = 'not_tested';
       let aiStatus = 'not_tested';
       let paymentsStatus = 'not_tested';
-      let mlsStatus = 'operational'; // Using mock data for now, but operational
+      let mlsStatus = process.env.REPLIERS_API_KEY ? 'operational' : 'missing_key';
       
       try {
         await db.$queryRaw`SELECT 1`;
@@ -880,8 +791,7 @@ export default async function handler(req, res) {
             'market-stats': 'GET /api/health?action=mls-market-stats&city=CITY'
           },
           provider: 'repliers_mls',
-          status: mlsStatus,
-          note: 'Using structured mock data matching real MLS format'
+          status: mlsStatus
         }
       });
     }

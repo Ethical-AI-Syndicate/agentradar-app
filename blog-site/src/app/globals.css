@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+}
+
+@layer components {
+  .blog-content {
+    @apply prose prose-lg max-w-none;
+  }
+  
+  .blog-content h1 {
+    @apply text-3xl font-bold text-gray-900 mb-6;
+  }
+  
+  .blog-content h2 {
+    @apply text-2xl font-semibold text-gray-800 mt-8 mb-4;
+  }
+  
+  .blog-content h3 {
+    @apply text-xl font-semibold text-gray-800 mt-6 mb-3;
+  }
+  
+  .blog-content p {
+    @apply text-gray-700 leading-relaxed mb-4;
+  }
+  
+  .blog-content a {
+    @apply text-blue-600 hover:text-blue-800 underline;
+  }
+  
+  .blog-content ul, .blog-content ol {
+    @apply my-6 pl-6;
+  }
+  
+  .blog-content li {
+    @apply mb-2;
+  }
+  
+  .blog-content blockquote {
+    @apply border-l-4 border-blue-500 pl-6 italic my-6 text-gray-600;
+  }
+  
+  .blog-content code {
+    @apply bg-gray-100 px-2 py-1 rounded text-sm font-mono;
+  }
+  
+  .blog-content pre {
+    @apply bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto my-6;
+  }
+  
+  .blog-content pre code {
+    @apply bg-transparent px-0 py-0;
+  }
+}

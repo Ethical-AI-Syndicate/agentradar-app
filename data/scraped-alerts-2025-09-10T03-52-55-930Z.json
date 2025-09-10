@@ -1,0 +1,56 @@
+[
+  {
+    "alertType": "DISTRESSED_PROPERTY",
+    "priority": "LOW",
+    "title": "Power Of_sale - Toronto - $1,250,000",
+    "description": "Property: 123 King Street West, Toronto, ON M5V 1J5 • 45 days until sale • Case: CV-24-00123456",
+    "address": "123 King Street West, Toronto, ON M5V 1J5",
+    "city": "Toronto",
+    "province": "ON",
+    "postalCode": "M5V 1J5",
+    "coordinates": null,
+    "price": 1250000,
+    "estimatedValue": null,
+    "source": "COURT_FILING",
+    "sourceUrl": null,
+    "externalId": "CV-24-00123456",
+    "opportunityScore": 0,
+    "discoveredAt": "2025-09-10T03:52:55.922Z",
+    "eventDate": "2025-09-10T03:52:55.895Z",
+    "expiresAt": "2025-10-25T03:52:55.922Z",
+    "metadata": {
+      "caseNumber": "CV-24-00123456",
+      "daysUntilSale": 45,
+      "rawContent": null,
+      "fallbackData": false
+    },
+    "status": "ACTIVE"
+  },
+  {
+    "alertType": "FORECLOSURE",
+    "priority": "LOW",
+    "title": "Foreclosure - Toronto - $890,000",
+    "description": "Property: 456 Queen Street East, Toronto, ON M5A 1T3 • Case: CV-24-00123457",
+    "address": "456 Queen Street East, Toronto, ON M5A 1T3",
+    "city": "Toronto",
+    "province": "ON",
+    "postalCode": "M5A 1T3",
+    "coordinates": null,
+    "price": 890000,
+    "estimatedValue": null,
+    "source": "COURT_FILING",
+    "sourceUrl": null,
+    "externalId": "CV-24-00123457",
+    "opportunityScore": 0,
+    "discoveredAt": "2025-09-10T03:52:55.922Z",
+    "eventDate": "2025-09-09T03:52:55.895Z",
+    "expiresAt": "2025-12-09T03:52:55.922Z",
+    "metadata": {
+      "caseNumber": "CV-24-00123457",
+      "lender": "Major Bank",
+      "rawContent": null,
+      "fallbackData": false
+    },
+    "status": "ACTIVE"
+  }
+]

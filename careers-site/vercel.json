@@ -1,12 +1,15 @@
 {
   "version": 2,
+  "name": "agentradar-careers",
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "installCommand": "npm install",
+  "domains": ["careers.agentradar.app"],
   "env": {
     "NODE_ENV": "production",
-    "NEXT_PUBLIC_API_URL": "https://api.agentradar.app"
+    "NEXT_PUBLIC_API_URL": "https://api.agentradar.app",
+    "NEXT_PUBLIC_MAIN_SITE": "https://agentradar.app"
   },
   "headers": [
     {
@@ -23,34 +26,15 @@
         {
           "key": "Referrer-Policy",
           "value": "origin-when-cross-origin"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=60, s-maxage=60"
-        }
-      ]
-    },
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
         }
       ]
     }
   ],
   "redirects": [
     {
-      "source": "/",
-      "destination": "/dashboard",
-      "permanent": false,
-      "has": [
-        {
-          "type": "cookie",
-          "key": "agentradar_token"
-        }
-      ]
+      "source": "/admin/(.*)",
+      "destination": "https://admin.agentradar.app/$1",
+      "permanent": false
     }
   ]
 }

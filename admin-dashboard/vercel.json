@@ -25,6 +25,10 @@
           "value": "origin-when-cross-origin"
         },
         {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
           "key": "Cache-Control",
           "value": "public, max-age=60, s-maxage=60"
         }
@@ -48,7 +52,7 @@
       "has": [
         {
           "type": "cookie",
-          "key": "agentradar_token"
+          "key": "agentradar_admin_token"
         }
       ]
     }

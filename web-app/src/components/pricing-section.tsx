@@ -23,8 +23,8 @@ export function PricingSection() {
       name: "Solo Agent",
       description: "Perfect for individual agents",
       icon: Users,
-      price: isEarlyAdopter ? 49 : 97,
-      originalPrice: 97,
+      price: isEarlyAdopter ? 49 : 197,
+      originalPrice: 197,
       period: "/month",
       popular: false,
       features: [
@@ -70,10 +70,11 @@ export function PricingSection() {
       name: "Team Enterprise",
       description: "For teams and small brokerages",
       icon: Crown,
-      price: isEarlyAdopter ? 297 : 497,
-      originalPrice: 497,
-      period: "/month",
+      price: "Custom",
+      originalPrice: "Custom",
+      period: " Pricing",
       popular: false,
+      isCustom: true,
       features: [
         "Everything in Professional",
         "Unlimited team members",
@@ -203,22 +204,38 @@ export function PricingSection() {
                   <p className="text-gray-600 mb-6">{plan.description}</p>
 
                   <div className="mb-6">
-                    {isEarlyAdopter && (
-                      <div className="text-sm text-gray-500 line-through mb-1">
-                        ${plan.originalPrice}
-                        {plan.period}
-                      </div>
-                    )}
-                    <div className="flex items-baseline justify-center">
-                      <span className="text-4xl font-bold text-gray-900">
-                        ${plan.price}
-                      </span>
-                      <span className="text-gray-600 ml-1">{plan.period}</span>
-                    </div>
-                    {isEarlyAdopter && (
-                      <div className="text-sm font-medium text-orange-600 mt-1">
-                        50% OFF Lifetime!
-                      </div>
+                    {plan.isCustom ? (
+                      <>
+                        <div className="flex items-baseline justify-center">
+                          <span className="text-4xl font-bold text-gray-900">
+                            {plan.price}
+                          </span>
+                          <span className="text-gray-600 ml-1">{plan.period}</span>
+                        </div>
+                        <div className="text-sm text-gray-600 mt-1">
+                          Starting at $1,997/month
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        {isEarlyAdopter && (
+                          <div className="text-sm text-gray-500 line-through mb-1">
+                            ${plan.originalPrice}
+                            {plan.period}
+                          </div>
+                        )}
+                        <div className="flex items-baseline justify-center">
+                          <span className="text-4xl font-bold text-gray-900">
+                            ${plan.price}
+                          </span>
+                          <span className="text-gray-600 ml-1">{plan.period}</span>
+                        </div>
+                        {isEarlyAdopter && (
+                          <div className="text-sm font-medium text-orange-600 mt-1">
+                            50% OFF Lifetime!
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
 
