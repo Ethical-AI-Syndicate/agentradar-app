@@ -1,29 +1,29 @@
 {
   "version": 2,
-  "name": "agentradar-api",
   "builds": [
     {
-      "src": "minimal-server.js",
+      "src": "src/index.ts",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/minimal-server.js"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/minimal-server.js"
+      "dest": "/src/index.ts"
     }
   ],
   "env": {
-    "NODE_ENV": "production"
-  },
-  "functions": {
-    "minimal-server.js": {
-      "memory": 1024,
-      "maxDuration": 10
-    }
+    "NODE_ENV": "production",
+    "DATABASE_URL": "postgresql://neondb_owner:npg_MkmTsgf5hRL6@ep-damp-band-ado7eaqx-pooler.c-2.us-east-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require",
+    "JWT_SECRET": "agentradar-enterprise-jwt-secret-2025-production-@$1mPl3X_K3y!",
+    "PORT": "4000",
+    "RATE_LIMIT_WINDOW_MS": "900000",
+    "RATE_LIMIT_MAX_REQUESTS": "100",
+    "SENDGRID_API_KEY": "SG.test-key-placeholder",
+    "EMAIL_FROM": "AgentRadar <noreply@agentradar.app>",
+    "OPENAI_API_KEY": "sk-test-placeholder",
+    "STRIPE_SECRET_KEY": "sk_test_placeholder",
+    "REPLIERS_API_KEY": "test-key-placeholder",
+    "ENABLE_MOCK_DATA": "false"
   }
 }

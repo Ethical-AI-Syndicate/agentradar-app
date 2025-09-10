@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     // Simple auth check - only allow with correct secret
     const { secret } = await request.json();
     if (secret !== process.env.JWT_SECRET) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Run raw SQL to create SupportTicket tables if they don't exist
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
         ADD CONSTRAINT "support_tickets_userId_fkey" 
         FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
       `;
-    } catch (e) {
+    } catch {
       // Constraint might already exist
     }
 
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
         ADD CONSTRAINT "support_tickets_assignedToId_fkey" 
         FOREIGN KEY ("assignedToId") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
       `;
-    } catch (e) {
+    } catch {
       // Constraint might already exist
     }
 
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
         ADD CONSTRAINT "support_ticket_messages_ticketId_fkey" 
         FOREIGN KEY ("ticketId") REFERENCES "support_tickets"("id") ON DELETE CASCADE ON UPDATE CASCADE;
       `;
-    } catch (e) {
+    } catch {
       // Constraint might already exist
     }
 
@@ -83,21 +83,23 @@ export async function POST(request: NextRequest) {
         ADD CONSTRAINT "support_ticket_messages_userId_fkey" 
         FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
       `;
-    } catch (e) {
+    } catch {
       // Constraint might already exist
     }
 
     return NextResponse.json({
       success: true,
-      message: 'SupportTicket tables created successfully'
+      message: "SupportTicket tables created successfully",
     });
-
   } catch (error) {
-    console.error('Migration error:', error);
-    return NextResponse.json({
-      error: 'Migration failed',
-      details: (error as Error).message
-    }, { status: 500 });
+    console.error("Migration error:", error);
+    return NextResponse.json(
+      {
+        error: "Migration failed",
+        details: (error as Error).message,
+      },
+      { status: 500 },
+    );
   } finally {
     await prisma.$disconnect();
   }

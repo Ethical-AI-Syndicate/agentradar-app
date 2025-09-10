@@ -171,10 +171,49 @@ export default function PricingPage() {
   };
 
   const startTrial = async (tierId: string) => {
-    // In production, this would integrate with Stripe or payment processor
-    console.log(`Starting trial for tier: ${tierId}`);
-    // Redirect to signup with pricing tier
-    window.location.href = `/signup?tier=${tierId}&trial=true`;
+    try {
+      // Get the corresponding Stripe price ID for the tier
+      const priceIds = {
+        'solo-agent': process.env.NEXT_PUBLIC_STRIPE_SOLO_AGENT_PRICE_ID,
+        'professional': process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_PRICE_ID,
+        'team-enterprise': process.env.NEXT_PUBLIC_STRIPE_TEAM_ENTERPRISE_PRICE_ID
+      };
+      
+      const priceId = priceIds[tierId as keyof typeof priceIds];
+      
+      if (!priceId) {
+        // Fallback to signup for tiers without direct Stripe integration
+        window.location.href = `/signup?tier=${tierId}&trial=true`;
+        return;
+      }
+
+      // Create Stripe checkout session
+      const response = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('agentradar_token')}`,
+        },
+        body: JSON.stringify({
+          priceId,
+          successUrl: `${window.location.origin}/dashboard?subscription=success`,
+          cancelUrl: `${window.location.origin}/pricing?cancelled=true`,
+        }),
+      });
+
+      const { url } = await response.json();
+      
+      if (url) {
+        window.location.href = url;
+      } else {
+        // Fallback to signup
+        window.location.href = `/signup?tier=${tierId}&trial=true`;
+      }
+    } catch (error) {
+      console.error('Error starting trial:', error);
+      // Fallback to signup
+      window.location.href = `/signup?tier=${tierId}&trial=true`;
+    }
   };
 
   const contactSales = () => {

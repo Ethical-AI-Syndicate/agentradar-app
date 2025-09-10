@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "src/app/api/*/route.ts": {
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/src/app/api/:path*/route.ts"
+    }
+  ]
+}

@@ -1,47 +1,59 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Shield, AlertCircle, Eye, EyeOff } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useAuth } from '@/contexts/AuthContext';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Shield, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function AdminLogin() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const { login } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
 
     try {
-      const result = await login(email, password);
-      
-      // Verify admin access
-      if (result.user.role !== 'ADMIN' && result.user.subscriptionTier !== 'WHITE_LABEL') {
-        setError('Admin access required. This incident will be logged.');
+      const result = (await login({ email, password })) as {
+        success: boolean;
+        data?: {
+          user: {
+            role: string;
+            subscriptionTier: string;
+          };
+        };
+      };
+
+      // Verify admin access - user data is in result.data.user based on API structure
+      if (
+        result.data?.user?.role !== "ADMIN" &&
+        result.data?.user?.subscriptionTier !== "WHITE_LABEL"
+      ) {
+        setError("Admin access required. This incident will be logged.");
         setIsLoading(false);
         return;
       }
 
       // Successful admin login
-      router.push('/admin');
-      
-    } catch (error: any) {
-      console.error('Admin login error:', error);
-      setError(
-        error.response?.data?.message || 
-        error.message || 
-        'Authentication failed. Please check your credentials.'
-      );
+      router.push("/admin");
+    } catch (error: unknown) {
+      console.error("Admin login error:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : (error as { response?: { data?: { message?: string } } })?.response
+              ?.data?.message ||
+            "Authentication failed. Please check your credentials.";
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -56,10 +68,10 @@ export default function AdminLogin() {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
               <Shield className="h-8 w-8 text-red-600" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Admin Portal</h1>
-            <p className="text-sm text-gray-600">
-              Restricted Access Only
-            </p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              Admin Portal
+            </h1>
+            <p className="text-sm text-gray-600">Restricted Access Only</p>
           </div>
 
           {/* Login Form */}
@@ -72,7 +84,10 @@ export default function AdminLogin() {
             )}
 
             <div>
-              <label htmlFor="admin-email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="admin-email"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Admin Email
               </label>
               <Input
@@ -89,13 +104,16 @@ export default function AdminLogin() {
             </div>
 
             <div>
-              <label htmlFor="admin-password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="admin-password"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Password
               </label>
               <div className="relative">
                 <Input
                   id="admin-password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter admin password"
@@ -130,7 +148,7 @@ export default function AdminLogin() {
                   Authenticating...
                 </div>
               ) : (
-                'Access Admin Portal'
+                "Access Admin Portal"
               )}
             </Button>
           </form>
@@ -138,8 +156,9 @@ export default function AdminLogin() {
           {/* Security Notice */}
           <div className="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-md">
             <div className="text-xs text-amber-700">
-              <strong>Security Notice:</strong> All admin access attempts are logged and monitored. 
-              Only authorized personnel should access this system.
+              <strong>Security Notice:</strong> All admin access attempts are
+              logged and monitored. Only authorized personnel should access this
+              system.
             </div>
           </div>
         </div>

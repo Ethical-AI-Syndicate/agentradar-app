@@ -18,9 +18,9 @@ export function Footer() {
 
   const footerLinks = {
     product: [
-      { label: "Features", href: "#features" },
-      { label: "Pricing", href: "#pricing" },
-      { label: "Demo", href: "#demo" },
+      { label: "Features", href: "/features" },
+      { label: "Pricing", href: "/pricing" },
+      { label: "Demo", href: "/demo" },
       { label: "API Documentation", href: "/api-docs" },
       { label: "White Label", href: "/white-label" },
       { label: "Integrations", href: "/integrations" }

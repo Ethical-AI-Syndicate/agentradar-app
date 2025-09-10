@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { 
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
   ChevronDown,
   ChevronUp,
   HelpCircle,
@@ -13,11 +13,11 @@ import {
   Calendar,
   Shield,
   Zap,
-  Users
-} from "lucide-react"
+  Users,
+} from "lucide-react";
 
 export function FAQSection() {
-  const [openFAQ, setOpenFAQ] = useState<number | null>(0)
+  const [openFAQ, setOpenFAQ] = useState<number | null>(0);
 
   const faqs = [
     {
@@ -26,17 +26,20 @@ export function FAQSection() {
       questions: [
         {
           question: "How quickly can I start receiving property alerts?",
-          answer: "After signing up, you'll start receiving alerts within 24 hours. Our system immediately begins monitoring court filings, estate sales, and development applications in your specified geographic areas. You can customize your alert criteria during the onboarding process."
+          answer:
+            "After signing up, you'll start receiving alerts within 24 hours. Our system immediately begins monitoring court filings, estate sales, and development applications in your specified geographic areas. You can customize your alert criteria during the onboarding process.",
         },
         {
           question: "What geographic areas does AgentRadar cover?",
-          answer: "We currently focus on the Greater Toronto Area (GTA) including Toronto, Mississauga, Brampton, Vaughan, Markham, Richmond Hill, Oakville, Burlington, and surrounding municipalities. We're expanding to other Ontario markets based on demand from our early adopters."
+          answer:
+            "We currently focus on the Greater Toronto Area (GTA) including Toronto, Mississauga, Brampton, Vaughan, Markham, Richmond Hill, Oakville, Burlington, and surrounding municipalities. We're expanding to other Ontario markets based on demand from our early adopters.",
         },
         {
           question: "Do I need any special software or technical skills?",
-          answer: "No technical skills required! AgentRadar works through your web browser, mobile app, or desktop application. If you can use email and browse the web, you can use AgentRadar. Our onboarding process includes a guided tour and training resources."
-        }
-      ]
+          answer:
+            "No technical skills required! AgentRadar works through your web browser, mobile app, or desktop application. If you can use email and browse the web, you can use AgentRadar. Our onboarding process includes a guided tour and training resources.",
+        },
+      ],
     },
     {
       category: "Data & Accuracy",
@@ -44,17 +47,21 @@ export function FAQSection() {
       questions: [
         {
           question: "How accurate is the property information?",
-          answer: "Our data comes directly from official government sources including Ontario Superior Court bulletins, municipal development applications, and probate filings. We update our database multiple times daily and use AI to verify and cross-reference information for accuracy."
+          answer:
+            "Our data comes directly from official government sources including Ontario Superior Court bulletins, municipal development applications, and probate filings. We update our database multiple times daily and use AI to verify and cross-reference information for accuracy.",
         },
         {
           question: "How far in advance will I know about opportunities?",
-          answer: "Timing varies by opportunity type: Power of sale proceedings typically give you 6-12 months advance notice, estate sales 3-9 months, and development applications 12+ months. This gives you significant time to build relationships before properties hit the market."
+          answer:
+            "Timing varies by opportunity type: Power of sale proceedings typically give you 6-12 months advance notice, estate sales 3-9 months, and development applications 12+ months. This gives you significant time to build relationships before properties hit the market.",
         },
         {
-          question: "What if the information changes or opportunities don&apos;t materialize?",
-          answer: "Legal proceedings can change, and not every filing results in a sale. We track updates and notify you of status changes. Our AI scoring considers the likelihood of each opportunity actually reaching market, helping you focus on the most promising leads."
-        }
-      ]
+          question:
+            "What if the information changes or opportunities don&apos;t materialize?",
+          answer:
+            "Legal proceedings can change, and not every filing results in a sale. We track updates and notify you of status changes. Our AI scoring considers the likelihood of each opportunity actually reaching market, helping you focus on the most promising leads.",
+        },
+      ],
     },
     {
       category: "Pricing & Plans",
@@ -62,17 +69,20 @@ export function FAQSection() {
       questions: [
         {
           question: "What does the early adopter discount include?",
-          answer: "Early adopters get 50% off their chosen plan for life, priority access to new features, direct communication with our founder team, and the opportunity to influence our product roadmap. This pricing is locked in permanently - even if our regular prices increase."
+          answer:
+            "Early adopters get 50% off their chosen plan for life, priority access to new features, direct communication with our founder team, and the opportunity to influence our product roadmap. This pricing is locked in permanently - even if our regular prices increase.",
         },
         {
           question: "Can I change plans or cancel anytime?",
-          answer: "Yes, you can upgrade, downgrade, or cancel your subscription at any time. Changes take effect at your next billing cycle. We also offer a 30-day money-back guarantee if you're not completely satisfied with AgentRadar."
+          answer:
+            "Yes, you can upgrade, downgrade, or cancel your subscription at any time. Changes take effect at your next billing cycle. We also offer a 30-day money-back guarantee if you're not completely satisfied with AgentRadar.",
         },
         {
           question: "Are there any setup fees or hidden costs?",
-          answer: "No setup fees, no hidden costs, no long-term contracts. The price you see is what you pay. All plans include customer support, regular updates, and access to our core intelligence sources."
-        }
-      ]
+          answer:
+            "No setup fees, no hidden costs, no long-term contracts. The price you see is what you pay. All plans include customer support, regular updates, and access to our core intelligence sources.",
+        },
+      ],
     },
     {
       category: "White-Label & Enterprise",
@@ -80,29 +90,31 @@ export function FAQSection() {
       questions: [
         {
           question: "How does white-label deployment work for brokerages?",
-          answer: "We deploy a fully branded version of AgentRadar on your custom domain (e.g., intelligence.yourbrokerage.com). Your agents log in to your branded platform with their own accounts. Setup typically takes 5-7 business days and includes data migration and team training."
+          answer:
+            "We deploy a fully branded version of AgentRadar on your custom domain (e.g., intelligence.yourbrokerage.com). Your agents log in to your branded platform with their own accounts. Setup typically takes 5-7 business days and includes data migration and team training.",
         },
         {
           question: "Can we integrate with our existing CRM and tools?",
-          answer: "Yes! We offer API access and pre-built integrations with major CRM platforms including Salesforce, HubSpot, Chime, and others. Our team helps set up custom integrations during the onboarding process."
+          answer:
+            "Yes! We offer API access and pre-built integrations with major CRM platforms including Salesforce, HubSpot, Chime, and others. Our team helps set up custom integrations during the onboarding process.",
         },
         {
           question: "What kind of training and support do you provide?",
-          answer: "Enterprise customers receive dedicated onboarding, live training sessions for your team, comprehensive documentation, priority support, and a dedicated account manager. We ensure your entire team is successfully using the platform."
-        }
-      ]
-    }
-  ]
+          answer:
+            "Enterprise customers receive dedicated onboarding, live training sessions for your team, comprehensive documentation, priority support, and a dedicated account manager. We ensure your entire team is successfully using the platform.",
+        },
+      ],
+    },
+  ];
 
   const toggleFAQ = (categoryIndex: number, questionIndex: number) => {
-    const faqIndex = categoryIndex * 100 + questionIndex
-    setOpenFAQ(openFAQ === faqIndex ? null : faqIndex)
-  }
+    const faqIndex = categoryIndex * 100 + questionIndex;
+    setOpenFAQ(openFAQ === faqIndex ? null : faqIndex);
+  };
 
   return (
     <section className="py-20 bg-white" id="faq">
       <div className="max-w-4xl mx-auto px-6 lg:px-8">
-        
         {/* Header */}
         <div className="text-center mb-16">
           <motion.div
@@ -110,6 +122,7 @@ export function FAQSection() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
+            style={{ opacity: 1 }}
           >
             <Badge className="mb-4 bg-blue-100 text-blue-800 border-blue-200">
               <HelpCircle className="w-4 h-4 mr-1" />
@@ -122,8 +135,9 @@ export function FAQSection() {
               </span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Find answers to the most common questions about AgentRadar. 
-              Can&apos;t find what you&apos;re looking for? We&apos;re here to help.
+              Find answers to the most common questions about AgentRadar.
+              Can&apos;t find what you&apos;re looking for? We&apos;re here to
+              help.
             </p>
           </motion.div>
         </div>
@@ -137,23 +151,29 @@ export function FAQSection() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: categoryIndex * 0.1 }}
               viewport={{ once: true }}
+              style={{ opacity: 1 }}
             >
               {/* Category Header */}
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-2 bg-blue-50 rounded-lg">
                   <category.icon className="w-5 h-5 text-blue-600" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900">{category.category}</h3>
+                <h3 className="text-xl font-semibold text-gray-900">
+                  {category.category}
+                </h3>
               </div>
 
               {/* Category Questions */}
               <div className="space-y-4">
                 {category.questions.map((faq, questionIndex) => {
-                  const faqIndex = categoryIndex * 100 + questionIndex
-                  const isOpen = openFAQ === faqIndex
+                  const faqIndex = categoryIndex * 100 + questionIndex;
+                  const isOpen = openFAQ === faqIndex;
 
                   return (
-                    <Card key={questionIndex} className="border-2 border-gray-100 overflow-hidden">
+                    <Card
+                      key={questionIndex}
+                      className="border-2 border-gray-100 overflow-hidden"
+                    >
                       <button
                         onClick={() => toggleFAQ(categoryIndex, questionIndex)}
                         className="w-full p-6 text-left hover:bg-gray-50 transition-colors duration-200"
@@ -169,14 +189,14 @@ export function FAQSection() {
                           )}
                         </div>
                       </button>
-                      
+
                       <motion.div
                         initial={false}
                         animate={{
-                          height: isOpen ? 'auto' : 0,
-                          opacity: isOpen ? 1 : 0
+                          height: isOpen ? "auto" : 0,
+                          opacity: isOpen ? 1 : 0,
                         }}
-                        transition={{ duration: 0.3, ease: 'easeInOut' }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
                         className="overflow-hidden"
                       >
                         <div className="px-6 pb-6">
@@ -186,7 +206,7 @@ export function FAQSection() {
                         </div>
                       </motion.div>
                     </Card>
-                  )
+                  );
                 })}
               </div>
             </motion.div>
@@ -199,6 +219,7 @@ export function FAQSection() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
+          style={{ opacity: 1 }}
           className="mt-16 text-center"
         >
           <Card className="p-8 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
@@ -207,10 +228,11 @@ export function FAQSection() {
                 Still Have Questions?
               </h3>
               <p className="text-gray-600 mb-8">
-                Our team is here to help you understand how AgentRadar can transform 
-                your real estate business. Get in touch for personalized answers.
+                Our team is here to help you understand how AgentRadar can
+                transform your real estate business. Get in touch for
+                personalized answers.
               </p>
-              
+
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
                   size="lg"
@@ -246,5 +268,5 @@ export function FAQSection() {
         </motion.div>
       </div>
     </section>
-  )
+  );
 }

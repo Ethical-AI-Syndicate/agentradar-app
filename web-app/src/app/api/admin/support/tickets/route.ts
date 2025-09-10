@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
+import { NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
+import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
 
@@ -14,51 +14,48 @@ interface DecodedToken {
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    const authHeader = request.headers.get("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json(
-        { error: 'No authorization header' },
-        { status: 401 }
+        { error: "No authorization header" },
+        { status: 401 },
       );
     }
 
     const token = authHeader.substring(7);
     let decoded: DecodedToken;
-    
+
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
-    } catch (error) {
-      return NextResponse.json(
-        { error: 'Invalid token' },
-        { status: 401 }
-      );
+    } catch {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     // Check if user is admin
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId }
+      where: { id: decoded.userId },
     });
 
-    if (!user || user.role !== 'ADMIN') {
+    if (!user || user.role !== "ADMIN") {
       return NextResponse.json(
-        { error: 'Admin access required' },
-        { status: 403 }
+        { error: "Admin access required" },
+        { status: 403 },
       );
     }
 
     // Get pagination parameters
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '25');
-    const status = searchParams.get('status');
-    const priority = searchParams.get('priority');
-    const category = searchParams.get('category');
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "25");
+    const status = searchParams.get("status");
+    const priority = searchParams.get("priority");
+    const category = searchParams.get("category");
 
     // Build where clause
     const where: Record<string, string> = {};
-    if (status && status !== 'all') where.status = status;
-    if (priority && priority !== 'all') where.priority = priority;
-    if (category && category !== 'all') where.category = category;
+    if (status && status !== "all") where.status = status;
+    if (priority && priority !== "all") where.priority = priority;
+    if (category && category !== "all") where.category = category;
 
     // Get tickets with pagination
     const [tickets, totalCount] = await Promise.all([
@@ -72,21 +69,21 @@ export async function GET(request: NextRequest) {
               firstName: true,
               lastName: true,
               subscriptionTier: true,
-            }
+            },
           },
           _count: {
             select: {
-              messages: true
-            }
-          }
+              messages: true,
+            },
+          },
         },
         orderBy: {
-          createdAt: 'desc'
+          createdAt: "desc",
         },
         skip: (page - 1) * limit,
         take: limit,
       }),
-      prisma.supportTicket.count({ where })
+      prisma.supportTicket.count({ where }),
     ]);
 
     return NextResponse.json({
@@ -97,22 +94,21 @@ export async function GET(request: NextRequest) {
           page,
           limit,
           total: totalCount,
-          pages: Math.ceil(totalCount / limit)
-        }
-      }
+          pages: Math.ceil(totalCount / limit),
+        },
+      },
     });
-
-  } catch (error) {
-    console.error('Error fetching support tickets:', error);
+  } catch (error: unknown) {
+    console.error("Error fetching support tickets:", error);
     // Temporary: Return detailed error for debugging
     return NextResponse.json(
-      { 
-        error: 'Failed to fetch support tickets',
+      {
+        error: "Failed to fetch support tickets",
         details: (error as Error).message,
         stack: (error as Error).stack,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -121,58 +117,62 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Verify admin authentication
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    const authHeader = request.headers.get("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json(
-        { error: 'No authorization header' },
-        { status: 401 }
+        { error: "No authorization header" },
+        { status: 401 },
       );
     }
 
     const token = authHeader.substring(7);
     let decoded: DecodedToken;
-    
+
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
-    } catch (error) {
-      return NextResponse.json(
-        { error: 'Invalid token' },
-        { status: 401 }
-      );
+    } catch {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     // Check if user is admin
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId }
+      where: { id: decoded.userId },
     });
 
-    if (!user || user.role !== 'ADMIN') {
+    if (!user || user.role !== "ADMIN") {
       return NextResponse.json(
-        { error: 'Admin access required' },
-        { status: 403 }
+        { error: "Admin access required" },
+        { status: 403 },
       );
     }
 
     const body = await request.json();
-    const { title, description, priority, category, userId, status = 'OPEN' } = body;
+    const {
+      title,
+      description,
+      priority,
+      category,
+      userId,
+      status = "OPEN",
+    } = body;
 
     // Validate required fields
     if (!title || !description || !userId) {
       return NextResponse.json(
-        { error: 'Title, description, and userId are required' },
-        { status: 400 }
+        { error: "Title, description, and userId are required" },
+        { status: 400 },
       );
     }
 
     // Verify target user exists
     const targetUser = await prisma.user.findUnique({
-      where: { id: userId }
+      where: { id: userId },
     });
 
     if (!targetUser) {
       return NextResponse.json(
-        { error: 'Target user not found' },
-        { status: 404 }
+        { error: "Target user not found" },
+        { status: 404 },
       );
     }
 
@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
         title,
         description,
         status,
-        priority: priority || 'MEDIUM',
+        priority: priority || "MEDIUM",
         category,
         userId,
         assignedToId: decoded.userId, // Admin creating the ticket
@@ -194,21 +194,20 @@ export async function POST(request: NextRequest) {
             firstName: true,
             lastName: true,
             subscriptionTier: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     return NextResponse.json({
       success: true,
-      data: ticket
+      data: ticket,
     });
-
-  } catch (error) {
-    console.error('Error creating support ticket:', error);
+  } catch (error: unknown) {
+    console.error("Error creating support ticket:", error);
     return NextResponse.json(
-      { error: 'Failed to create support ticket' },
-      { status: 500 }
+      { error: "Failed to create support ticket" },
+      { status: 500 },
     );
   }
 }

@@ -1,12 +1,13 @@
-import { PrismaClient, UserRole, SubscriptionTier } from '@prisma/client';
-import { createLogger } from '../../utils/logger';
-import bcrypt from 'bcryptjs';
+import { PrismaClient, UserRole, SubscriptionTier } from "@prisma/client";
+import { createLogger } from "../../utils/logger";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 const logger = createLogger();
 
 export interface UserManagementData {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password?: string;
   role?: UserRole;
@@ -20,7 +21,7 @@ export interface UserUpdateData extends Partial<UserManagementData> {
 }
 
 export interface FinancialOperation {
-  type: 'subscription_change' | 'refund' | 'charge' | 'credit' | 'adjustment';
+  type: "subscription_change" | "refund" | "charge" | "credit" | "adjustment";
   userId: string;
   amount: number;
   currency: string;
@@ -41,7 +42,7 @@ export interface TeamUpdateData extends Partial<TeamCreateData> {
 export interface UserTeamAssignment {
   userId: string;
   teamId: string;
-  role: 'ADMIN' | 'MEMBER' | 'VIEWER';
+  role: "ADMIN" | "MEMBER" | "VIEWER";
   permissions?: string[];
 }
 
@@ -83,11 +84,11 @@ class BusinessOperations {
     try {
       // Check if user already exists
       const existingUser = await prisma.user.findUnique({
-        where: { email: data.email }
+        where: { email: data.email },
       });
 
       if (existingUser) {
-        throw new Error('User with this email already exists');
+        throw new Error("User with this email already exists");
       }
 
       // Hash password if provided
@@ -98,49 +99,45 @@ class BusinessOperations {
 
       const user = await prisma.user.create({
         data: {
-          firstName: data.name?.split(' ')[0] || '',
-          lastName: data.name?.split(' ').slice(1).join(' ') || '',
-          name: data.name,
+          firstName: data.firstName || "",
+          lastName: data.lastName || "",
           email: data.email,
           password: hashedPassword,
           role: data.role || UserRole.USER,
           subscriptionTier: data.subscriptionTier || SubscriptionTier.FREE,
           isActive: data.isActive !== undefined ? data.isActive : true,
-          metadata: data.metadata || {}
         },
         select: {
           id: true,
           firstName: true,
           lastName: true,
-          name: true,
           email: true,
           role: true,
           subscriptionTier: true,
           isActive: true,
-          metadata: true,
           createdAt: true,
-          updatedAt: true
-        }
+          updatedAt: true,
+        },
       });
 
       logger.info(`User created: ${user.email} (ID: ${user.id})`);
 
       // Log admin action
       await this.logAdminAction({
-        adminId: 'system',
-        action: 'CREATE_USER',
-        entityType: 'user',
+        adminId: "system",
+        action: "CREATE_USER",
+        entityType: "user",
         entityId: user.id,
         details: {
           userEmail: user.email,
           role: user.role,
-          subscriptionTier: user.subscriptionTier
-        }
+          subscriptionTier: user.subscriptionTier,
+        },
       });
 
       return user;
     } catch (error) {
-      logger.error('Error creating user:', error);
+      logger.error("Error creating user:", error);
       throw error;
     }
   }
@@ -162,22 +159,20 @@ class BusinessOperations {
           id: true,
           firstName: true,
           lastName: true,
-          name: true,
           email: true,
           role: true,
           subscriptionTier: true,
           isActive: true,
-          metadata: true,
           createdAt: true,
-          updatedAt: true
-        }
+          updatedAt: true,
+        },
       });
 
       logger.info(`User updated: ${user.email} (ID: ${user.id})`);
 
       return user;
     } catch (error) {
-      logger.error('Error updating user:', error);
+      logger.error("Error updating user:", error);
       throw error;
     }
   }
@@ -187,39 +182,41 @@ class BusinessOperations {
       // Get the user first
       const existingUser = await prisma.user.findUnique({
         where: { id: userId },
-        select: { email: true }
+        select: { email: true },
       });
 
       if (!existingUser) {
-        throw new Error('User not found');
+        throw new Error("User not found");
       }
 
       // Soft delete by deactivating
       const user = await prisma.user.update({
         where: { id: userId },
-        data: { 
+        data: {
           isActive: false,
-          email: `deleted_${Date.now()}_${existingUser.email}` // Prevent email conflicts
-        }
+          email: `deleted_${Date.now()}_${existingUser.email}`, // Prevent email conflicts
+        },
       });
 
       logger.info(`User soft deleted: ${userId}`);
 
-      return { success: true, message: 'User deactivated successfully' };
+      return { success: true, message: "User deactivated successfully" };
     } catch (error) {
-      logger.error('Error deleting user:', error);
+      logger.error("Error deleting user:", error);
       throw error;
     }
   }
 
-  async getUsers(filters: {
-    role?: UserRole;
-    subscriptionTier?: SubscriptionTier;
-    isActive?: boolean;
-    search?: string;
-    limit?: number;
-    offset?: number;
-  } = {}) {
+  async getUsers(
+    filters: {
+      role?: UserRole;
+      subscriptionTier?: SubscriptionTier;
+      isActive?: boolean;
+      search?: string;
+      limit?: number;
+      offset?: number;
+    } = {},
+  ) {
     try {
       const where: any = {};
 
@@ -237,10 +234,9 @@ class BusinessOperations {
 
       if (filters.search) {
         where.OR = [
-          { firstName: { contains: filters.search, mode: 'insensitive' } },
-          { lastName: { contains: filters.search, mode: 'insensitive' } },
-          { name: { contains: filters.search, mode: 'insensitive' } },
-          { email: { contains: filters.search, mode: 'insensitive' } }
+          { firstName: { contains: filters.search, mode: "insensitive" } },
+          { lastName: { contains: filters.search, mode: "insensitive" } },
+          { email: { contains: filters.search, mode: "insensitive" } },
         ];
       }
 
@@ -249,88 +245,100 @@ class BusinessOperations {
           where,
           select: {
             id: true,
-            name: true,
+            firstName: true,
+            lastName: true,
             email: true,
             role: true,
             subscriptionTier: true,
             isActive: true,
-            metadata: true,
             createdAt: true,
             updatedAt: true,
-            lastLoginAt: true
+            lastLogin: true,
           },
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: "desc" },
           take: filters.limit || 50,
-          skip: filters.offset || 0
+          skip: filters.offset || 0,
         }),
-        prisma.user.count({ where })
+        prisma.user.count({ where }),
       ]);
 
       return { users, total };
     } catch (error) {
-      logger.error('Error getting users:', error);
+      logger.error("Error getting users:", error);
       throw error;
     }
   }
 
-  async changeUserSubscription(userId: string, newTier: SubscriptionTier, adminId: string) {
+  async changeUserSubscription(
+    userId: string,
+    newTier: SubscriptionTier,
+    adminId: string,
+  ) {
     try {
       const user = await prisma.user.findUnique({
-        where: { id: userId }
+        where: { id: userId },
       });
 
       if (!user) {
-        throw new Error('User not found');
+        throw new Error("User not found");
       }
 
       const oldTier = user.subscriptionTier;
 
       await prisma.user.update({
         where: { id: userId },
-        data: { subscriptionTier: newTier }
+        data: { subscriptionTier: newTier },
       });
 
       // Log the subscription change
       await this.logAdminAction({
         adminId,
-        action: 'CHANGE_SUBSCRIPTION',
-        entityType: 'user',
+        action: "CHANGE_SUBSCRIPTION",
+        entityType: "user",
         entityId: userId,
         details: {
           userEmail: user.email,
           oldTier,
-          newTier
-        }
+          newTier,
+        },
       });
 
-      logger.info(`Subscription changed for user ${user.email}: ${oldTier} -> ${newTier}`);
+      logger.info(
+        `Subscription changed for user ${user.email}: ${oldTier} -> ${newTier}`,
+      );
 
-      return { success: true, message: 'Subscription tier updated successfully' };
+      return {
+        success: true,
+        message: "Subscription tier updated successfully",
+      };
     } catch (error) {
-      logger.error('Error changing user subscription:', error);
+      logger.error("Error changing user subscription:", error);
       throw error;
     }
   }
 
   // Financial Operations
-  async processFinancialOperation(operation: FinancialOperation, adminId: string) {
+  async processFinancialOperation(
+    operation: FinancialOperation,
+    adminId: string,
+  ) {
     try {
       // This would integrate with your payment processor (Stripe, etc.)
       // For now, we'll log the operation and update user data as needed
 
       const user = await prisma.user.findUnique({
-        where: { id: operation.userId }
+        where: { id: operation.userId },
       });
 
       if (!user) {
-        throw new Error('User not found');
+        throw new Error("User not found");
       }
 
       // Log the financial operation
       await this.logAdminAction({
         adminId,
-        action: 'FINANCIAL_OPERATION',
-        entityType: 'user',
+        action: "FINANCIAL_OPERATION",
+        entityType: "user",
         entityId: operation.userId,
         details: {
           operationType: operation.type,
@@ -338,248 +346,139 @@ class BusinessOperations {
           currency: operation.currency,
           description: operation.description,
           userEmail: user.email,
-          metadata: operation.metadata
-        }
+          metadata: operation.metadata,
+        },
       });
 
-      logger.info(`Financial operation processed: ${operation.type} for user ${user.email}, amount: ${operation.amount} ${operation.currency}`);
+      logger.info(
+        `Financial operation processed: ${operation.type} for user ${user.email}, amount: ${operation.amount} ${operation.currency}`,
+      );
 
-      return { 
-        success: true, 
-        message: 'Financial operation processed successfully',
+      return {
+        success: true,
+        message: "Financial operation processed successfully",
         operation: {
           id: `fin_${Date.now()}`,
           ...operation,
           processedAt: new Date(),
-          processedBy: adminId
-        }
+          processedBy: adminId,
+        },
       };
     } catch (error) {
-      logger.error('Error processing financial operation:', error);
+      logger.error("Error processing financial operation:", error);
       throw error;
     }
   }
 
-  // Team Management
+  // Team Management - NOT IMPLEMENTED: Team models not in schema
   async createTeam(data: TeamCreateData) {
-    try {
-      const team = await prisma.team.create({
-        data
-      });
-
-      logger.info(`Team created: ${team.name} (ID: ${team.id})`);
-
-      return team;
-    } catch (error) {
-      logger.error('Error creating team:', error);
-      throw error;
-    }
+    throw new Error(
+      "Team functionality not implemented - team models not in schema",
+    );
   }
 
   async updateTeam(data: TeamUpdateData) {
-    try {
-      const { id, ...updateData } = data;
-
-      const team = await prisma.team.update({
-        where: { id },
-        data: updateData
-      });
-
-      logger.info(`Team updated: ${team.name} (ID: ${team.id})`);
-
-      return team;
-    } catch (error) {
-      logger.error('Error updating team:', error);
-      throw error;
-    }
+    throw new Error(
+      "Team functionality not implemented - team models not in schema",
+    );
   }
 
   async deleteTeam(teamId: string) {
-    try {
-      // Remove all team memberships first
-      await prisma.userTeam.deleteMany({
-        where: { teamId }
-      });
-
-      // Delete the team
-      await prisma.team.delete({
-        where: { id: teamId }
-      });
-
-      logger.info(`Team deleted: ${teamId}`);
-
-      return { success: true, message: 'Team deleted successfully' };
-    } catch (error) {
-      logger.error('Error deleting team:', error);
-      throw error;
-    }
+    throw new Error(
+      "Team functionality not implemented - team models not in schema",
+    );
   }
 
-  async getTeams(filters: {
-    limit?: number;
-    offset?: number;
-    search?: string;
-  } = {}) {
-    try {
-      const where: any = {};
-
-      if (filters.search) {
-        where.OR = [
-          { name: { contains: filters.search, mode: 'insensitive' } },
-          { description: { contains: filters.search, mode: 'insensitive' } }
-        ];
-      }
-
-      const [teams, total] = await Promise.all([
-        prisma.team.findMany({
-          where,
-          include: {
-            _count: {
-              select: { UserTeam: true }
-            }
-          },
-          orderBy: { createdAt: 'desc' },
-          take: filters.limit || 50,
-          skip: filters.offset || 0
-        }),
-        prisma.team.count({ where })
-      ]);
-
-      return { teams, total };
-    } catch (error) {
-      logger.error('Error getting teams:', error);
-      throw error;
-    }
+  async getTeams(
+    filters: {
+      limit?: number;
+      offset?: number;
+      search?: string;
+    } = {},
+  ) {
+    return { teams: [], total: 0 };
   }
 
   async assignUserToTeam(assignment: UserTeamAssignment) {
-    try {
-      // Check if assignment already exists
-      const existing = await prisma.userTeam.findFirst({
-        where: {
-          userId: assignment.userId,
-          teamId: assignment.teamId
-        }
-      });
-
-      if (existing) {
-        // Update existing assignment
-        const userTeam = await prisma.userTeam.update({
-          where: { id: existing.id },
-          data: {
-            role: assignment.role,
-            permissions: assignment.permissions || []
-          },
-          include: {
-            user: { select: { name: true, email: true } },
-            team: { select: { name: true } }
-          }
-        });
-
-        logger.info(`User team assignment updated: ${userTeam.user.email} -> ${userTeam.team.name}`);
-        return userTeam;
-      } else {
-        // Create new assignment
-        const userTeam = await prisma.userTeam.create({
-          data: assignment,
-          include: {
-            user: { select: { name: true, email: true } },
-            team: { select: { name: true } }
-          }
-        });
-
-        logger.info(`User assigned to team: ${userTeam.user.email} -> ${userTeam.team.name}`);
-        return userTeam;
-      }
-    } catch (error) {
-      logger.error('Error assigning user to team:', error);
-      throw error;
-    }
+    throw new Error(
+      "Team functionality not implemented - team models not in schema",
+    );
   }
 
   async removeUserFromTeam(userId: string, teamId: string) {
-    try {
-      await prisma.userTeam.deleteMany({
-        where: {
-          userId,
-          teamId
-        }
-      });
-
-      logger.info(`User removed from team: ${userId} -> ${teamId}`);
-
-      return { success: true, message: 'User removed from team successfully' };
-    } catch (error) {
-      logger.error('Error removing user from team:', error);
-      throw error;
-    }
+    throw new Error(
+      "Team functionality not implemented - team models not in schema",
+    );
   }
 
   // Business Analytics
   async getBusinessMetrics(): Promise<BusinessMetrics> {
     try {
-      const [
-        userStats,
-        financialStats,
-        teamStats,
-        systemStats
-      ] = await Promise.all([
-        this.getUserMetrics(),
-        this.getFinancialMetrics(),
-        this.getTeamMetrics(),
-        this.getSystemMetrics()
-      ]);
+      const [userStats, financialStats, teamStats, systemStats] =
+        await Promise.all([
+          this.getUserMetrics(),
+          this.getFinancialMetrics(),
+          this.getTeamMetrics(),
+          this.getSystemMetrics(),
+        ]);
 
       return {
         users: userStats,
         financial: financialStats,
         teams: teamStats,
-        systemHealth: systemStats
+        systemHealth: systemStats,
       };
     } catch (error) {
-      logger.error('Error getting business metrics:', error);
+      logger.error("Error getting business metrics:", error);
       throw error;
     }
   }
 
   private async getUserMetrics() {
-    const [total, active, roleStats, tierStats, recentSignups] = await Promise.all([
-      prisma.user.count(),
-      prisma.user.count({ where: { isActive: true } }),
-      prisma.user.groupBy({
-        by: ['role'],
-        _count: { role: true }
-      }),
-      prisma.user.groupBy({
-        by: ['subscriptionTier'],
-        _count: { subscriptionTier: true }
-      }),
-      prisma.user.count({
-        where: {
-          createdAt: {
-            gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // Last 7 days
-          }
-        }
-      })
-    ]);
+    const [total, active, roleStats, tierStats, recentSignups] =
+      await Promise.all([
+        prisma.user.count(),
+        prisma.user.count({ where: { isActive: true } }),
+        prisma.user.groupBy({
+          by: ["role"],
+          _count: { role: true },
+        }),
+        prisma.user.groupBy({
+          by: ["subscriptionTier"],
+          _count: { subscriptionTier: true },
+        }),
+        prisma.user.count({
+          where: {
+            createdAt: {
+              gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // Last 7 days
+            },
+          },
+        }),
+      ]);
 
-    const byRole = roleStats.reduce((acc, stat) => {
-      acc[stat.role] = stat._count.role;
-      return acc;
-    }, {} as Record<string, number>);
+    const byRole = roleStats.reduce(
+      (acc, stat) => {
+        acc[stat.role] = stat._count.role;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
-    const bySubscriptionTier = tierStats.reduce((acc, stat) => {
-      acc[stat.subscriptionTier] = stat._count.subscriptionTier;
-      return acc;
-    }, {} as Record<string, number>);
+    const bySubscriptionTier = tierStats.reduce(
+      (acc, stat) => {
+        acc[stat.subscriptionTier] = stat._count.subscriptionTier;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
     // Calculate churn rate (simplified)
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const churnedUsers = await prisma.user.count({
       where: {
         isActive: false,
-        updatedAt: { gte: thirtyDaysAgo }
-      }
+        updatedAt: { gte: thirtyDaysAgo },
+      },
     });
     const churnRate = total > 0 ? (churnedUsers / total) * 100 : 0;
 
@@ -590,7 +489,7 @@ class BusinessOperations {
       byRole,
       bySubscriptionTier,
       recentSignups,
-      churnRate: Math.round(churnRate * 100) / 100
+      churnRate: Math.round(churnRate * 100) / 100,
     };
   }
 
@@ -599,8 +498,8 @@ class BusinessOperations {
     // For now, returning mock data based on subscription tiers
     const paidUsers = await prisma.user.count({
       where: {
-        subscriptionTier: { not: SubscriptionTier.FREE }
-      }
+        subscriptionTier: { not: SubscriptionTier.FREE },
+      },
     });
 
     // Simplified revenue calculation
@@ -609,17 +508,17 @@ class BusinessOperations {
       SOLO_AGENT: 49,
       PROFESSIONAL: 99,
       TEAM_ENTERPRISE: 199,
-      WHITE_LABEL: 499
+      WHITE_LABEL: 499,
     };
 
     const tierCounts = await prisma.user.groupBy({
-      by: ['subscriptionTier'],
-      _count: { subscriptionTier: true }
+      by: ["subscriptionTier"],
+      _count: { subscriptionTier: true },
     });
 
     const mrr = tierCounts.reduce((total, tier) => {
       const multiplier = tierMultipliers[tier.subscriptionTier] || 0;
-      return total + (tier._count.subscriptionTier * multiplier);
+      return total + tier._count.subscriptionTier * multiplier;
     }, 0);
 
     const arr = mrr * 12;
@@ -631,28 +530,17 @@ class BusinessOperations {
       totalRevenue: arr, // Simplified
       avgRevenuePerUser: Math.round(avgRevenuePerUser * 100) / 100,
       outstandingInvoices: 0, // Would come from billing system
-      refundedAmount: 0 // Would come from billing system
+      refundedAmount: 0, // Would come from billing system
     };
   }
 
   private async getTeamMetrics() {
-    const [total, membershipStats] = await Promise.all([
-      prisma.team.count(),
-      prisma.userTeam.groupBy({
-        by: ['teamId'],
-        _count: { teamId: true }
-      })
-    ]);
-
-    const totalMembers = membershipStats.reduce((sum, stat) => sum + stat._count.teamId, 0);
-    const avgMembersPerTeam = total > 0 ? totalMembers / total : 0;
-    const activeTeams = membershipStats.length;
-
+    // Team functionality not implemented - return empty metrics
     return {
-      total,
-      totalMembers,
-      avgMembersPerTeam: Math.round(avgMembersPerTeam * 100) / 100,
-      activeTeams
+      total: 0,
+      totalMembers: 0,
+      avgMembersPerTeam: 0,
+      activeTeams: 0,
     };
   }
 
@@ -663,7 +551,7 @@ class BusinessOperations {
       apiCalls: 50000,
       errorRate: 0.2,
       avgResponseTime: 150,
-      uptime: 99.9
+      uptime: 99.9,
     };
   }
 
@@ -681,14 +569,14 @@ class BusinessOperations {
         data: {
           adminId: action.adminId,
           action: action.action,
-          targetType: action.entityType || 'unknown',
+          targetType: action.entityType || "unknown",
           targetId: action.entityId,
           description: `${action.action} - ${JSON.stringify(action.details)}`,
-          metadata: action.details
-        }
+          metadata: action.details,
+        },
       });
     } catch (error) {
-      logger.error('Error logging admin action:', error);
+      logger.error("Error logging admin action:", error);
     }
   }
 }

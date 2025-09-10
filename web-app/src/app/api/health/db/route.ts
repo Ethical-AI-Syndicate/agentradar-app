@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -7,41 +7,73 @@ export async function GET() {
   try {
     // Test basic database connectivity
     await prisma.$connect();
-    
-    // Try to query a simple table that should exist
-    const userCount = await prisma.user.count();
-    
-    // Check if SupportTicket table exists
+
+    const tables: Record<string, string | number> = {};
+
+    // Check all core tables
     try {
-      const ticketCount = await prisma.supportTicket.count();
-      return NextResponse.json({
-        status: 'healthy',
-        database: 'connected',
-        userCount,
-        ticketCount,
-        tables: {
-          users: 'exists',
-          supportTickets: 'exists'
-        }
-      });
-    } catch (ticketError) {
-      return NextResponse.json({
-        status: 'partial',
-        database: 'connected',
-        userCount,
-        tables: {
-          users: 'exists',
-          supportTickets: 'missing'
-        },
-        error: 'SupportTicket table does not exist'
-      }, { status: 200 });
+      tables.userCount = await prisma.user.count();
+      tables.users = "exists";
+    } catch {
+      tables.users = "missing";
     }
-  } catch (error) {
+
+    try {
+      tables.alertCount = await prisma.alert.count();
+      tables.alerts = "exists";
+    } catch {
+      tables.alerts = "missing";
+    }
+
+    try {
+      tables.earlyAdopterCount = await prisma.earlyAdopterToken.count();
+      tables.earlyAdopterTokens = "exists";
+    } catch {
+      tables.earlyAdopterTokens = "missing";
+    }
+
+    try {
+      tables.supportTicketCount = await prisma.supportTicket.count();
+      tables.supportTickets = "exists";
+    } catch {
+      tables.supportTickets = "missing";
+    }
+
+    try {
+      tables.courtCaseCount = await prisma.courtCase.count();
+      tables.courtCases = "exists";
+    } catch {
+      tables.courtCases = "missing";
+    }
+
+    try {
+      tables.productCount = await prisma.product.count();
+      tables.products = "exists";
+    } catch {
+      tables.products = "missing";
+    }
+
+    try {
+      tables.alertPreferenceCount = await prisma.alertPreference.count();
+      tables.alertPreferences = "exists";
+    } catch {
+      tables.alertPreferences = "missing";
+    }
+
     return NextResponse.json({
-      status: 'unhealthy',
-      database: 'disconnected',
-      error: (error as Error).message
-    }, { status: 500 });
+      status: "healthy",
+      database: "connected",
+      tables,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        status: "unhealthy",
+        database: "disconnected",
+        error: (error as Error).message,
+      },
+      { status: 500 },
+    );
   } finally {
     await prisma.$disconnect();
   }

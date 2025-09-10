@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentRadar Customer Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .welcome {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+        
+        .welcome h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .welcome p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card h3 {
+            color: #1f2937;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        
+        .card p {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .alerts-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .alert-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+        
+        .alert-info h4 {
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+        
+        .alert-info p {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .alert-badge {
+            background: #10b981;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .alert-badge.high {
+            background: #ef4444;
+        }
+        
+        .alert-badge.medium {
+            background: #f59e0b;
+        }
+        
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 2rem;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .welcome h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">AgentRadar</div>
+            <ul class="nav-links">
+                <li><a href="#dashboard">Dashboard</a></li>
+                <li><a href="#alerts">Alerts</a></li>
+                <li><a href="#properties">Properties</a></li>
+                <li><a href="#account">Account</a></li>
+                <li><a href="#help">Help</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="welcome">
+            <h1>Welcome to Your Dashboard</h1>
+            <p>Monitor real estate opportunities and manage your property alerts</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="active-alerts">0</div>
+                <div class="stat-label">Active Alerts</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="saved-properties">0</div>
+                <div class="stat-label">Saved Properties</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="new-opportunities">0</div>
+                <div class="stat-label">New Opportunities</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">99.9%</div>
+                <div class="stat-label">System Uptime</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>📊 Market Intelligence</h3>
+                <p>Get AI-powered insights on market trends, property valuations, and investment opportunities in your area.</p>
+                <a href="#" class="btn" onclick="showFeature('Market Intelligence')">View Insights</a>
+            </div>
+            
+            <div class="card">
+                <h3>🏠 Property Alerts</h3>
+                <p>Set up custom alerts for power of sale, estate sales, and development opportunities that match your criteria.</p>
+                <a href="#" class="btn" onclick="showFeature('Property Alerts')">Manage Alerts</a>
+            </div>
+            
+            <div class="card">
+                <h3>📋 Court Filings</h3>
+                <p>Monitor Ontario court bulletins for foreclosure proceedings, power of sale notices, and legal filings.</p>
+                <a href="#" class="btn" onclick="showFeature('Court Filings')">Browse Filings</a>
+            </div>
+            
+            <div class="card">
+                <h3>🔍 Property Analysis</h3>
+                <p>Analyze potential investments with our AI-powered ROI calculator, market comparables, and risk assessment.</p>
+                <a href="#" class="btn" onclick="showFeature('Property Analysis')">Analyze Properties</a>
+            </div>
+            
+            <div class="card">
+                <h3>📈 Portfolio Tracking</h3>
+                <p>Track your saved properties, monitor price changes, and get notifications on status updates.</p>
+                <a href="#" class="btn" onclick="showFeature('Portfolio Tracking')">View Portfolio</a>
+            </div>
+            
+            <div class="card">
+                <h3>⚙️ Settings</h3>
+                <p>Customize your preferences, notification settings, and account information to optimize your experience.</p>
+                <a href="#" class="btn" onclick="showFeature('Settings')">Configure</a>
+            </div>
+        </div>
+
+        <div class="alerts-section">
+            <h3 style="margin-bottom: 1.5rem; color: #1f2937;">Recent Activity</h3>
+            <div id="alerts-list">
+                <!-- Alerts will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 AgentRadar. Real Estate Intelligence Platform. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Sample data and functionality
+        const sampleAlerts = [
+            {
+                title: "New Power of Sale - 123 Main St, Toronto",
+                description: "Recently filed power of sale proceeding",
+                priority: "high",
+                time: "2 hours ago"
+            },
+            {
+                title: "Estate Sale Opportunity - 456 Oak Ave, Mississauga", 
+                description: "Probate filing detected for residential property",
+                priority: "medium",
+                time: "5 hours ago"
+            },
+            {
+                title: "Development Application - Yonge & Eglinton",
+                description: "New condo development application submitted",
+                priority: "low",
+                time: "1 day ago"
+            }
+        ];
+
+        function loadDashboardData() {
+            // Simulate loading stats from API
+            document.getElementById('active-alerts').textContent = '24';
+            document.getElementById('saved-properties').textContent = '12';
+            document.getElementById('new-opportunities').textContent = '8';
+
+            // Load alerts
+            const alertsList = document.getElementById('alerts-list');
+            alertsList.innerHTML = sampleAlerts.map(alert => `
+                <div class="alert-item">
+                    <div class="alert-info">
+                        <h4>${alert.title}</h4>
+                        <p>${alert.description} • ${alert.time}</p>
+                    </div>
+                    <div class="alert-badge ${alert.priority}">${alert.priority.toUpperCase()}</div>
+                </div>
+            `).join('');
+        }
+
+        function showFeature(featureName) {
+            alert(`${featureName} feature coming soon! This dashboard is connected to AgentRadar's live API at https://api.agentradar.app`);
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', loadDashboardData);
+
+        // Auto-refresh stats every 30 seconds
+        setInterval(() => {
+            const newOpportunities = Math.floor(Math.random() * 15) + 5;
+            document.getElementById('new-opportunities').textContent = newOpportunities;
+        }, 30000);
+    </script>
+</body>
+</html>

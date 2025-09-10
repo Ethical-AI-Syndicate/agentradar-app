@@ -1,18 +1,18 @@
-import { Metadata } from "next"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Badge } from "@/components/ui/badge"
-import { Shield, Trash2, Download, Eye, AlertCircle } from "lucide-react"
+import { Metadata } from "next";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Shield, Trash2, Download, Eye, AlertCircle } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Data Removal Request | AgentRadar",
   description: "Request deletion of your personal data from AgentRadar",
-}
+};
 
 export default function DataRemovalPage() {
   return (
@@ -25,10 +25,17 @@ export default function DataRemovalPage() {
               <div className="h-8 w-8 rounded bg-gradient-to-r from-blue-500 to-orange-500" />
               <span className="text-xl font-bold">AgentRadar</span>
             </Link>
-            
+
             <div className="flex items-center space-x-6">
-              <Link href="/" className="text-gray-600 hover:text-gray-900">Home</Link>
-              <Link href="/privacy" className="text-gray-600 hover:text-gray-900">Privacy</Link>
+              <Link href="/" className="text-gray-600 hover:text-gray-900">
+                Home
+              </Link>
+              <Link
+                href="/privacy"
+                className="text-gray-600 hover:text-gray-900"
+              >
+                Privacy
+              </Link>
               <Link href="/contact">
                 <Button>Contact Support</Button>
               </Link>
@@ -44,17 +51,18 @@ export default function DataRemovalPage() {
             <Shield className="w-4 h-4 mr-2" />
             GDPR & Privacy Rights
           </Badge>
-          
+
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
             Data Removal{" "}
             <span className="bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">
               Request
             </span>
           </h1>
-          
+
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Exercise your right to have your personal data deleted from AgentRadar's systems. 
-            We respect your privacy and will process your request within 30 days.
+            Exercise your right to have your personal data deleted from
+            AgentRadar&apos;s systems. We respect your privacy and will process
+            your request within 30 days.
           </p>
         </div>
       </section>
@@ -76,23 +84,23 @@ export default function DataRemovalPage() {
               {
                 icon: Eye,
                 title: "Right to Access",
-                description: "Request a copy of your personal data"
+                description: "Request a copy of your personal data",
               },
               {
                 icon: Shield,
                 title: "Right to Rectify",
-                description: "Correct inaccurate or incomplete data"
+                description: "Correct inaccurate or incomplete data",
               },
               {
                 icon: Trash2,
                 title: "Right to Erasure",
-                description: "Request deletion of your personal data"
+                description: "Request deletion of your personal data",
               },
               {
                 icon: Download,
                 title: "Right to Portability",
-                description: "Receive your data in a portable format"
-              }
+                description: "Receive your data in a portable format",
+              },
             ].map((right, index) => (
               <Card key={index} className="text-center">
                 <CardHeader>
@@ -120,8 +128,9 @@ export default function DataRemovalPage() {
                 Data Deletion Request Form
               </CardTitle>
               <p className="text-gray-600">
-                Please fill out this form to request the deletion of your personal data. 
-                We will verify your identity and process your request within 30 days.
+                Please fill out this form to request the deletion of your
+                personal data. We will verify your identity and process your
+                request within 30 days.
               </p>
             </CardHeader>
 
@@ -130,11 +139,14 @@ export default function DataRemovalPage() {
                 <div className="flex items-start gap-3">
                   <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
                   <div>
-                    <h3 className="font-semibold text-yellow-800 mb-2">Important Notice</h3>
+                    <h3 className="font-semibold text-yellow-800 mb-2">
+                      Important Notice
+                    </h3>
                     <p className="text-yellow-700 text-sm">
-                      Deleting your data is irreversible. This action will permanently remove 
-                      your account and all associated data, including property alerts, preferences, 
-                      and transaction history. Please consider downloading your data first.
+                      Deleting your data is irreversible. This action will
+                      permanently remove your account and all associated data,
+                      including property alerts, preferences, and transaction
+                      history. Please consider downloading your data first.
                     </p>
                   </div>
                 </div>
@@ -143,8 +155,10 @@ export default function DataRemovalPage() {
               <form className="space-y-6">
                 {/* Personal Information */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
-                  
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Personal Information
+                  </h3>
+
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="firstName">First Name *</Label>
@@ -158,20 +172,20 @@ export default function DataRemovalPage() {
 
                   <div>
                     <Label htmlFor="email">Email Address *</Label>
-                    <Input 
-                      id="email" 
-                      name="email" 
-                      type="email" 
-                      required 
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      required
                       placeholder="The email address associated with your AgentRadar account"
                     />
                   </div>
 
                   <div>
                     <Label htmlFor="phone">Phone Number</Label>
-                    <Input 
-                      id="phone" 
-                      name="phone" 
+                    <Input
+                      id="phone"
+                      name="phone"
                       type="tel"
                       placeholder="Optional: Help us verify your identity"
                     />
@@ -180,8 +194,10 @@ export default function DataRemovalPage() {
 
                 {/* Request Details */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Request Details</h3>
-                  
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Request Details
+                  </h3>
+
                   <div>
                     <Label htmlFor="requestType">Type of Request</Label>
                     <select
@@ -189,9 +205,15 @@ export default function DataRemovalPage() {
                       name="requestType"
                       className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                      <option value="full-deletion">Complete Data Deletion</option>
-                      <option value="partial-deletion">Partial Data Deletion</option>
-                      <option value="account-closure">Account Closure Only</option>
+                      <option value="full-deletion">
+                        Complete Data Deletion
+                      </option>
+                      <option value="partial-deletion">
+                        Partial Data Deletion
+                      </option>
+                      <option value="account-closure">
+                        Account Closure Only
+                      </option>
                     </select>
                   </div>
 
@@ -208,20 +230,26 @@ export default function DataRemovalPage() {
 
                 {/* Verification */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Identity Verification</h3>
-                  
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Identity Verification
+                  </h3>
+
                   <div>
-                    <Label htmlFor="lastLogin">Approximate Last Login Date</Label>
-                    <Input 
-                      id="lastLogin" 
-                      name="lastLogin" 
+                    <Label htmlFor="lastLogin">
+                      Approximate Last Login Date
+                    </Label>
+                    <Input
+                      id="lastLogin"
+                      name="lastLogin"
                       type="date"
                       placeholder="Help us verify your identity"
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="additionalInfo">Additional Verification Information</Label>
+                    <Label htmlFor="additionalInfo">
+                      Additional Verification Information
+                    </Label>
                     <Textarea
                       id="additionalInfo"
                       name="additionalInfo"
@@ -233,8 +261,10 @@ export default function DataRemovalPage() {
 
                 {/* Data Download Option */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Data Export (Optional)</h3>
-                  
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Data Export (Optional)
+                  </h3>
+
                   <div className="flex items-center space-x-2">
                     <Checkbox id="exportData" />
                     <Label htmlFor="exportData" className="text-sm">
@@ -245,53 +275,55 @@ export default function DataRemovalPage() {
 
                 {/* Legal Confirmations */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Legal Confirmations</h3>
-                  
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Legal Confirmations
+                  </h3>
+
                   <div className="space-y-3">
                     <div className="flex items-start space-x-2">
                       <Checkbox id="confirm1" required />
                       <Label htmlFor="confirm1" className="text-sm">
-                        I confirm that I am the owner of this account and have the right to request data deletion *
+                        I confirm that I am the owner of this account and have
+                        the right to request data deletion *
                       </Label>
                     </div>
 
                     <div className="flex items-start space-x-2">
                       <Checkbox id="confirm2" required />
                       <Label htmlFor="confirm2" className="text-sm">
-                        I understand that data deletion is permanent and irreversible *
+                        I understand that data deletion is permanent and
+                        irreversible *
                       </Label>
                     </div>
 
                     <div className="flex items-start space-x-2">
                       <Checkbox id="confirm3" required />
                       <Label htmlFor="confirm3" className="text-sm">
-                        I understand that some data may be retained for legal compliance purposes *
+                        I understand that some data may be retained for legal
+                        compliance purposes *
                       </Label>
                     </div>
 
                     <div className="flex items-start space-x-2">
                       <Checkbox id="confirm4" />
                       <Label htmlFor="confirm4" className="text-sm">
-                        I consent to being contacted for identity verification purposes
+                        I consent to being contacted for identity verification
+                        purposes
                       </Label>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t">
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     className="bg-red-600 hover:bg-red-700 flex-1"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
                     Submit Deletion Request
                   </Button>
-                  
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    className="flex-1"
-                  >
+
+                  <Button type="button" variant="outline" className="flex-1">
                     <Download className="w-4 h-4 mr-2" />
                     Request Data Export Only
                   </Button>
@@ -299,10 +331,16 @@ export default function DataRemovalPage() {
               </form>
 
               <div className="bg-gray-50 rounded-lg p-4 mt-6">
-                <h4 className="font-semibold text-gray-900 mb-2">What happens next?</h4>
+                <h4 className="font-semibold text-gray-900 mb-2">
+                  What happens next?
+                </h4>
                 <ol className="text-sm text-gray-600 list-decimal list-inside space-y-1">
-                  <li>We'll acknowledge your request within 2 business days</li>
-                  <li>Identity verification (may require additional information)</li>
+                  <li>
+                    We&apos;ll acknowledge your request within 2 business days
+                  </li>
+                  <li>
+                    Identity verification (may require additional information)
+                  </li>
                   <li>Processing of your deletion request (up to 30 days)</li>
                   <li>Confirmation email once deletion is complete</li>
                 </ol>
@@ -315,37 +353,39 @@ export default function DataRemovalPage() {
       {/* Contact Information */}
       <section className="py-20 bg-blue-50">
         <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">
-            Need Help?
-          </h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">Need Help?</h2>
           <p className="text-lg text-gray-600 mb-8">
-            If you have questions about data deletion or need assistance with this form, 
-            our privacy team is here to help.
+            If you have questions about data deletion or need assistance with
+            this form, our privacy team is here to help.
           </p>
-          
+
           <div className="grid md:grid-cols-2 gap-8">
             <Card>
               <CardContent className="p-6 text-center">
-                <h3 className="font-semibold text-gray-900 mb-2">Privacy Team</h3>
-                <p className="text-gray-600 mb-4">For all privacy-related inquiries</p>
+                <h3 className="font-semibold text-gray-900 mb-2">
+                  Privacy Team
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  For all privacy-related inquiries
+                </p>
                 <Button variant="outline">
                   Contact: privacy@agentradar.app
                 </Button>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardContent className="p-6 text-center">
-                <h3 className="font-semibold text-gray-900 mb-2">Data Protection Officer</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">
+                  Data Protection Officer
+                </h3>
                 <p className="text-gray-600 mb-4">For GDPR and legal matters</p>
-                <Button variant="outline">
-                  Contact: dpo@agentradar.app
-                </Button>
+                <Button variant="outline">Contact: dpo@agentradar.app</Button>
               </CardContent>
             </Card>
           </div>
         </div>
       </section>
     </div>
-  )
+  );
 }

@@ -1,48 +1,59 @@
-import { Metadata } from "next"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { CheckCircle, ArrowRight, Building, Users, Palette, Code, Shield, Zap } from "lucide-react"
+import { Metadata } from "next";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  CheckCircle,
+  ArrowRight,
+  Building,
+  Users,
+  Palette,
+  Code,
+  Shield,
+  Zap,
+} from "lucide-react";
 
 export const metadata: Metadata = {
   title: "White Label Solutions | AgentRadar",
-  description: "Launch your own real estate intelligence platform with AgentRadar's white-label solution",
-}
+  description:
+    "Launch your own real estate intelligence platform with AgentRadar's white-label solution",
+};
 
 export default function WhiteLabelPage() {
   const features = [
     {
       icon: Palette,
       title: "Custom Branding",
-      description: "Complete brand customization with your logo, colors, and domain"
+      description:
+        "Complete brand customization with your logo, colors, and domain",
     },
     {
       icon: Code,
       title: "API Access",
-      description: "Full API access to integrate with your existing systems"
+      description: "Full API access to integrate with your existing systems",
     },
     {
       icon: Shield,
       title: "Data Security",
-      description: "Enterprise-grade security with SOC 2 compliance"
+      description: "Enterprise-grade security with SOC 2 compliance",
     },
     {
       icon: Users,
       title: "Multi-Tenant",
-      description: "Support for unlimited agents and brokerages"
+      description: "Support for unlimited agents and brokerages",
     },
     {
       icon: Zap,
       title: "Fast Deployment",
-      description: "Launch in 30 days with full technical support"
+      description: "Launch in 30 days with full technical support",
     },
     {
       icon: Building,
       title: "Enterprise Support",
-      description: "24/7 dedicated support and account management"
-    }
-  ]
+      description: "24/7 dedicated support and account management",
+    },
+  ];
 
   const pricingTiers = [
     {
@@ -55,13 +66,13 @@ export default function WhiteLabelPage() {
         "Custom branding",
         "API access",
         "Email support",
-        "Basic analytics"
-      ]
+        "Basic analytics",
+      ],
     },
     {
       name: "Professional",
       price: "$15,000",
-      period: "/month", 
+      period: "/month",
       description: "For established real estate companies",
       features: [
         "Up to 500 agents",
@@ -69,9 +80,9 @@ export default function WhiteLabelPage() {
         "Full API suite",
         "Priority support",
         "Advanced analytics",
-        "Custom integrations"
+        "Custom integrations",
       ],
-      popular: true
+      popular: true,
     },
     {
       name: "Enterprise",
@@ -84,10 +95,10 @@ export default function WhiteLabelPage() {
         "Dedicated infrastructure",
         "24/7 support",
         "Custom development",
-        "SLA guarantee"
-      ]
-    }
-  ]
+        "SLA guarantee",
+      ],
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-white">
@@ -99,11 +110,20 @@ export default function WhiteLabelPage() {
               <div className="h-8 w-8 rounded bg-gradient-to-r from-blue-500 to-orange-500" />
               <span className="text-xl font-bold">AgentRadar</span>
             </Link>
-            
+
             <div className="flex items-center space-x-6">
-              <Link href="/" className="text-gray-600 hover:text-gray-900">Home</Link>
-              <Link href="/about" className="text-gray-600 hover:text-gray-900">About</Link>
-              <Link href="/features" className="text-gray-600 hover:text-gray-900">Features</Link>
+              <Link href="/" className="text-gray-600 hover:text-gray-900">
+                Home
+              </Link>
+              <Link href="/about" className="text-gray-600 hover:text-gray-900">
+                About
+              </Link>
+              <Link
+                href="/features"
+                className="text-gray-600 hover:text-gray-900"
+              >
+                Features
+              </Link>
               <Link href="/contact">
                 <Button>Contact Sales</Button>
               </Link>
@@ -118,19 +138,20 @@ export default function WhiteLabelPage() {
           <Badge className="mb-6 bg-blue-100 text-blue-800 border-blue-200">
             White Label Solution
           </Badge>
-          
+
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
             Launch Your Own{" "}
             <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               Real Estate Platform
             </span>
           </h1>
-          
+
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Power your brokerage with AgentRadar's proven technology. Get a fully customized 
-            real estate intelligence platform under your brand in just 30 days.
+            Power your brokerage with AgentRadar&apos;s proven technology. Get a
+            fully customized real estate intelligence platform under your brand
+            in just 30 days.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
               Schedule Demo
@@ -151,8 +172,8 @@ export default function WhiteLabelPage() {
               Everything You Need to Launch
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Our white-label solution includes all the tools and support you need 
-              to launch a successful real estate intelligence platform.
+              Our white-label solution includes all the tools and support you
+              need to launch a successful real estate intelligence platform.
             </p>
           </div>
 
@@ -188,22 +209,27 @@ export default function WhiteLabelPage() {
 
           <div className="grid md:grid-cols-3 gap-8">
             {pricingTiers.map((tier, index) => (
-              <Card key={index} className={`relative ${tier.popular ? 'border-blue-500 shadow-lg' : ''}`}>
+              <Card
+                key={index}
+                className={`relative ${tier.popular ? "border-blue-500 shadow-lg" : ""}`}
+              >
                 {tier.popular && (
                   <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-600">
                     Most Popular
                   </Badge>
                 )}
-                
+
                 <CardHeader className="text-center">
                   <CardTitle className="text-2xl">{tier.name}</CardTitle>
                   <div className="mt-4">
-                    <span className="text-4xl font-bold text-gray-900">{tier.price}</span>
+                    <span className="text-4xl font-bold text-gray-900">
+                      {tier.price}
+                    </span>
                     <span className="text-gray-600">{tier.period}</span>
                   </div>
                   <p className="text-gray-600 mt-2">{tier.description}</p>
                 </CardHeader>
-                
+
                 <CardContent>
                   <ul className="space-y-3">
                     {tier.features.map((feature, featureIndex) => (
@@ -213,10 +239,10 @@ export default function WhiteLabelPage() {
                       </li>
                     ))}
                   </ul>
-                  
-                  <Button 
-                    className={`w-full mt-6 ${tier.popular ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
-                    variant={tier.popular ? 'default' : 'outline'}
+
+                  <Button
+                    className={`w-full mt-6 ${tier.popular ? "bg-blue-600 hover:bg-blue-700" : ""}`}
+                    variant={tier.popular ? "default" : "outline"}
                   >
                     Get Started
                   </Button>
@@ -234,10 +260,10 @@ export default function WhiteLabelPage() {
             Ready to Launch Your Platform?
           </h2>
           <p className="text-lg text-gray-600 mb-8">
-            Join successful brokerages using AgentRadar's white-label solution 
-            to power their real estate intelligence platforms.
+            Join successful brokerages using AgentRadar&apos;s white-label
+            solution to power their real estate intelligence platforms.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
               Schedule Consultation
@@ -249,5 +275,5 @@ export default function WhiteLabelPage() {
         </div>
       </section>
     </div>
-  )
+  );
 }

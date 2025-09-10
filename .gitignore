@@ -200,3 +200,5 @@ mcp-server.log
 *.p12
 *.pfx
 secrets.json
+# Sentry Config File
+.env.sentry-build-plugin

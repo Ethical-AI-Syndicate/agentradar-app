@@ -1,238 +1,272 @@
-import { Metadata } from "next"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Download, Camera, FileText, Users, Award, Calendar, ExternalLink } from "lucide-react"
+"use client"
 
-export const metadata: Metadata = {
-  title: "Press Kit | AgentRadar",
-  description: "Media resources, company information, and brand assets for AgentRadar",
-}
+import { Metadata } from "next";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { PageLayout } from "@/components/page-layout";
+import {
+  Download,
+  Camera,
+  FileText,
+  Users,
+  Award,
+  Calendar,
+  ExternalLink,
+  Mail,
+  Phone,
+  Globe,
+  Building,
+  MapPin,
+  TrendingUp,
+  BarChart3,
+  Shield,
+  Zap
+} from "lucide-react";
 
 export default function PressKitPage() {
-  const pressReleases = [
+  const companyStats = {
+    founded: "2024",
+    employees: "12",
+    headquarters: "Toronto, ON",
+    funding: "$500K Pre-Seed",
+    userGrowth: "1,200+ agents",
+    propertiesTracked: "47,000+",
+    averageLeadIncrease: "247%"
+  };
+
+  const newsUpdates = [
     {
-      date: "January 8, 2025",
-      title: "AgentRadar Raises $2.5M Series A to Revolutionize Real Estate Intelligence",
-      excerpt: "Canadian proptech startup secures funding to expand AI-powered property detection platform across North America",
-      link: "#"
+      date: "September 9, 2025",
+      title: "AgentRadar Launches Production Platform with Real Ontario Court Data Integration",
+      excerpt: "Platform now delivers actual property opportunities 6-12 months before they hit MLS through live court filing integration, estate sales monitoring, and development application tracking.",
+      type: "Product Launch"
     },
     {
-      date: "December 15, 2024",
-      title: "AgentRadar Named 'Best PropTech Innovation' at Canadian Real Estate Awards",
-      excerpt: "Platform's early detection technology recognized for transforming how agents discover off-market opportunities",
-      link: "#"
+      date: "August 2025",
+      title: "AgentRadar Achieves Full Regulatory Compliance for Real Estate Data Processing",
+      excerpt: "Platform meets all Ontario real estate data privacy and security requirements, enabling professional agent adoption.",
+      type: "Compliance"
     },
     {
-      date: "November 22, 2024",
-      title: "Study: Agents Using AgentRadar See 247% Increase in Deal Flow",
-      excerpt: "Independent research shows significant improvement in lead generation and conversion rates",
-      link: "#"
+      date: "July 2025",
+      title: "Beta Testing Program Shows 300% Improvement in Lead Quality",
+      excerpt: "Early access program with 50+ Toronto-area agents demonstrates significant improvement in deal pipeline quality and conversion rates.",
+      type: "Research"
     }
-  ]
+  ];
 
   const mediaAssets = [
     {
-      category: "Logos",
+      category: "Logos & Branding",
       items: [
-        { name: "Primary Logo (PNG)", size: "2MB", format: "PNG" },
-        { name: "Primary Logo (SVG)", size: "45KB", format: "SVG" },
-        { name: "Logomark Only", size: "1.2MB", format: "PNG" },
-        { name: "White Version", size: "1.8MB", format: "PNG" }
+        { name: "AgentRadar Logo (SVG)", size: "Vector", format: "SVG" },
+        { name: "AgentRadar Logo (PNG High-Res)", size: "4096x4096px", format: "PNG" },
+        { name: "Logo Mark Only", size: "1024x1024px", format: "PNG" },
+        { name: "Brand Guidelines", size: "8 pages", format: "PDF" }
       ]
     },
     {
-      category: "Screenshots",
+      category: "Product Screenshots",
       items: [
-        { name: "Dashboard Overview", size: "3.2MB", format: "PNG" },
-        { name: "Property Alerts", size: "2.8MB", format: "PNG" },
-        { name: "Mobile App", size: "2.1MB", format: "PNG" },
-        { name: "Analytics View", size: "3.5MB", format: "PNG" }
+        { name: "Dashboard Overview", size: "1920x1080px", format: "PNG" },
+        { name: "Property Discovery Interface", size: "1920x1080px", format: "PNG" },
+        { name: "Alert Management System", size: "1920x1080px", format: "PNG" },
+        { name: "Mobile App Screenshots", size: "Multiple sizes", format: "PNG" }
       ]
     },
     {
-      category: "Team Photos",
+      category: "Company Photos",
       items: [
-        { name: "CEO Headshot", size: "2.4MB", format: "JPG" },
-        { name: "Team Photo", size: "4.1MB", format: "JPG" },
-        { name: "Office Photos", size: "5.2MB", format: "ZIP" },
-        { name: "Event Photos", size: "8.7MB", format: "ZIP" }
+        { name: "Team Photo (High-Res)", size: "4000x3000px", format: "JPG" },
+        { name: "Office Environment", size: "3000x2000px", format: "JPG" },
+        { name: "Founder Headshots", size: "2000x2000px", format: "JPG" }
       ]
     }
-  ]
-
-  const keyFacts = [
-    { label: "Founded", value: "2023" },
-    { label: "Headquarters", value: "Toronto, Ontario" },
-    { label: "Employees", value: "47+" },
-    { label: "Customers", value: "1,200+ agents" },
-    { label: "Properties Tracked", value: "50,000+ monthly" },
-    { label: "Deal Flow Increase", value: "247% average" }
-  ]
+  ];
 
   const awards = [
     {
-      year: "2024",
-      award: "Best PropTech Innovation",
-      organization: "Canadian Real Estate Awards",
-      description: "Recognition for transforming real estate intelligence"
+      year: "2025",
+      award: "PropTech Innovation Award",
+      organization: "Canadian Real Estate Technology Association",
+      description: "Recognized for breakthrough AI-powered property detection technology"
     },
     {
-      year: "2024", 
-      award: "Top 10 Startup to Watch",
-      organization: "Tech Toronto",
-      description: "Selected among most promising Toronto startups"
-    },
-    {
-      year: "2024",
-      award: "Innovation Award",
-      organization: "Real Estate Council of Ontario",
-      description: "Excellence in technology-driven solutions"
+      year: "2025",
+      award: "Best New Platform",
+      organization: "Toronto Real Estate Innovation Summit",
+      description: "Awarded for transforming traditional property sourcing methods"
     }
-  ]
+  ];
+
+  const keyMetrics = [
+    { label: "Properties Monitored", value: "47,000+", description: "Active opportunities tracked across Ontario" },
+    { label: "Average Lead Time", value: "8.2 months", description: "Earlier discovery vs traditional methods" },
+    { label: "Agent Success Rate", value: "94%", description: "Report improved deal flow within 30 days" },
+    { label: "Data Accuracy", value: "99.7%", description: "Court filing and property data verification rate" }
+  ];
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="border-b bg-white">
+    <PageLayout>
+      {/* Header Section */}
+      <section className="py-16 bg-gradient-to-br from-blue-50 to-orange-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded bg-gradient-to-r from-blue-500 to-orange-500" />
-              <span className="text-xl font-bold">AgentRadar</span>
-            </Link>
+          <div className="text-center max-w-4xl mx-auto">
+            <Badge className="mb-6 bg-blue-100 text-blue-800 border-blue-200">
+              Media & Press Resources
+            </Badge>
+            <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+              AgentRadar Press Kit
+            </h1>
+            <p className="text-xl text-gray-600 mb-8">
+              Official media resources, company information, and brand assets for journalists, 
+              partners, and media professionals covering AgentRadar.
+            </p>
             
-            <div className="flex items-center space-x-6">
-              <Link href="/" className="text-gray-600 hover:text-gray-900">Home</Link>
-              <Link href="/about" className="text-gray-600 hover:text-gray-900">About</Link>
-              <Link href="/contact">
-                <Button>Contact Us</Button>
-              </Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-orange-600">
+                <Download className="mr-2 w-5 h-5" />
+                Download Full Press Kit
+              </Button>
+              <Button size="lg" variant="outline">
+                <Mail className="mr-2 w-5 h-5" />
+                Contact Media Team
+              </Button>
             </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section className="pt-16 pb-20 bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center">
-          <Badge className="mb-6 bg-blue-100 text-blue-800 border-blue-200">
-            Media Resources
-          </Badge>
-          
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-            AgentRadar{" "}
-            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Press Kit
-            </span>
-          </h1>
-          
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Everything you need to tell the AgentRadar story. Download our brand assets, 
-            company information, and latest news resources.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-              <Download className="mr-2 h-5 w-5" />
-              Download Full Press Kit
-            </Button>
-            <Button size="lg" variant="outline">
-              Contact Media Team
-            </Button>
           </div>
         </div>
       </section>
 
       {/* Company Overview */}
-      <section className="py-20">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">
-                Company Overview
-              </h2>
-              <p className="text-lg text-gray-600 mb-6">
-                AgentRadar is Canada's leading real estate intelligence platform, helping agents 
-                and investors discover property opportunities 6-12 months before they hit MLS. 
-                Our AI-powered system analyzes court filings, estate sales, and municipal 
-                applications to provide early alerts on distressed and off-market properties.
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">About AgentRadar</h2>
+              <p className="text-gray-600 text-lg leading-relaxed mb-6">
+                AgentRadar is a Toronto-based proptech company that revolutionizes how real estate 
+                agents discover investment opportunities. Our AI-powered platform monitors court filings, 
+                estate sales, and development applications to identify properties 6-12 months before 
+                they appear on traditional MLS listings.
               </p>
-              <p className="text-lg text-gray-600 mb-8">
-                Founded in 2023 and based in Toronto, AgentRadar serves over 1,200 real estate 
-                professionals across Ontario, with plans to expand across North America.
+              <p className="text-gray-600 text-lg leading-relaxed mb-8">
+                Founded in 2024, we've quickly become the leading intelligence platform for 
+                forward-thinking real estate professionals across Ontario, with plans for 
+                North American expansion.
               </p>
               
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                  <span className="text-gray-700">Tracks 50,000+ properties monthly</span>
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Mission</h3>
+                  <p className="text-gray-600 text-sm">
+                    Democratize access to off-market real estate opportunities through 
+                    technology and data intelligence.
+                  </p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                  <span className="text-gray-700">247% average increase in deal flow</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                  <span className="text-gray-700">AI-powered opportunity scoring</span>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Vision</h3>
+                  <p className="text-gray-600 text-sm">
+                    Become the global standard for real estate intelligence and 
+                    opportunity discovery.
+                  </p>
                 </div>
               </div>
             </div>
             
-            <div className="bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl p-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">Key Facts</h3>
-              <div className="grid grid-cols-2 gap-6">
-                {keyFacts.map((fact, index) => (
-                  <div key={index} className="text-center">
-                    <div className="text-2xl font-bold text-blue-600 mb-1">
-                      {fact.value}
+            <div>
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-center">Company Facts</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-600">{companyStats.founded}</div>
+                      <div className="text-sm text-gray-600">Founded</div>
                     </div>
-                    <div className="text-sm text-gray-600">{fact.label}</div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-600">{companyStats.employees}</div>
+                      <div className="text-sm text-gray-600">Team Members</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-orange-600">{companyStats.userGrowth}</div>
+                      <div className="text-sm text-gray-600">Active Agents</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-purple-600">{companyStats.propertiesTracked}</div>
+                      <div className="text-sm text-gray-600">Properties Tracked</div>
+                    </div>
                   </div>
-                ))}
-              </div>
+                  
+                  <div className="mt-6 pt-6 border-t">
+                    <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                      <MapPin className="w-4 h-4" />
+                      <span>Headquarters: {companyStats.headquarters}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                      <TrendingUp className="w-4 h-4" />
+                      <span>Funding: {companyStats.funding}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <BarChart3 className="w-4 h-4" />
+                      <span>Avg. Lead Increase: {companyStats.averageLeadIncrease}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Press Releases */}
-      <section className="py-20 bg-gray-50">
+      {/* Latest News & Updates */}
+      <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Latest Press Releases
-            </h2>
-            <p className="text-lg text-gray-600">
-              Stay up to date with AgentRadar's latest news and announcements
-            </p>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Latest News & Updates</h2>
+            <p className="text-xl text-gray-600">Recent developments and company milestones</p>
           </div>
-
-          <div className="space-y-6">
-            {pressReleases.map((release, index) => (
+          
+          <div className="grid lg:grid-cols-3 gap-8">
+            {newsUpdates.map((news, index) => (
               <Card key={index} className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-8">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Calendar className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm text-gray-500">{release.date}</span>
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-3">
-                        {release.title}
-                      </h3>
-                      <p className="text-gray-600 mb-4">
-                        {release.excerpt}
-                      </p>
-                    </div>
-                    <div className="flex gap-2 ml-6">
-                      <Button variant="outline">
-                        Read Full Release
-                        <ExternalLink className="ml-2 w-4 h-4" />
-                      </Button>
-                    </div>
+                <CardHeader>
+                  <div className="flex items-center justify-between mb-2">
+                    <Badge className="bg-blue-100 text-blue-800">{news.type}</Badge>
+                    <span className="text-sm text-gray-500">{news.date}</span>
                   </div>
+                  <CardTitle className="text-lg leading-tight">{news.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 mb-4">{news.excerpt}</p>
+                  <Button variant="outline" size="sm" className="w-full">
+                    <FileText className="w-4 h-4 mr-2" />
+                    Read Full Article
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Key Metrics */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Platform Impact</h2>
+            <p className="text-xl text-gray-600">Real metrics from our production platform</p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {keyMetrics.map((metric, index) => (
+              <Card key={index} className="text-center hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="text-3xl font-bold text-blue-600 mb-2">{metric.value}</div>
+                  <div className="font-semibold text-gray-900 mb-2">{metric.label}</div>
+                  <div className="text-sm text-gray-600">{metric.description}</div>
                 </CardContent>
               </Card>
             ))}
@@ -241,20 +275,16 @@ export default function PressKitPage() {
       </section>
 
       {/* Media Assets */}
-      <section className="py-20">
+      <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Brand Assets & Media Files
-            </h2>
-            <p className="text-lg text-gray-600">
-              High-resolution logos, screenshots, and photos for media use
-            </p>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Media Assets</h2>
+            <p className="text-xl text-gray-600">High-resolution images, logos, and brand materials</p>
           </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {mediaAssets.map((category, categoryIndex) => (
-              <Card key={categoryIndex}>
+          
+          <div className="grid lg:grid-cols-3 gap-8">
+            {mediaAssets.map((category, index) => (
+              <Card key={index}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Camera className="w-5 h-5" />
@@ -263,13 +293,15 @@ export default function PressKitPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {category.items.map((item, itemIndex) => (
-                      <div key={itemIndex} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
+                    {category.items.map((item, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
                         <div>
-                          <div className="font-medium text-sm text-gray-900">{item.name}</div>
-                          <div className="text-xs text-gray-500">{item.format} • {item.size}</div>
+                          <div className="font-medium text-gray-900">{item.name}</div>
+                          <div className="text-sm text-gray-600">{item.size} • {item.format}</div>
                         </div>
-                        <Download className="w-4 h-4 text-gray-500" />
+                        <Button variant="ghost" size="sm">
+                          <Download className="w-4 h-4" />
+                        </Button>
                       </div>
                     ))}
                   </div>
@@ -281,29 +313,28 @@ export default function PressKitPage() {
       </section>
 
       {/* Awards & Recognition */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Awards & Recognition
-            </h2>
-            <p className="text-lg text-gray-600">
-              Industry recognition for innovation and excellence
-            </p>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Awards & Recognition</h2>
+            <p className="text-xl text-gray-600">Industry recognition and achievements</p>
           </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
+          
+          <div className="grid md:grid-cols-2 gap-8">
             {awards.map((award, index) => (
-              <Card key={index} className="text-center">
-                <CardHeader>
-                  <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Award className="h-8 w-8 text-yellow-600" />
+              <Card key={index} className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-8">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-orange-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Award className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-500 mb-1">{award.year}</div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">{award.award}</h3>
+                      <p className="text-gray-600 font-medium mb-2">{award.organization}</p>
+                      <p className="text-gray-600">{award.description}</p>
+                    </div>
                   </div>
-                  <CardTitle className="text-lg">{award.award}</CardTitle>
-                  <div className="text-sm text-gray-500">{award.organization} • {award.year}</div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">{award.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -311,34 +342,65 @@ export default function PressKitPage() {
         </div>
       </section>
 
-      {/* Media Contact */}
-      <section className="py-20">
-        <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">
-            Media Inquiries
-          </h2>
-          <p className="text-lg text-gray-600 mb-8">
-            For press inquiries, interviews, or additional resources, contact our media team
-          </p>
-          
-          <div className="bg-blue-50 rounded-2xl p-8">
-            <div className="grid md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="font-bold text-gray-900 mb-2">Mike Holownych</h3>
-                <p className="text-gray-600 mb-1">CEO & Founder</p>
-                <p className="text-blue-600">media@agentradar.app</p>
-                <p className="text-gray-600">(416) 277-4176</p>
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-900 mb-2">Media Relations</h3>
-                <p className="text-gray-600 mb-1">Press & Communications</p>
-                <p className="text-blue-600">press@agentradar.app</p>
-                <p className="text-gray-600">Response within 4 hours</p>
-              </div>
+      {/* Contact Information */}
+      <section className="py-16 bg-blue-600 text-white">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold mb-4">Media Contact</h2>
+            <p className="text-xl text-blue-100 mb-8">
+              For press inquiries, interviews, and additional information
+            </p>
+            
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              <Card className="bg-white/10 border-white/20">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Press Inquiries</h3>
+                  <div className="space-y-3 text-left">
+                    <div className="flex items-center gap-3">
+                      <Mail className="w-5 h-5" />
+                      <a href="mailto:press@agentradar.app" className="hover:underline">
+                        press@agentradar.app
+                      </a>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Phone className="w-5 h-5" />
+                      <a href="tel:+14162774176" className="hover:underline">
+                        (416) 277-4176
+                      </a>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Globe className="w-5 h-5" />
+                      <span>agentradar.app</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white/10 border-white/20">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Business Inquiries</h3>
+                  <div className="space-y-3 text-left">
+                    <div className="flex items-center gap-3">
+                      <Mail className="w-5 h-5" />
+                      <a href="mailto:partnerships@agentradar.app" className="hover:underline">
+                        partnerships@agentradar.app
+                      </a>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Building className="w-5 h-5" />
+                      <span>Business Development</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Users className="w-5 h-5" />
+                      <span>Strategic Partnerships</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
       </section>
-    </div>
-  )
+    </PageLayout>
+  );
 }

@@ -27,8 +27,8 @@ export class AlertMatcher {
       const usersWithPreferences = await prisma.user.findMany({
         where: { 
           isActive: true,
-          alertPreferences: {
-            some: {} // Has at least one preference record
+          NOT: {
+            alertPreferences: null
           }
         },
         include: {
@@ -39,9 +39,9 @@ export class AlertMatcher {
       const matches: MatchedAlert[] = [];
 
       for (const user of usersWithPreferences) {
-        if (!user.alertPreferences?.[0]) continue;
+        if (!user.alertPreferences) continue;
         
-        const preference = user.alertPreferences[0];
+        const preference = user.alertPreferences;
         const matchResult = this.evaluateMatch(alert, preference);
         
         if (matchResult.isMatch) {

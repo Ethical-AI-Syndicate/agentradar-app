@@ -1,14 +1,21 @@
-import { Metadata } from "next"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Target, TrendingUp, Users, CheckCircle, Star, ArrowRight } from "lucide-react"
+import { Metadata } from "next";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Target,
+  TrendingUp,
+  Users,
+  CheckCircle,
+  ArrowRight,
+} from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Best Practices | AgentRadar",
-  description: "Proven strategies and best practices for maximizing success with real estate intelligence",
-}
+  description:
+    "Proven strategies and best practices for maximizing success with real estate intelligence",
+};
 
 export default function BestPracticesPage() {
   return (
@@ -20,9 +27,11 @@ export default function BestPracticesPage() {
               <div className="h-8 w-8 rounded bg-gradient-to-r from-blue-500 to-orange-500" />
               <span className="text-xl font-bold">AgentRadar</span>
             </Link>
-            
+
             <div className="flex items-center space-x-6">
-              <Link href="/" className="text-gray-600 hover:text-gray-900">Home</Link>
+              <Link href="/" className="text-gray-600 hover:text-gray-900">
+                Home
+              </Link>
               <Link href="/contact">
                 <Button>Get Started</Button>
               </Link>
@@ -36,17 +45,18 @@ export default function BestPracticesPage() {
           <Badge className="mb-6 bg-blue-100 text-blue-800 border-blue-200">
             Expert Strategies
           </Badge>
-          
+
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
             Real Estate Intelligence{" "}
             <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               Best Practices
             </span>
           </h1>
-          
+
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Learn from top-performing agents who've increased their deal flow by 300%+ using 
-            AgentRadar's intelligence platform. Discover proven strategies and tactics.
+            Learn from top-performing agents who&apos;ve increased their deal
+            flow by 300%+ using AgentRadar&apos;s intelligence platform.
+            Discover proven strategies and tactics.
           </p>
         </div>
       </section>
@@ -58,24 +68,26 @@ export default function BestPracticesPage() {
               {
                 icon: Target,
                 title: "Alert Optimization",
-                description: "Set up smart filters to receive only the highest-quality opportunities",
+                description:
+                  "Set up smart filters to receive only the highest-quality opportunities",
                 practices: [
                   "Focus on 3-5 key cities maximum",
                   "Set opportunity score threshold >80",
                   "Use property type filters strategically",
-                  "Enable mobile notifications for urgent alerts"
-                ]
+                  "Enable mobile notifications for urgent alerts",
+                ],
               },
               {
                 icon: TrendingUp,
-                title: "Opportunity Evaluation", 
-                description: "Quickly assess property potential using our scoring system",
+                title: "Opportunity Evaluation",
+                description:
+                  "Quickly assess property potential using our scoring system",
                 practices: [
                   "Review opportunity score first",
                   "Check comparable sales in area",
                   "Analyze timeline to market",
-                  "Verify property details independently"
-                ]
+                  "Verify property details independently",
+                ],
               },
               {
                 icon: Users,
@@ -85,9 +97,9 @@ export default function BestPracticesPage() {
                   "Contact property owners within 24 hours",
                   "Prepare market analysis in advance",
                   "Build relationships with probate lawyers",
-                  "Follow up consistently with prospects"
-                ]
-              }
+                  "Follow up consistently with prospects",
+                ],
+              },
             ].map((practice, index) => (
               <Card key={index}>
                 <CardHeader>
@@ -119,9 +131,10 @@ export default function BestPracticesPage() {
             Ready to Implement These Strategies?
           </h2>
           <p className="text-lg mb-8 opacity-90">
-            Start your free trial and put these proven best practices to work today.
+            Start your free trial and put these proven best practices to work
+            today.
           </p>
-          
+
           <Button size="lg" variant="secondary">
             Start Free Trial
             <ArrowRight className="ml-2 h-5 w-5" />
@@ -129,5 +142,5 @@ export default function BestPracticesPage() {
         </div>
       </section>
     </div>
-  )
+  );
 }

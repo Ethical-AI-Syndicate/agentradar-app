@@ -1,507 +1,159 @@
 "use client"
 
+import { PageLayout } from "@/components/page-layout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Footer } from "@/components/footer"
-import { 
-  Target,
+import {
+  TrendingUp,
+  DollarSign,
+  Clock,
   Users,
-  CheckCircle,
-  ArrowRight,
-  Star,
-  Award,
+  Target,
   Building,
-  Home,
-  BarChart3,
   MapPin,
   Calendar,
-  Quote,
-  Play,
-  Download,
-  ExternalLink,
-  User,
-  Briefcase,
-  Zap,
-  Eye,
-  ThumbsUp,
-  Share,
-  Mail,
-  Phone,
-  MessageCircle,
-  Video,
-  FileText,
-  PieChart,
-  LineChart,
-  X,
-  Send
+  ArrowRight,
+  CheckCircle,
+  BarChart3,
+  Award
 } from "lucide-react"
-import Link from "next/link"
-import { useState } from "react"
 
 export default function CaseStudiesPage() {
-  const [activeFilter, setActiveFilter] = useState("all")
-  const [showSubmissionForm, setShowSubmissionForm] = useState(false)
-
-  const filters = [
-    { id: "all", name: "All Studies", count: 12 },
-    { id: "individual", name: "Individual Agents", count: 7 },
-    { id: "teams", name: "Teams", count: 3 },
-    { id: "brokerages", name: "Brokerages", count: 2 }
-  ]
-
-  const featuredCase = {
-    id: 1,
-    title: "340% Increase in Deal Flow: How Maria Santos Dominated Toronto's Hidden Market",
-    subtitle: "From 3 deals/month to 13 deals/month using AgentRadar's early detection system",
-    client: "Maria Santos",
-    role: "Independent Real Estate Agent",
-    location: "Toronto, ON",
-    timeframe: "6 months",
-    image: "/api/placeholder/400/300",
-    results: [
-      { metric: "Deal Flow Increase", value: "340%", description: "From 3 to 13 deals per month" },
-      { metric: "Revenue Growth", value: "$2.1M", description: "Additional commission revenue" },
-      { metric: "Properties Found Early", value: "47", description: "Before hitting MLS" },
-      { metric: "Average Days Ahead", value: "89", description: "Earlier than competition" }
-    ],
-    challenge: "Maria was struggling in Toronto's competitive market, often losing out on properties to agents with better connections or inside information.",
-    solution: "Implemented AgentRadar's court filing monitoring and estate sale tracking to find opportunities 2-3 months before MLS listings.",
-    outcome: "Became the #1 agent in her brokerage within 6 months, with a pipeline of exclusive opportunities her competitors never saw.",
-    testimonial: "AgentRadar gave me superpowers. I went from chasing listings to having sellers call me. My income tripled in 6 months.",
-    industry: "Residential Real Estate",
-    type: "Individual Agent"
-  }
-
   const caseStudies = [
     {
-      id: 2,
-      title: "Team Collaboration Success: How RedStone Realty Scaled with AgentRadar",
-      client: "RedStone Realty Team",
-      location: "Mississauga, ON",
-      type: "Team",
-      timeframe: "8 months",
-      results: [
-        { metric: "Team Revenue", value: "+156%", color: "green" },
-        { metric: "Properties Tracked", value: "284", color: "blue" },
-        { metric: "Conversion Rate", value: "23%", color: "orange" }
-      ],
-      challenge: "15-person team struggling with lead distribution and opportunity tracking across different specializations.",
-      outcome: "Centralized opportunity management increased team revenue by 156% with automated lead routing by expertise.",
-      industry: "Residential Real Estate",
-      featured: false
-    },
-    {
-      id: 3,
-      title: "Investment Portfolio Growth: $12M in Hidden Opportunities",
-      client: "David Chen",
-      location: "Brampton, ON", 
-      type: "Individual Agent",
-      timeframe: "12 months",
-      results: [
-        { metric: "Portfolio Value", value: "$12M", color: "green" },
-        { metric: "Properties Acquired", value: "34", color: "blue" },
-        { metric: "Average ROI", value: "28%", color: "orange" }
-      ],
-      challenge: "Real estate investor needed consistent deal flow of below-market properties for his growing portfolio.",
-      outcome: "Acquired 34 properties totaling $12M in value through power of sale and estate opportunities.",
-      industry: "Investment Real Estate",
-      featured: true
-    },
-    {
-      id: 4,
-      title: "Brokerage Transformation: White-Label Platform Implementation",
-      client: "Century 21 North Star",
-      location: "Vaughan, ON",
-      type: "Brokerage",
-      timeframe: "10 months",
-      results: [
-        { metric: "Agent Productivity", value: "+89%", color: "green" },
-        { metric: "Brokerage Revenue", value: "+234%", color: "blue" },
-        { metric: "Agent Retention", value: "94%", color: "orange" }
-      ],
-      challenge: "147-agent brokerage losing top performers to competitors with better technology and lead generation.",
-      outcome: "White-label AgentRadar platform became their competitive advantage, retaining 94% of agents.",
-      industry: "Brokerage Operations",
-      featured: false
-    },
-    {
-      id: 5,
-      title: "New Agent Success: From Zero to Hero in 90 Days",
-      client: "Jennifer Park",
-      location: "Oakville, ON",
-      type: "Individual Agent", 
-      timeframe: "3 months",
-      results: [
-        { metric: "First Deals", value: "8", color: "green" },
-        { metric: "Commission Earned", value: "$124K", color: "blue" },
-        { metric: "Client Satisfaction", value: "98%", color: "orange" }
-      ],
-      challenge: "New agent with no sphere of influence struggling to find her first clients in competitive Oakville market.",
-      outcome: "Closed 8 deals in her first 90 days using estate sale and power of sale opportunities.",
-      industry: "Residential Real Estate",
-      featured: true
-    },
-    {
-      id: 6,
-      title: "Commercial Success: $45M in Development Opportunities",
-      client: "Thompson Commercial Group",
+      id: "toronto-agent-success",
+      title: "Toronto Agent Increases Deal Flow by 340% Using AgentRadar",
+      client: "Sarah Chen, RE/MAX Toronto",
       location: "Toronto, ON",
-      type: "Team",
-      timeframe: "14 months",
-      results: [
-        { metric: "Deal Volume", value: "$45M", color: "green" },
-        { metric: "Development Projects", value: "12", color: "blue" },
-        { metric: "Success Rate", value: "78%", color: "orange" }
-      ],
-      challenge: "Commercial team needed early intelligence on development applications and zoning changes.",
-      outcome: "Identified $45M worth of development opportunities through municipal application monitoring.",
-      industry: "Commercial Real Estate", 
-      featured: false
+      timeline: "6 months",
+      category: "Solo Agent",
+      results: {
+        dealIncrease: "340%",
+        avgAdvance: "7.2 months",
+        totalValue: "$8.4M",
+        properties: "47"
+      },
+      challenge: "Sarah was struggling to find quality leads in Toronto's competitive market. She was spending 60% of her time on cold calling and door-knocking with minimal results.",
+      solution: "Implemented AgentRadar's court filing alerts and estate sale monitoring to identify opportunities before they hit the market.",
+      outcome: "Sarah now identifies high-potential properties months in advance, allowing her to build relationships with sellers before competition arrives.",
+      testimonial: "AgentRadar completely transformed my business. I went from chasing leads to being first in line for the best opportunities. My income tripled in 6 months.",
+      metrics: [
+        { label: "Properties Closed", before: "14", after: "61", improvement: "+336%" },
+        { label: "Average Commission", before: "$8,400", after: "$12,600", improvement: "+50%" },
+        { label: "Time to Close", before: "45 days", after: "28 days", improvement: "-38%" },
+        { label: "Lead Quality Score", before: "3.2/10", after: "8.7/10", improvement: "+172%" }
+      ]
+    },
+    {
+      id: "oakville-team-expansion",
+      title: "Oakville Real Estate Team Scales to $50M in Sales Volume",
+      client: "Thompson & Associates Real Estate",
+      location: "Oakville, ON",
+      timeline: "12 months",
+      category: "Team Enterprise",
+      results: {
+        dealIncrease: "280%",
+        avgAdvance: "8.4 months",
+        totalValue: "$50M",
+        properties: "203"
+      },
+      challenge: "Growing team of 12 agents needed a systematic way to identify and distribute quality leads across the team without conflicts.",
+      solution: "Deployed AgentRadar Team Enterprise with territory management and lead distribution automation.",
+      outcome: "Team achieved record-breaking sales volume while maintaining high client satisfaction and agent retention.",
+      testimonial: "AgentRadar gave us the competitive edge we needed to dominate the Oakville market. Our agents are happier and more successful than ever.",
+      metrics: [
+        { label: "Team Revenue", before: "$2.1M", after: "$7.8M", improvement: "+271%" },
+        { label: "Properties per Agent", before: "8", after: "17", improvement: "+113%" },
+        { label: "Agent Retention", before: "67%", after: "94%", improvement: "+40%" },
+        { label: "Market Share", before: "4.2%", after: "12.8%", improvement: "+205%" }
+      ]
+    },
+    {
+      id: "mississauga-investment-focus",
+      title: "Investment-Focused Agent Builds $2M Portfolio in 8 Months",
+      client: "Michael Rodriguez, Independent Agent",
+      location: "Mississauga, ON",
+      timeline: "8 months",
+      category: "Professional",
+      results: {
+        dealIncrease: "425%",
+        avgAdvance: "9.1 months",
+        totalValue: "$12.7M",
+        properties: "32"
+      },
+      challenge: "Michael wanted to transition from traditional sales to investment-focused real estate but lacked the tools to identify undervalued properties.",
+      solution: "Used AgentRadar's investment scoring algorithm and probate monitoring to find distressed properties with high potential.",
+      outcome: "Built a personal investment portfolio worth $2M while helping clients achieve similar success.",
+      testimonial: "The investment scoring feature is incredible. I can quickly evaluate dozens of properties and focus on the ones with real potential.",
+      metrics: [
+        { label: "Investment ROI", before: "8.2%", after: "23.7%", improvement: "+189%" },
+        { label: "Properties Analyzed", before: "12/month", after: "67/month", improvement: "+458%" },
+        { label: "Time per Analysis", before: "4 hours", after: "35 minutes", improvement: "-85%" },
+        { label: "Deal Success Rate", before: "12%", after: "34%", improvement: "+183%" }
+      ]
     }
-  ]
+  ];
 
-  const metrics = [
-    {
-      value: "2,847",
-      label: "Agents Using AgentRadar",
-      sublabel: "Across Canada"
-    },
-    {
-      value: "$1.2B", 
-      label: "Total Transaction Volume",
-      sublabel: "From discovered opportunities"
-    },
-    {
-      value: "89%",
-      label: "Success Rate",
-      sublabel: "Agents exceeding goals"
-    },
-    {
-      value: "23%",
-      label: "Average Commission Increase",
-      sublabel: "Within first 6 months"
-    }
-  ]
+  const industries = [
+    { name: "Solo Agents", count: "847+", growth: "+340%" },
+    { name: "Real Estate Teams", count: "124+", growth: "+280%" },
+    { name: "Investment Firms", count: "67+", growth: "+425%" },
+    { name: "Brokerages", count: "43+", growth: "+195%" }
+  ];
 
-  const filteredCases = activeFilter === "all" 
-    ? caseStudies 
-    : caseStudies.filter(study => {
-        if (activeFilter === "individual") return study.type === "Individual Agent"
-        if (activeFilter === "teams") return study.type === "Team"
-        if (activeFilter === "brokerages") return study.type === "Brokerage"
-        return true
-      })
+  const successStats = [
+    { metric: "Average Deal Increase", value: "247%", description: "Improvement in closed deals" },
+    { metric: "Time to Market", value: "7.8 months", description: "Earlier than MLS listings" },
+    { metric: "Client Satisfaction", value: "96.7%", description: "Would recommend to others" },
+    { metric: "ROI on Platform", value: "1,247%", description: "Return on AgentRadar investment" }
+  ];
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation Header */}
-      <nav className="border-b bg-white/95 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded bg-gradient-to-r from-blue-500 to-orange-500" />
-              <span className="text-xl font-bold text-gray-900">AgentRadar</span>
-            </Link>
-            <div className="flex items-center gap-4">
-              <Link href="/" className="text-gray-600 hover:text-gray-900">Home</Link>
-              <Link href="/about" className="text-gray-600 hover:text-gray-900">About</Link>
-              <Link href="/features" className="text-gray-600 hover:text-gray-900">Features</Link>
-              <Link href="/contact">
-                <Button variant="outline">Contact Us</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
-
+    <PageLayout>
       {/* Hero Section */}
-      <section className="py-24 bg-gradient-to-br from-blue-50 to-orange-50">
-        <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-          <Badge className="mb-6 bg-blue-100 text-blue-800 border-blue-200">
-            Success Stories
-          </Badge>
-          <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-            Real Results from 
-            <span className="bg-gradient-to-r from-blue-600 to-orange-600 bg-clip-text text-transparent"> Real Agents</span>
-          </h1>
-          <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-            Discover how real estate professionals across Canada are using AgentRadar 
-            to find hidden opportunities, increase deal flow, and transform their businesses.
-          </p>
-          <Button size="lg" className="bg-gradient-to-r from-blue-600 to-orange-600">
-            Start Your Success Story
-            <ArrowRight className="ml-2 w-5 h-5" />
-          </Button>
-        </div>
-      </section>
-
-      {/* Success Metrics */}
-      <section className="py-16 bg-white border-b">
+      <section className="py-16 bg-gradient-to-br from-blue-50 to-orange-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Platform Impact</h2>
-            <p className="text-gray-600">Real metrics from our user community</p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {metrics.map((metric, index) => (
-              <Card key={index} className="text-center border-0 shadow-lg">
-                <CardContent className="p-8">
-                  <div className="text-4xl font-bold text-gradient bg-gradient-to-r from-blue-600 to-orange-600 bg-clip-text text-transparent mb-2">
-                    {metric.value}
-                  </div>
-                  <div className="text-lg font-semibold text-gray-900 mb-1">{metric.label}</div>
-                  <div className="text-sm text-gray-500">{metric.sublabel}</div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Case Study */}
-      <section className="py-24 bg-gradient-to-br from-blue-50 to-orange-50">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <Badge className="mb-6 bg-orange-100 text-orange-800 border-orange-200">
-              Featured Success Story
+          <div className="text-center max-w-4xl mx-auto">
+            <Badge className="mb-6 bg-blue-100 text-blue-800 border-blue-200">
+              Success Stories
             </Badge>
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">{featuredCase.title}</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">{featuredCase.subtitle}</p>
-          </div>
-
-          <Card className="border-0 shadow-2xl overflow-hidden">
-            <div className="lg:flex">
-              <div className="lg:w-1/3">
-                <div className="h-64 lg:h-full bg-gradient-to-br from-blue-600 to-orange-600 flex items-center justify-center">
-                  <div className="text-center text-white">
-                    <User className="w-16 h-16 mx-auto mb-4" />
-                    <div className="text-xl font-bold">{featuredCase.client}</div>
-                    <div className="text-blue-200">{featuredCase.role}</div>
-                    <div className="text-blue-200 text-sm">{featuredCase.location}</div>
-                  </div>
+            <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+              Real Results from Real Estate Professionals
+            </h1>
+            <p className="text-xl text-gray-600 mb-8">
+              Discover how agents across Ontario are transforming their businesses with AgentRadar's 
+              intelligence platform. See the actual numbers and strategies behind their success.
+            </p>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto">
+              {successStats.map((stat, index) => (
+                <div key={index} className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">{stat.value}</div>
+                  <div className="text-sm font-medium text-gray-900">{stat.metric}</div>
+                  <div className="text-xs text-gray-600">{stat.description}</div>
                 </div>
-              </div>
-              
-              <div className="lg:w-2/3 p-8">
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                  {featuredCase.results.map((result, index) => (
-                    <div key={index} className="text-center">
-                      <div className="text-3xl font-bold text-gray-900 mb-1">{result.value}</div>
-                      <div className="text-sm font-semibold text-gray-700 mb-1">{result.metric}</div>
-                      <div className="text-xs text-gray-500">{result.description}</div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="space-y-6">
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-2">The Challenge</h4>
-                    <p className="text-gray-600">{featuredCase.challenge}</p>
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-2">The Solution</h4>
-                    <p className="text-gray-600">{featuredCase.solution}</p>
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-2">The Outcome</h4>
-                    <p className="text-gray-600">{featuredCase.outcome}</p>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 rounded-lg p-6 mt-8">
-                  <div className="flex items-start gap-4">
-                    <Quote className="w-8 h-8 text-blue-600 flex-shrink-0 mt-1" />
-                    <div>
-                      <p className="text-gray-700 italic mb-4 text-lg">&quot;{featuredCase.testimonial}&quot;</p>
-                      <div className="flex items-center gap-4">
-                        <div>
-                          <div className="font-semibold text-gray-900">{featuredCase.client}</div>
-                          <div className="text-sm text-gray-600">{featuredCase.role}</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-4 mt-8">
-                  <Button className="bg-gradient-to-r from-blue-600 to-orange-600">
-                    <Video className="w-4 h-4 mr-2" />
-                    Watch Video Case Study
-                  </Button>
-                  <Button variant="outline">
-                    <Download className="w-4 h-4 mr-2" />
-                    Download PDF
-                  </Button>
-                </div>
-              </div>
+              ))}
             </div>
-          </Card>
-        </div>
-      </section>
-
-      {/* Filter and Case Studies Grid */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">More Success Stories</h2>
-            <p className="text-xl text-gray-600">See how different types of real estate professionals are winning</p>
-          </div>
-
-          {/* Filters */}
-          <div className="flex justify-center gap-4 mb-12">
-            {filters.map((filter) => (
-              <Button
-                key={filter.id}
-                variant={activeFilter === filter.id ? "default" : "outline"}
-                onClick={() => setActiveFilter(filter.id)}
-                className={activeFilter === filter.id 
-                  ? "bg-gradient-to-r from-blue-600 to-orange-600" 
-                  : ""
-                }
-              >
-                {filter.name}
-                <Badge className="ml-2 bg-white/20 text-current border-current">
-                  {filter.count}
-                </Badge>
-              </Button>
-            ))}
-          </div>
-
-          {/* Case Studies Grid */}
-          <div className="grid lg:grid-cols-2 gap-8">
-            {filteredCases.map((study) => (
-              <Card key={study.id} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
-                <CardHeader className="pb-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <Badge className="bg-blue-100 text-blue-800">
-                      {study.industry}
-                    </Badge>
-                    {study.featured && (
-                      <Badge className="bg-orange-100 text-orange-800">
-                        <Star className="w-3 h-3 mr-1" />
-                        Featured
-                      </Badge>
-                    )}
-                  </div>
-                  <CardTitle className="text-xl mb-2">{study.title}</CardTitle>
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <MapPin className="w-3 h-3" />
-                      {study.location}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      {study.timeframe}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <User className="w-3 h-3" />
-                      {study.type}
-                    </div>
-                  </div>
-                </CardHeader>
-                
-                <CardContent className="pt-0">
-                  {/* Results */}
-                  <div className="grid grid-cols-3 gap-4 mb-6">
-                    {study.results.map((result, index) => (
-                      <div key={index} className="text-center p-3 bg-gray-50 rounded-lg">
-                        <div className={`text-xl font-bold mb-1 ${
-                          result.color === 'green' ? 'text-green-600' :
-                          result.color === 'blue' ? 'text-blue-600' :
-                          'text-orange-600'
-                        }`}>
-                          {result.value}
-                        </div>
-                        <div className="text-xs text-gray-600">{result.metric}</div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Challenge and Outcome */}
-                  <div className="space-y-4 mb-6">
-                    <div>
-                      <h5 className="font-semibold text-gray-900 mb-1 text-sm">Challenge</h5>
-                      <p className="text-gray-600 text-sm">{study.challenge}</p>
-                    </div>
-                    <div>
-                      <h5 className="font-semibold text-gray-900 mb-1 text-sm">Outcome</h5>
-                      <p className="text-gray-600 text-sm">{study.outcome}</p>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-2">
-                    <Button size="sm" className="flex-1">
-                      <Eye className="w-3 h-3 mr-2" />
-                      Read Full Story
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Share className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
           </div>
         </div>
       </section>
 
       {/* Industry Breakdown */}
-      <section className="py-24 bg-gray-50">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Success Across All Market Segments</h2>
-            <p className="text-xl text-gray-600">
-              AgentRadar delivers results for every type of real estate professional
-            </p>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Success Across All Segments</h2>
+            <p className="text-xl text-gray-600">AgentRadar delivers results for every type of real estate professional</p>
           </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                icon: Home,
-                title: "Residential Agents",
-                stats: "1,847 agents",
-                improvement: "+127% average deal flow",
-                description: "Individual agents finding more listings and closing more deals"
-              },
-              {
-                icon: Building,
-                title: "Commercial Teams", 
-                stats: "89 teams",
-                improvement: "$2.1B deal volume",
-                description: "Commercial specialists tracking development and investment opportunities"
-              },
-              {
-                icon: Users,
-                title: "Real Estate Teams",
-                stats: "156 teams", 
-                improvement: "+89% team productivity",
-                description: "Multi-agent teams scaling with centralized opportunity management"
-              },
-              {
-                icon: Briefcase,
-                title: "Brokerages",
-                stats: "23 brokerages",
-                improvement: "+234% brokerage revenue",
-                description: "Full brokerage implementations with white-label solutions"
-              }
-            ].map((segment, index) => (
-              <Card key={index} className="border-0 shadow-lg text-center">
-                <CardContent className="p-8">
-                  <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-orange-600 rounded-xl flex items-center justify-center mx-auto mb-6">
-                    <segment.icon className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{segment.title}</h3>
-                  <div className="text-sm text-gray-600 mb-2">{segment.stats}</div>
-                  <div className="text-lg font-semibold text-green-600 mb-4">{segment.improvement}</div>
-                  <p className="text-sm text-gray-600">{segment.description}</p>
+          
+          <div className="grid md:grid-cols-4 gap-6">
+            {industries.map((industry, index) => (
+              <Card key={index} className="text-center hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="text-3xl font-bold text-blue-600 mb-2">{industry.count}</div>
+                  <div className="font-semibold text-gray-900 mb-2">{industry.name}</div>
+                  <div className="text-green-600 font-medium text-sm">{industry.growth} avg growth</div>
                 </CardContent>
               </Card>
             ))}
@@ -509,83 +161,139 @@ export default function CaseStudiesPage() {
         </div>
       </section>
 
-      {/* Submit Your Story */}
-      <section className="py-24 bg-white">
-        <div className="max-w-4xl mx-auto px-6 lg:px-8">
-          <Card className="border-0 shadow-xl">
-            <CardContent className="p-12 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-orange-600 rounded-xl flex items-center justify-center mx-auto mb-8">
-                <Award className="w-8 h-8 text-white" />
-              </div>
-              
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">
-                Share Your Success Story
-              </h2>
-              <p className="text-xl text-gray-600 mb-8">
-                Are you achieving great results with AgentRadar? We&apos;d love to feature your success 
-                and help other agents learn from your experience.
-              </p>
-              
-              <div className="grid md:grid-cols-3 gap-6 mb-8">
-                <div className="text-center">
-                  <FileText className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                  <div className="font-semibold text-gray-900">Case Study</div>
-                  <div className="text-sm text-gray-600">Detailed written analysis</div>
-                </div>
-                <div className="text-center">
-                  <Video className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                  <div className="font-semibold text-gray-900">Video Interview</div>
-                  <div className="text-sm text-gray-600">Professional video production</div>
-                </div>
-                <div className="text-center">
-                  <Star className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                  <div className="font-semibold text-gray-900">Recognition</div>
-                  <div className="text-sm text-gray-600">Industry spotlight & awards</div>
-                </div>
-              </div>
-              
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
-                  size="lg" 
-                  className="bg-gradient-to-r from-blue-600 to-orange-600"
-                  onClick={() => setShowSubmissionForm(true)}
-                >
-                  <Mail className="mr-2 w-5 h-5" />
-                  Submit Your Story
-                </Button>
-                <Link href="/contact">
-                  <Button size="lg" variant="outline">
-                    <MessageCircle className="mr-2 w-5 h-5" />
-                    Schedule Interview
+      {/* Case Studies */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Detailed Success Stories</h2>
+            <p className="text-xl text-gray-600">In-depth analysis of how top agents achieve extraordinary results</p>
+          </div>
+          
+          <div className="space-y-16">
+            {caseStudies.map((study, index) => (
+              <div key={study.id} className={`grid lg:grid-cols-2 gap-12 items-center ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''}`}>
+                {/* Content */}
+                <div className={index % 2 === 1 ? 'lg:col-start-2' : ''}>
+                  <div className="flex items-center gap-4 mb-4">
+                    <Badge className="bg-blue-100 text-blue-800">{study.category}</Badge>
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <MapPin className="w-4 h-4" />
+                      {study.location}
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Calendar className="w-4 h-4" />
+                      {study.timeline}
+                    </div>
+                  </div>
+                  
+                  <h3 className="text-2xl font-bold text-gray-900 mb-4">{study.title}</h3>
+                  <p className="text-lg text-blue-600 font-medium mb-6">{study.client}</p>
+                  
+                  <div className="grid grid-cols-2 gap-4 mb-8">
+                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600">{study.results.dealIncrease}</div>
+                      <div className="text-sm text-gray-600">Deal Increase</div>
+                    </div>
+                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">{study.results.totalValue}</div>
+                      <div className="text-sm text-gray-600">Total Value</div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-2">Challenge</h4>
+                      <p className="text-gray-600">{study.challenge}</p>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-2">Solution</h4>
+                      <p className="text-gray-600">{study.solution}</p>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-2">Results</h4>
+                      <p className="text-gray-600 mb-4">{study.outcome}</p>
+                    </div>
+                  </div>
+                  
+                  <blockquote className="border-l-4 border-blue-600 pl-6 py-4 bg-blue-50 rounded-r-lg mb-6">
+                    <p className="text-gray-700 italic">"{study.testimonial}"</p>
+                    <footer className="text-sm text-gray-600 mt-2">— {study.client}</footer>
+                  </blockquote>
+                  
+                  <Button className="bg-gradient-to-r from-blue-600 to-orange-600">
+                    View Full Case Study
+                    <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
-                </Link>
+                </div>
+                
+                {/* Metrics */}
+                <div className={index % 2 === 1 ? 'lg:col-start-1 lg:row-start-1' : ''}>
+                  <Card className="shadow-lg">
+                    <CardHeader>
+                      <CardTitle className="text-center">Key Performance Metrics</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-6">
+                        {study.metrics.map((metric, metricIndex) => (
+                          <div key={metricIndex}>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-medium text-gray-900">{metric.label}</span>
+                              <Badge className="bg-green-100 text-green-800">{metric.improvement}</Badge>
+                            </div>
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-gray-600">Before: {metric.before}</span>
+                              <span className="font-semibold text-gray-900">After: {metric.after}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <div className="mt-8 pt-6 border-t">
+                        <div className="grid grid-cols-3 gap-4 text-center">
+                          <div>
+                            <div className="text-lg font-bold text-orange-600">{study.results.properties}</div>
+                            <div className="text-xs text-gray-600">Properties</div>
+                          </div>
+                          <div>
+                            <div className="text-lg font-bold text-purple-600">{study.results.avgAdvance}</div>
+                            <div className="text-xs text-gray-600">Months Advance</div>
+                          </div>
+                          <div>
+                            <div className="text-lg font-bold text-blue-600">{study.timeline}</div>
+                            <div className="text-xs text-gray-600">Timeline</div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
-            </CardContent>
-          </Card>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-br from-blue-600 to-orange-600">
+      {/* Call to Action */}
+      <section className="py-16 bg-gradient-to-br from-blue-600 to-orange-600">
         <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-white mb-6">
             Ready to Write Your Own Success Story?
           </h2>
           <p className="text-xl text-blue-100 mb-8">
-            Join thousands of agents who are already using AgentRadar to find hidden opportunities 
-            and transform their real estate business. Your success story could be next.
+            Join over 1,200 agents who are already transforming their businesses with AgentRadar.
           </p>
+          
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <Button size="lg" variant="secondary" className="bg-white text-blue-600 hover:bg-gray-100">
-              Start 14-Day Free Trial
+              Start Your Free Trial
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
-            <Link href="/demo">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
-                See Platform Demo
-                <Play className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
+              Schedule a Demo
+              <Calendar className="ml-2 w-5 h-5" />
+            </Button>
           </div>
           
           <div className="flex items-center justify-center gap-8 text-sm text-blue-200">
@@ -595,7 +303,7 @@ export default function CaseStudiesPage() {
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle className="w-4 h-4" />
-              <span>14-day money back guarantee</span>
+              <span>14-day free trial</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle className="w-4 h-4" />
@@ -604,123 +312,6 @@ export default function CaseStudiesPage() {
           </div>
         </div>
       </section>
-
-      {/* Story Submission Modal */}
-      {showSubmissionForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-gray-900">Submit Your Success Story</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowSubmissionForm(false)}
-                >
-                  <X className="w-5 h-5" />
-                </Button>
-              </div>
-              
-              <form className="space-y-6" onSubmit={(e) => {
-                e.preventDefault()
-                // Handle form submission here
-                alert('Thank you for your submission! We\'ll review your story and get back to you within 2-3 business days.')
-                setShowSubmissionForm(false)
-              }}>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="name">Your Name *</Label>
-                    <Input id="name" required className="mt-1" placeholder="John Doe" />
-                  </div>
-                  <div>
-                    <Label htmlFor="email">Email Address *</Label>
-                    <Input id="email" type="email" required className="mt-1" placeholder="john@example.com" />
-                  </div>
-                </div>
-                
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="company">Company/Brokerage</Label>
-                    <Input id="company" className="mt-1" placeholder="RE/MAX Elite" />
-                  </div>
-                  <div>
-                    <Label htmlFor="location">Location</Label>
-                    <Input id="location" className="mt-1" placeholder="Toronto, ON" />
-                  </div>
-                </div>
-                
-                <div>
-                  <Label htmlFor="title">Success Story Title *</Label>
-                  <Input id="title" required className="mt-1" placeholder="How I Found 10 Off-Market Properties in 3 Months" />
-                </div>
-                
-                <div>
-                  <Label htmlFor="story">Your Story *</Label>
-                  <textarea
-                    id="story"
-                    required
-                    rows={6}
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm placeholder-gray-500 focus:border-indigo-500 focus:ring-indigo-500"
-                    placeholder="Tell us about your success with AgentRadar. Include specific results, challenges overcome, and how the platform helped you achieve your goals..."
-                  />
-                </div>
-                
-                <div>
-                  <Label>Key Results (check all that apply)</Label>
-                  <div className="mt-2 space-y-2">
-                    {[
-                      'Increased deal flow',
-                      'Found off-market properties',
-                      'Beat competition to listings',
-                      'Improved client relationships',
-                      'Generated more revenue',
-                      'Saved time on research'
-                    ].map((result) => (
-                      <label key={result} className="flex items-center">
-                        <input type="checkbox" className="rounded border-gray-300 text-indigo-600" />
-                        <span className="ml-2 text-sm text-gray-700">{result}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                
-                <div>
-                  <Label>Interested in video interview?</Label>
-                  <div className="mt-2 space-x-4">
-                    <label className="flex items-center">
-                      <input type="radio" name="video" value="yes" className="text-indigo-600" />
-                      <span className="ml-2 text-sm text-gray-700">Yes, I&apos;m interested</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input type="radio" name="video" value="no" className="text-indigo-600" />
-                      <span className="ml-2 text-sm text-gray-700">No, written case study only</span>
-                    </label>
-                  </div>
-                </div>
-                
-                <div className="flex justify-end gap-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setShowSubmissionForm(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="bg-gradient-to-r from-blue-600 to-orange-600"
-                  >
-                    <Send className="mr-2 w-4 h-4" />
-                    Submit Story
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <Footer />
-    </div>
+    </PageLayout>
   )
 }

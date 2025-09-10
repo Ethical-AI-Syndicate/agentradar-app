@@ -1,26 +1,26 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { X, Cookie, Settings } from "lucide-react"
-import Link from "next/link"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { X, Cookie, Settings } from "lucide-react";
+import Link from "next/link";
 
 export function CookieConsent() {
-  const [showBanner, setShowBanner] = useState(false)
-  const [showPreferences, setShowPreferences] = useState(false)
+  const [showBanner, setShowBanner] = useState(false);
+  const [showPreferences, setShowPreferences] = useState(false);
 
   useEffect(() => {
     // Check if user has already made a choice
-    const consent = localStorage.getItem('cookieConsent')
+    const consent = localStorage.getItem("cookieConsent");
     if (!consent) {
       // Show banner after a brief delay for better UX
       const timer = setTimeout(() => {
-        setShowBanner(true)
-      }, 2000)
-      return () => clearTimeout(timer)
+        setShowBanner(true);
+      }, 2000);
+      return () => clearTimeout(timer);
     }
-  }, [])
+  }, []);
 
   const handleAcceptAll = () => {
     const consent = {
@@ -28,19 +28,19 @@ export function CookieConsent() {
       analytics: true,
       marketing: true,
       preferences: true,
-      timestamp: new Date().toISOString()
-    }
-    
-    localStorage.setItem('cookieConsent', JSON.stringify(consent))
-    
+      timestamp: new Date().toISOString(),
+    };
+
+    localStorage.setItem("cookieConsent", JSON.stringify(consent));
+
     // Initialize analytics and other services
-    if (typeof window !== 'undefined' && consent.analytics) {
+    if (typeof window !== "undefined" && consent.analytics) {
       // Initialize Google Analytics or other services here
-      console.log('Analytics initialized')
+      console.log("Analytics initialized");
     }
-    
-    setShowBanner(false)
-  }
+
+    setShowBanner(false);
+  };
 
   const handleRejectAll = () => {
     const consent = {
@@ -48,32 +48,36 @@ export function CookieConsent() {
       analytics: false,
       marketing: false,
       preferences: false,
-      timestamp: new Date().toISOString()
-    }
-    
-    localStorage.setItem('cookieConsent', JSON.stringify(consent))
-    setShowBanner(false)
-  }
+      timestamp: new Date().toISOString(),
+    };
 
-  const handleSavePreferences = (preferences: any) => {
+    localStorage.setItem("cookieConsent", JSON.stringify(consent));
+    setShowBanner(false);
+  };
+
+  const handleSavePreferences = (preferences: Record<string, boolean>) => {
     const consent = {
       necessary: true, // Always required
       ...preferences,
-      timestamp: new Date().toISOString()
-    }
-    
-    localStorage.setItem('cookieConsent', JSON.stringify(consent))
-    
-    // Initialize services based on preferences
-    if (typeof window !== 'undefined' && consent.analytics) {
-      console.log('Analytics initialized with user preferences')
-    }
-    
-    setShowBanner(false)
-    setShowPreferences(false)
-  }
+      timestamp: new Date().toISOString(),
+    };
 
-  if (!showBanner) return null
+    localStorage.setItem("cookieConsent", JSON.stringify(consent));
+
+    // Initialize services based on preferences
+    if (
+      typeof window !== "undefined" &&
+      "analytics" in consent &&
+      (consent as Record<string, unknown>).analytics
+    ) {
+      console.log("Analytics initialized with user preferences");
+    }
+
+    setShowBanner(false);
+    setShowPreferences(false);
+  };
+
+  if (!showBanner) return null;
 
   return (
     <>
@@ -87,47 +91,47 @@ export function CookieConsent() {
                   <Cookie className="w-5 h-5 text-orange-600" />
                 </div>
               </div>
-              
+
               <div className="flex-1">
                 <h3 className="font-semibold text-gray-900 mb-2">
                   We use cookies to enhance your experience
                 </h3>
                 <p className="text-sm text-gray-600 mb-4">
-                  We use essential cookies to make our website work, and analytics cookies 
-                  to understand how you use our site and improve your experience. 
-                  <Link href="/cookies" className="text-blue-600 hover:underline ml-1">
+                  We use essential cookies to make our website work, and
+                  analytics cookies to understand how you use our site and
+                  improve your experience.
+                  <Link
+                    href="/cookies"
+                    className="text-blue-600 hover:underline ml-1"
+                  >
                     Learn more about our cookie policy
                   </Link>
                 </p>
-                
+
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     className="bg-blue-600 hover:bg-blue-700"
                     onClick={handleAcceptAll}
                   >
                     Accept All Cookies
                   </Button>
-                  
-                  <Button 
-                    size="sm" 
+
+                  <Button
+                    size="sm"
                     variant="outline"
                     onClick={() => setShowPreferences(true)}
                   >
                     <Settings className="w-4 h-4 mr-2" />
                     Customize Preferences
                   </Button>
-                  
-                  <Button 
-                    size="sm" 
-                    variant="ghost"
-                    onClick={handleRejectAll}
-                  >
+
+                  <Button size="sm" variant="ghost" onClick={handleRejectAll}>
                     Reject Non-Essential
                   </Button>
                 </div>
               </div>
-              
+
               <button
                 onClick={() => setShowBanner(false)}
                 className="flex-shrink-0 p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -146,7 +150,9 @@ export function CookieConsent() {
           <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Cookie Preferences</h2>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Cookie Preferences
+                </h2>
                 <button
                   onClick={() => setShowPreferences(false)}
                   className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -161,65 +167,74 @@ export function CookieConsent() {
         </div>
       )}
     </>
-  )
+  );
 }
 
-function CookiePreferencesForm({ onSave }: { onSave: (preferences: any) => void }) {
+function CookiePreferencesForm({
+  onSave,
+}: {
+  onSave: (preferences: Record<string, boolean>) => void;
+}) {
   const [preferences, setPreferences] = useState({
     analytics: false,
     marketing: false,
-    preferences: false
-  })
+    preferences: false,
+  });
 
   const cookieCategories = [
     {
-      key: 'necessary',
-      title: 'Necessary Cookies',
-      description: 'Essential cookies required for the website to function properly. These cannot be disabled.',
+      key: "necessary",
+      title: "Necessary Cookies",
+      description:
+        "Essential cookies required for the website to function properly. These cannot be disabled.",
       enabled: true,
-      required: true
+      required: true,
     },
     {
-      key: 'analytics',
-      title: 'Analytics Cookies',
-      description: 'Help us understand how visitors use our website to improve performance and user experience.',
+      key: "analytics",
+      title: "Analytics Cookies",
+      description:
+        "Help us understand how visitors use our website to improve performance and user experience.",
       enabled: preferences.analytics,
-      required: false
+      required: false,
     },
     {
-      key: 'marketing',
-      title: 'Marketing Cookies',
-      description: 'Used to deliver relevant advertisements and track campaign effectiveness.',
+      key: "marketing",
+      title: "Marketing Cookies",
+      description:
+        "Used to deliver relevant advertisements and track campaign effectiveness.",
       enabled: preferences.marketing,
-      required: false
+      required: false,
     },
     {
-      key: 'preferences',
-      title: 'Preference Cookies',
-      description: 'Remember your choices and preferences to provide a personalized experience.',
+      key: "preferences",
+      title: "Preference Cookies",
+      description:
+        "Remember your choices and preferences to provide a personalized experience.",
       enabled: preferences.preferences,
-      required: false
-    }
-  ]
+      required: false,
+    },
+  ];
 
   const handleToggle = (key: string, value: boolean) => {
-    if (key === 'necessary') return // Cannot disable necessary cookies
-    
-    setPreferences(prev => ({
+    if (key === "necessary") return; // Cannot disable necessary cookies
+
+    setPreferences((prev) => ({
       ...prev,
-      [key]: value
-    }))
-  }
+      [key]: value,
+    }));
+  };
 
   const handleSave = () => {
-    onSave(preferences)
-  }
+    onSave(preferences);
+  };
 
   return (
     <div className="space-y-6">
       <p className="text-gray-600">
-        Choose which types of cookies you're comfortable with. You can change these 
-        settings at any time by clicking the cookie icon in the footer.
+        Choose which types of cookies you&apos;re comfortable with. You can
+        change these settings at any time by clicking the cookie icon in the
+        footer.
       </p>
 
       <div className="space-y-4">
@@ -235,12 +250,16 @@ function CookiePreferencesForm({ onSave }: { onSave: (preferences: any) => void 
                   disabled={category.required}
                   onChange={(e) => handleToggle(category.key, e.target.checked)}
                 />
-                <div className={`w-11 h-6 rounded-full transition-colors ${
-                  category.enabled ? 'bg-blue-600' : 'bg-gray-200'
-                } ${category.required ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                  <div className={`w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                    category.enabled ? 'translate-x-5' : 'translate-x-0'
-                  }`} />
+                <div
+                  className={`w-11 h-6 rounded-full transition-colors ${
+                    category.enabled ? "bg-blue-600" : "bg-gray-200"
+                  } ${category.required ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  <div
+                    className={`w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                      category.enabled ? "translate-x-5" : "translate-x-0"
+                    }`}
+                  />
                 </div>
               </label>
             </div>
@@ -253,13 +272,20 @@ function CookiePreferencesForm({ onSave }: { onSave: (preferences: any) => void 
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
-        <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 flex-1">
+        <Button
+          onClick={handleSave}
+          className="bg-blue-600 hover:bg-blue-700 flex-1"
+        >
           Save Preferences
         </Button>
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           onClick={() => {
-            setPreferences({ analytics: true, marketing: true, preferences: true })
+            setPreferences({
+              analytics: true,
+              marketing: true,
+              preferences: true,
+            });
           }}
           className="flex-1"
         >
@@ -268,15 +294,15 @@ function CookiePreferencesForm({ onSave }: { onSave: (preferences: any) => void 
       </div>
 
       <p className="text-xs text-gray-500 text-center">
-        For more information, read our{' '}
+        For more information, read our{" "}
         <Link href="/privacy" className="text-blue-600 hover:underline">
           Privacy Policy
-        </Link>{' '}
-        and{' '}
+        </Link>{" "}
+        and{" "}
         <Link href="/cookies" className="text-blue-600 hover:underline">
           Cookie Policy
         </Link>
       </p>
     </div>
-  )
+  );
 }

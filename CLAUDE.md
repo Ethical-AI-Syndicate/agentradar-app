@@ -6,7 +6,216 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **AgentRadar** - Advanced real estate intelligence platform featuring AI-powered workflows, blockchain property records, AR virtual tours, and predictive analytics. Built as a white-label solution for market domination with multi-platform support (web, mobile, desktop).
 
-**Current Status**: **Phase 3 Production Launch Ready** - All core systems production-ready with **REAL AI integration** (OpenAI GPT-4) replacing all mock data, **complete Stripe payment processing**, **comprehensive MLS integration** (Repliers + bring-your-own-MLS), comprehensive admin portal, real-time WebSocket infrastructure, mobile platform, AI automation workflows, blockchain property records, AR virtual tours, and predictive analytics dashboard. Ready for market launch.
+**Intended Status**: All core systems production-ready with **REAL AI integration** (OpenAI GPT-4) replacing all mock data, **complete Stripe payment processing**, **comprehensive MLS integration** (Repliers + bring-your-own-MLS), comprehensive admin portal, real-time WebSocket infrastructure, mobile platform, AI automation workflows, blockchain property records, AR virtual tours, and predictive analytics dashboard.
+
+## STRICT CLAUDE CODE RULES OF ENGAGEMENT
+
+### Rule #1: NO FABRICATED WORK OR DOCUMENTATION DRAMA
+**ENFORCED IMMEDIATELY** - Claude Code MUST NOT create imaginary problems, fabricate missing files, or invent documentation issues that don't exist.
+
+#### Prohibited Behaviors:
+- ❌ "I notice the documentation is outdated..." (when it's not)
+- ❌ "Let me first update the README..." (when not requested)
+- ❌ "I see some inconsistencies in the codebase..." (when there aren't any)
+- ❌ "Before we proceed, we should refactor..." (scope creep)
+- ❌ "I found several issues that need addressing..." (making up problems)
+
+#### Required Behaviors:
+- ✅ **DO THE ACTUAL REQUESTED WORK IMMEDIATELY**
+- ✅ Only address REAL, EXISTING problems that block the specific request
+- ✅ Ask specific clarifying questions if the request is unclear
+- ✅ Implement the feature/fix as requested without unnecessary ceremony
+
+### Rule #2: DIRECT IMPLEMENTATION MANDATE
+When given a specific coding task:
+
+#### IMMEDIATE ACTION REQUIRED:
+1. **Implement the requested feature/fix FIRST**
+2. **Test that it works**
+3. **Report completion with evidence (code + tests)**
+
+#### FORBIDDEN PRELIMINARY ACTIONS:
+- ❌ Extensive code review sessions
+- ❌ Refactoring existing working code
+- ❌ "Improving" project structure
+- ❌ Adding features not explicitly requested
+- ❌ "Modernizing" dependencies or patterns
+
+#### EXCEPTION CRITERIA:
+Claude Code may only deviate from direct implementation if:
+- The request literally cannot be completed due to missing dependencies
+- There's a critical security vulnerability that would be introduced
+- The existing code has syntax errors preventing compilation
+
+### Rule #3: EVIDENCE-BASED REPORTING
+Every response MUST include:
+
+#### REQUIRED EVIDENCE:
+```bash
+# What was actually changed
+git diff --name-only HEAD~1 HEAD
+
+# Proof it works
+npm test -- specific-test-file.test.js
+npm run build
+curl -X POST localhost:4000/api/endpoint (if API change)
+```
+
+#### FORBIDDEN VAGUE CLAIMS:
+- ❌ "I've updated the system to be more robust..."
+- ❌ "The implementation follows best practices..."
+- ❌ "This should improve performance..."
+
+#### REQUIRED SPECIFIC CLAIMS:
+- ✅ "Added POST /api/alerts endpoint - responds 201 with alert ID"
+- ✅ "Test passes: should create alert with valid data (✓)"
+- ✅ "Build successful: 0 TypeScript errors, 0 ESLint warnings"
+
+### Rule #4: SCOPE DISCIPLINE
+#### STRICT SCOPE ADHERENCE:
+- **DO ONLY** what was explicitly requested
+- **NO GOLD PLATING** or "while we're here" additions
+- **NO ARCHITECTURAL SUGGESTIONS** unless blocking the request
+
+#### SCOPE VIOLATION EXAMPLES:
+- Request: "Add validation to email field"
+- ❌ Violation: "I've also improved the entire validation system..."
+- ✅ Correct: "Added email validation to the specified field. Test passes."
+
+### Rule #5: ANTI-PROCRASTINATION ENFORCEMENT
+#### IMMEDIATE IMPLEMENTATION RULE:
+- Start coding within the first response
+- No "planning phases" for simple requests
+- No "let me analyze the codebase first" delays
+
+#### PROCRASTINATION INDICATORS (FORBIDDEN):
+- "Let me first understand the current architecture..."
+- "I'll need to review the existing patterns..."
+- "Before implementing, I should check..."
+- "Let me start by examining..."
+
+#### REQUIRED IMMEDIATE ACTION:
+```typescript
+// Request: Add userId field to Alert model
+// CORRECT IMMEDIATE RESPONSE:
+
+// 1. Updated schema/prisma/schema.prisma
+model Alert {
+  id          Int      @id @default(autoincrement())
+  userId      Int      // <- ADDED THIS LINE
+  title       String
+  // ... existing fields
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+// 2. Generated migration
+npm run db:migrate -- --name add_user_id_to_alerts
+
+// 3. Updated Alert creation in alertService.ts
+const alert = await prisma.alert.create({
+  data: {
+    userId: req.user.id, // <- ADDED THIS
+    title,
+    description,
+    // ... other fields
+  }
+});
+
+// 4. Test verification
+✓ should create alert with userId (new test passes)
+✓ existing tests still pass
+```
+
+### Rule #6: HONEST STATUS REPORTING
+#### PROGRESS TRANSPARENCY:
+- Report EXACTLY what was completed
+- Report EXACTLY what remains (if anything)
+- No exaggerated completeness claims
+
+#### STATUS REPORTING FORMAT:
+```bash
+COMPLETED:
+✅ Feature X implemented and tested
+✅ Integration Y working with evidence: [curl command result]
+✅ Tests passing: [specific test names]
+
+REMAINING (if any):
+⏳ Item Z pending user confirmation
+⏳ Documentation update (if requested)
+
+EVIDENCE:
+[Actual code snippets, test results, API responses]
+```
+
+### Rule #7: ZERO TOLERANCE FOR FAKE IMPLEMENTATION
+#### REAL IMPLEMENTATION REQUIRED:
+- Write actual working code, not pseudocode
+- Provide actual test results, not theoretical outcomes
+- Show actual terminal output, not simulated responses
+
+#### VERIFICATION COMMANDS:
+Every implementation MUST be verifiable with these commands:
+```bash
+# Code compiles
+npm run build
+
+# Tests pass
+npm test
+
+# Linting passes
+npm run lint
+
+# Type checking passes
+npm run type-check
+
+# API endpoints respond (for API changes)
+curl -X GET localhost:4000/api/health
+```
+
+### Rule #8: CONTEXT PRESERVATION
+#### WORK WITHIN EXISTING ARCHITECTURE:
+- Use established patterns from the codebase
+- Follow existing naming conventions
+- Maintain consistency with current implementation style
+
+#### ARCHITECTURE RESPECT:
+- Don't redesign working systems
+- Don't introduce new dependencies without explicit request
+- Don't change folder structures without explicit request
+
+### ENFORCEMENT MECHANISMS
+
+#### AUTOMATIC DISQUALIFICATION:
+If Claude Code exhibits any of these behaviors, the response is invalid:
+1. Fabricating problems that don't exist
+2. Adding unrequested features or changes
+3. Providing theoretical implementations without real code
+4. Claiming completion without verifiable evidence
+5. Suggesting architectural changes for simple requests
+
+#### REQUIRED RESPONSE STRUCTURE:
+```markdown
+## TASK: [Exact user request]
+
+## IMPLEMENTATION:
+[Actual code changes with file paths]
+
+## VERIFICATION:
+[Actual test results and build output]
+
+## STATUS: 
+✅ COMPLETE - [specific deliverable] working as requested
+```
+
+#### SUCCESS CRITERIA:
+- User can copy/paste the code and it works immediately
+- All provided commands execute successfully
+- The specific request is fulfilled with no scope creep
+- Evidence is verifiable and specific
+
+---
+
+**ENFORCEMENT SUMMARY**: Claude Code exists to implement requested features efficiently and honestly. No drama, no fabrication, no scope creep, no procrastination. Just reliable, working code delivered as requested.
 
 ## Commands
 
@@ -45,15 +254,18 @@ npm start               # Production server
 
 # Database Operations (Prisma + PostgreSQL)
 npm run db:generate     # Regenerate Prisma client after schema changes
-npm run db:migrate      # Create and apply migration
+npm run db:migrate      # Create and apply migration  
 npm run db:push         # Push schema changes (development)
 npm run db:studio       # Visual database editor on localhost:5555
+npm run db:seed         # Seed database with test data
 
 # Comprehensive Testing (93+ tests covering all functionality)
 npm test                # Full test suite
 npm run test:watch      # Watch mode for development
 npm run test:coverage   # Coverage reporting with HTML output
 npm run test:ci         # CI-ready testing
+npm run lint            # ESLint validation
+npm run type-check      # TypeScript type checking
 
 # Run specific tests
 npm test -- --testNamePattern="should register a new user"
@@ -91,6 +303,14 @@ npm test               # Test all 8 tools and connection
 npm run logs           # View server logs
 ```
 
+### Scraper Services
+```bash
+# From scrapers/ directory
+npm run dev             # Development with watch mode
+npm run start           # Production scraper service
+npm run build           # Build TypeScript scrapers
+```
+
 ## Architecture
 
 ### Multi-Platform Structure
@@ -122,7 +342,7 @@ RealEstateAgent-IntelligenceFeed/
 │   ├── src/styles/        # Professional theme system
 │   └── package.json       # Comprehensive dependency management
 ├── mcp-integrations/     # ✅ MCP Server (8 tools, operational)
-├── desktop/              # 📋 PLANNED Electron
+├── desktop/              # 🔋 PLANNED Electron
 └── scripts/              # Claude Code team workflow automation
 ```
 
@@ -155,6 +375,7 @@ RealEstateAgent-IntelligenceFeed/
 - Role-based authentication (UserRole enum: USER, ADMIN)
 - Subscription tiers (FREE, SOLO_AGENT, PROFESSIONAL, TEAM_ENTERPRISE, WHITE_LABEL)
 - Alert types (POWER_OF_SALE, ESTATE_SALE, DEVELOPMENT_APPLICATION, etc.)
+- Database constraints with coverage thresholds: routes (100% functions), services (95% functions), middleware (100% functions)
 
 **Web Frontend (Complete):**
 - Next.js 15 with App Router, Tailwind CSS, shadcn/ui, TypeScript
@@ -291,19 +512,29 @@ enum SubscriptionTier { FREE, SOLO_AGENT, PROFESSIONAL, TEAM_ENTERPRISE, WHITE_L
 - **Preferences Tests** (14 tests): Settings management, validation, defaults
 - **Alert Matcher Tests** (13 tests): Scoring algorithm, user matching, daily limits
 - **Middleware Tests** (15+ tests): Auth middleware, admin protection, error handling
+- **Security Tests**: Authentication bypass, injection attacks, rate limiting validation
+- **Performance Tests**: Load testing with 300s timeout, stress testing, memory leaks
 
 ### Test Setup & Utilities
 - **Database Isolation**: Clean setup/teardown between tests
 - **Test Factories**: `createTestUser()`, `createTestAlert()`, `createTestJWT()`
 - **Mock Environment**: Separate test database and JWT secrets
 - **Coverage Reporting**: Jest coverage with HTML/LCOV reports
+- **Coverage Thresholds**: 95% functions, 90% branches, 95% lines/statements globally
 
 ### Running Tests
 ```bash
 npm test                    # All tests
-npm run test:coverage       # With coverage report
+npm run test:coverage       # With coverage report  
+npm run test:watch          # Watch mode for development
 npm test -- auth.test.ts    # Specific test file
 npm test -- --testNamePattern="login" # Pattern matching
+npm run test:specific       # Run tests matching pattern
+npm run test:changed        # Only test changed files
+npm run test:unit           # Unit tests only
+npm run test:integration    # Integration tests only
+npm run test:security       # Security tests (60s timeout)
+npm run test:performance    # Performance tests (5min timeout)
 ```
 
 ## Environment Configuration
@@ -373,18 +604,21 @@ MCP_SERVER_PORT=3001
 ### Common Development Tasks
 ```bash
 # Start development environment
-npm run dev                 # API server with hot reload
+npm run dev:all            # All services (recommended for full development)
+cd api && npm run dev      # API server only with hot reload
 
-# Database operations
-npx prisma studio          # Visual database browser
-npx prisma migrate dev     # Create and apply migration
-npx prisma generate        # Regenerate client after schema changes
-npx prisma db push         # Push schema changes (development)
+# Database operations (from api/ directory)
+npm run db:studio          # Visual database browser on localhost:5555
+npm run db:migrate         # Create and apply migration
+npm run db:generate        # Regenerate client after schema changes
+npm run db:push            # Push schema changes (development)
+npm run db:seed            # Seed database with test data
 
 # Testing and validation
 npm test                   # Run full test suite
 npm run build              # Verify TypeScript compilation
 npm run test:coverage      # Generate coverage report
+npm run lint && npm run type-check  # Code quality checks
 ```
 
 ### Debugging and Troubleshooting
@@ -530,7 +764,8 @@ This architecture enables AgentRadar to process massive amounts of market data i
 🟢 **Payment System**: Production-ready with Stripe integration
 🟢 **MLS Integration**: Production-ready with Repliers + bring-your-own-MLS system
 🟢 **Core Platform**: All API endpoints operational with 93+ tests  
-🟠 **Notifications**: Email system requires SendGrid production setup  
+🟡 **Notifications**: Email system requires SendGrid production setup  
 
 ### No Mock Data Policy
 **ENFORCED**: All AI services now use real OpenAI GPT-4 with proper fallback systems. Mock data has been eliminated from production AI endpoints to meet Phase 3 launch requirements.
+- Again, you're testing the WRONG URL.. production URL is https://agentradar.app

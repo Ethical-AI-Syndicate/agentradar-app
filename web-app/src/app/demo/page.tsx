@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Footer } from "@/components/footer"
+import { Navigation } from "@/components/navigation"
 import { 
   Play,
   Search,
@@ -155,23 +156,11 @@ export default function DemoPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation Header */}
-      <nav className="border-b bg-white/95 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded bg-gradient-to-r from-blue-500 to-orange-500" />
-              <span className="text-xl font-bold text-gray-900">AgentRadar</span>
-            </Link>
-            <div className="flex items-center gap-4">
-              <Link href="/" className="text-gray-600 hover:text-gray-900">Home</Link>
-              <Link href="/about" className="text-gray-600 hover:text-gray-900">About</Link>
-              <Link href="/contact">
-                <Button variant="outline">Contact Us</Button>
-              </Link>
-            </div>
-          </div>
+      <div className="border-b bg-white/95 backdrop-blur-sm sticky top-0 z-50">
+        <div className="text-gray-900">
+          <Navigation />
         </div>
-      </nav>
+      </div>
 
       {/* Hero Section */}
       <section className="py-24 bg-gradient-to-br from-blue-50 to-orange-50">

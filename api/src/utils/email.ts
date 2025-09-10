@@ -1,5 +1,5 @@
-import sgMail from '@sendgrid/mail';
-import { createLogger } from './logger';
+import sgMail from "@sendgrid/mail";
+import { createLogger } from "./logger";
 
 const logger = createLogger();
 
@@ -7,7 +7,7 @@ const logger = createLogger();
 if (process.env.SENDGRID_API_KEY) {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 } else {
-  logger.warn('SENDGRID_API_KEY not found - email functionality disabled');
+  logger.warn("SENDGRID_API_KEY not found - email functionality disabled");
 }
 
 export interface EmailData {
@@ -31,23 +31,24 @@ export class EmailService {
   async sendEmail(emailData: EmailData): Promise<boolean> {
     try {
       if (!process.env.SENDGRID_API_KEY) {
-        logger.warn('Email not sent - SENDGRID_API_KEY not configured');
+        logger.warn("Email not sent - SENDGRID_API_KEY not configured");
         return false;
       }
 
       const msg = {
         to: emailData.to,
-        from: emailData.from || process.env.EMAIL_FROM || 'noreply@agentradar.app',
+        from:
+          emailData.from || process.env.EMAIL_FROM || "noreply@agentradar.app",
         subject: emailData.subject,
         html: emailData.html,
-        text: emailData.text || emailData.html.replace(/<[^>]*>/g, ''),
+        text: emailData.text || emailData.html.replace(/<[^>]*>/g, ""),
       };
 
       await sgMail.send(msg);
       logger.info(`Email sent successfully to ${emailData.to}`);
       return true;
     } catch (error) {
-      logger.error('Failed to send email:', error);
+      logger.error("Failed to send email:", error);
       return false;
     }
   }
@@ -55,26 +56,33 @@ export class EmailService {
   async sendBulkEmail(emails: EmailData[]): Promise<boolean> {
     try {
       if (!process.env.SENDGRID_API_KEY) {
-        logger.warn('Bulk email not sent - SENDGRID_API_KEY not configured');
+        logger.warn("Bulk email not sent - SENDGRID_API_KEY not configured");
         return false;
       }
 
-      const messages = emails.map(email => ({
+      const messages = emails.map((email) => ({
         to: email.to,
-        from: email.from || process.env.EMAIL_FROM || 'noreply@agentradar.app',
+        from: email.from || process.env.EMAIL_FROM || "noreply@agentradar.app",
         subject: email.subject,
         html: email.html,
-        text: email.text || email.html.replace(/<[^>]*>/g, ''),
+        text: email.text || email.html.replace(/<[^>]*>/g, ""),
       }));
 
       await sgMail.send(messages);
-      logger.info(`Bulk email sent successfully to ${emails.length} recipients`);
+      logger.info(
+        `Bulk email sent successfully to ${emails.length} recipients`,
+      );
       return true;
     } catch (error) {
-      logger.error('Failed to send bulk email:', error);
+      logger.error("Failed to send bulk email:", error);
       return false;
     }
   }
 }
 
 export const emailService = EmailService.getInstance();
+
+// Export convenience function for backward compatibility
+export const sendEmail = (emailData: EmailData): Promise<boolean> => {
+  return emailService.sendEmail(emailData);
+};

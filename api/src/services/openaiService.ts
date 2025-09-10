@@ -1,4 +1,4 @@
-import OpenAI from 'openai';
+import OpenAI from "openai";
 
 interface PropertyAnalysisInput {
   address: string;
@@ -10,7 +10,7 @@ interface PropertyAnalysisInput {
   features?: string[];
   condition?: string;
   lotSize?: number;
-  comparableProperties?: any[];
+  comparableProperties?: any;
   marketConditions?: any;
 }
 
@@ -22,13 +22,13 @@ interface PropertyAnalysisOutput {
   marketInsights: {
     priceEstimate: number;
     confidenceLevel: number;
-    marketTrend: 'RISING' | 'STABLE' | 'DECLINING';
+    marketTrend: "RISING" | "STABLE" | "DECLINING";
     competitivePosition: string;
   };
 }
 
 interface DocumentExtractionInput {
-  documentType: 'court_filing' | 'property_listing' | 'legal_document';
+  documentType: "court_filing" | "property_listing" | "legal_document";
   text: string;
   imageUrl?: string;
 }
@@ -47,7 +47,7 @@ interface LeadAnalysisInput {
     propertyInterest?: string;
     budget?: number;
     timeline?: string;
-    previousInteractions?: any[];
+    previousInteractions?: any;
   };
   marketContext?: any;
 }
@@ -68,9 +68,9 @@ export class OpenAIService {
 
   constructor() {
     const apiKey = process.env.OPENAI_API_KEY;
-    
+
     if (!apiKey) {
-      throw new Error('OPENAI_API_KEY environment variable is required');
+      throw new Error("OPENAI_API_KEY environment variable is required");
     }
 
     this.client = new OpenAI({
@@ -84,61 +84,80 @@ export class OpenAIService {
   /**
    * Analyze property opportunity with GPT-4
    */
-  async analyzePropertyOpportunity(input: PropertyAnalysisInput): Promise<PropertyAnalysisOutput> {
+  async analyzePropertyOpportunity(
+    input: PropertyAnalysisInput,
+  ): Promise<PropertyAnalysisOutput> {
     if (this.isDailyBudgetExceeded()) {
-      throw new Error('Daily AI budget exceeded. Falling back to cached/simplified analysis.');
+      throw new Error(
+        "Daily AI budget exceeded. Falling back to cached/simplified analysis.",
+      );
     }
 
     const prompt = this.buildPropertyAnalysisPrompt(input);
-    
+
     try {
       const completion = await this.client.chat.completions.create({
-        model: 'gpt-4-turbo-preview',
+        model: "gpt-4-turbo-preview",
         messages: [
           {
-            role: 'system',
+            role: "system",
             content: `You are an expert real estate investment analyst with 20+ years of experience. 
                      Analyze properties for investment potential, market positioning, and opportunities.
                      Always provide specific, actionable insights based on the data provided.
-                     Return responses in valid JSON format only.`
+                     Return responses in valid JSON format only.`,
           },
           {
-            role: 'user',
-            content: prompt
-          }
+            role: "user",
+            content: prompt,
+          },
         ],
         temperature: 0.3, // Lower temperature for more consistent analysis
         max_tokens: 2000,
-        response_format: { type: 'json_object' }
+        response_format: { type: "json_object" },
       });
 
       const response = completion.choices[0].message.content;
-      const cost = this.estimateCost(completion.usage?.total_tokens || 0, 'gpt-4-turbo');
+      const cost = this.estimateCost(
+        completion.usage?.total_tokens || 0,
+        "gpt-4-turbo",
+      );
       this.trackUsage(cost);
 
       if (!response) {
-        throw new Error('No response from OpenAI');
+        throw new Error("No response from OpenAI");
       }
 
       const analysis = JSON.parse(response);
-      
+
       // Validate and structure the response
       return {
-        opportunityScore: Math.min(100, Math.max(0, analysis.opportunityScore || 0)),
-        investmentThesis: analysis.investmentThesis || 'Analysis unavailable',
-        riskFactors: Array.isArray(analysis.riskFactors) ? analysis.riskFactors : [],
-        recommendedActions: Array.isArray(analysis.recommendedActions) ? analysis.recommendedActions : [],
+        opportunityScore: Math.min(
+          100,
+          Math.max(0, analysis.opportunityScore || 0),
+        ),
+        investmentThesis: analysis.investmentThesis || "Analysis unavailable",
+        riskFactors: Array.isArray(analysis.riskFactors)
+          ? analysis.riskFactors
+          : [],
+        recommendedActions: Array.isArray(analysis.recommendedActions)
+          ? analysis.recommendedActions
+          : [],
         marketInsights: {
           priceEstimate: analysis.marketInsights?.priceEstimate || 0,
-          confidenceLevel: Math.min(1, Math.max(0, analysis.marketInsights?.confidenceLevel || 0)),
-          marketTrend: this.validateMarketTrend(analysis.marketInsights?.marketTrend),
-          competitivePosition: analysis.marketInsights?.competitivePosition || 'Unknown'
-        }
+          confidenceLevel: Math.min(
+            1,
+            Math.max(0, analysis.marketInsights?.confidenceLevel || 0),
+          ),
+          marketTrend: this.validateMarketTrend(
+            analysis.marketInsights?.marketTrend,
+          ),
+          competitivePosition:
+            analysis.marketInsights?.competitivePosition || "Unknown",
+        },
       };
-
     } catch (error) {
-      console.error('OpenAI Property Analysis Error:', error);
-      
+      console.error("OpenAI Property Analysis Error:", error);
+
       // Fallback to simplified analysis
       return this.generateFallbackPropertyAnalysis(input);
     }
@@ -147,56 +166,63 @@ export class OpenAIService {
   /**
    * Extract data from legal documents using GPT-4 Vision
    */
-  async extractDocumentData(input: DocumentExtractionInput): Promise<DocumentExtractionOutput> {
+  async extractDocumentData(
+    input: DocumentExtractionInput,
+  ): Promise<DocumentExtractionOutput> {
     if (this.isDailyBudgetExceeded()) {
-      throw new Error('Daily AI budget exceeded. Document extraction unavailable.');
+      throw new Error(
+        "Daily AI budget exceeded. Document extraction unavailable.",
+      );
     }
 
-    const messages: any[] = [
+    const messages: any = [
       {
-        role: 'system',
+        role: "system",
         content: `You are an expert legal document analyst specializing in real estate documents.
                  Extract key information accurately and flag any inconsistencies.
-                 Return responses in valid JSON format only.`
-      }
+                 Return responses in valid JSON format only.`,
+      },
     ];
 
     if (input.imageUrl) {
       messages.push({
-        role: 'user',
+        role: "user",
         content: [
           {
-            type: 'text',
-            text: `Extract all relevant information from this ${input.documentType} document. Focus on dates, amounts, addresses, and legal entities.`
+            type: "text",
+            text: `Extract all relevant information from this ${input.documentType} document. Focus on dates, amounts, addresses, and legal entities.`,
           },
           {
-            type: 'image_url',
-            image_url: { url: input.imageUrl }
-          }
-        ]
+            type: "image_url",
+            image_url: { url: input.imageUrl },
+          },
+        ],
       });
     } else {
       messages.push({
-        role: 'user',
-        content: `Extract all relevant information from this ${input.documentType} document:\n\n${input.text}`
+        role: "user",
+        content: `Extract all relevant information from this ${input.documentType} document:\n\n${input.text}`,
       });
     }
 
     try {
       const completion = await this.client.chat.completions.create({
-        model: input.imageUrl ? 'gpt-4-vision-preview' : 'gpt-4-turbo-preview',
+        model: input.imageUrl ? "gpt-4-vision-preview" : "gpt-4-turbo-preview",
         messages,
         temperature: 0.1, // Very low temperature for accuracy
         max_tokens: 1500,
-        response_format: { type: 'json_object' }
+        response_format: { type: "json_object" },
       });
 
       const response = completion.choices[0].message.content;
-      const cost = this.estimateCost(completion.usage?.total_tokens || 0, input.imageUrl ? 'gpt-4-vision' : 'gpt-4-turbo');
+      const cost = this.estimateCost(
+        completion.usage?.total_tokens || 0,
+        input.imageUrl ? "gpt-4-vision" : "gpt-4-turbo",
+      );
       this.trackUsage(cost);
 
       if (!response) {
-        throw new Error('No response from OpenAI');
+        throw new Error("No response from OpenAI");
       }
 
       const extraction = JSON.parse(response);
@@ -204,16 +230,19 @@ export class OpenAIService {
       return {
         extractedData: extraction.data || {},
         confidence: Math.min(1, Math.max(0, extraction.confidence || 0.5)),
-        validationNotes: Array.isArray(extraction.validationNotes) ? extraction.validationNotes : []
+        validationNotes: Array.isArray(extraction.validationNotes)
+          ? extraction.validationNotes
+          : [],
       };
-
     } catch (error) {
-      console.error('OpenAI Document Extraction Error:', error);
-      
+      console.error("OpenAI Document Extraction Error:", error);
+
       return {
         extractedData: {},
         confidence: 0,
-        validationNotes: ['Document extraction failed - manual review required']
+        validationNotes: [
+          "Document extraction failed - manual review required",
+        ],
       };
     }
   }
@@ -230,44 +259,61 @@ export class OpenAIService {
 
     try {
       const completion = await this.client.chat.completions.create({
-        model: 'gpt-4-turbo-preview',
+        model: "gpt-4-turbo-preview",
         messages: [
           {
-            role: 'system',
+            role: "system",
             content: `You are an expert sales analyst specializing in real estate lead qualification.
                      Analyze leads for conversion potential and recommend personalized engagement strategies.
-                     Return responses in valid JSON format only.`
+                     Return responses in valid JSON format only.`,
           },
           {
-            role: 'user',
-            content: prompt
-          }
+            role: "user",
+            content: prompt,
+          },
         ],
         temperature: 0.4,
         max_tokens: 1500,
-        response_format: { type: 'json_object' }
+        response_format: { type: "json_object" },
       });
 
       const response = completion.choices[0].message.content;
-      const cost = this.estimateCost(completion.usage?.total_tokens || 0, 'gpt-4-turbo');
+      const cost = this.estimateCost(
+        completion.usage?.total_tokens || 0,
+        "gpt-4-turbo",
+      );
       this.trackUsage(cost);
 
       if (!response) {
-        throw new Error('No response from OpenAI');
+        throw new Error("No response from OpenAI");
       }
 
       const analysis = JSON.parse(response);
 
       return {
-        behavioralScore: Math.min(100, Math.max(0, analysis.behavioralScore || 0)),
-        engagementPrediction: Math.min(100, Math.max(0, analysis.engagementPrediction || 0)),
-        personalizationRecommendations: Array.isArray(analysis.personalizationRecommendations) ? analysis.personalizationRecommendations : [],
-        nextBestActions: Array.isArray(analysis.nextBestActions) ? analysis.nextBestActions : [],
-        conversionProbability: Math.min(1, Math.max(0, analysis.conversionProbability || 0))
+        behavioralScore: Math.min(
+          100,
+          Math.max(0, analysis.behavioralScore || 0),
+        ),
+        engagementPrediction: Math.min(
+          100,
+          Math.max(0, analysis.engagementPrediction || 0),
+        ),
+        personalizationRecommendations: Array.isArray(
+          analysis.personalizationRecommendations,
+        )
+          ? analysis.personalizationRecommendations
+          : [],
+        nextBestActions: Array.isArray(analysis.nextBestActions)
+          ? analysis.nextBestActions
+          : [],
+        conversionProbability: Math.min(
+          1,
+          Math.max(0, analysis.conversionProbability || 0),
+        ),
       };
-
     } catch (error) {
-      console.error('OpenAI Lead Analysis Error:', error);
+      console.error("OpenAI Lead Analysis Error:", error);
       return this.generateFallbackLeadAnalysis(input);
     }
   }
@@ -275,9 +321,13 @@ export class OpenAIService {
   /**
    * Generate comprehensive market report using GPT-4
    */
-  async generateMarketReport(location: string, timeframe: string, marketData: any): Promise<string> {
+  async generateMarketReport(
+    location: string,
+    timeframe: string,
+    marketData: any,
+  ): Promise<string> {
     if (this.isDailyBudgetExceeded()) {
-      return 'Market report generation unavailable - daily budget exceeded.';
+      return "Market report generation unavailable - daily budget exceeded.";
     }
 
     const prompt = `Generate a comprehensive ${timeframe} market report for ${location} based on the following data:
@@ -296,30 +346,33 @@ Write in professional tone suitable for real estate professionals.`;
 
     try {
       const completion = await this.client.chat.completions.create({
-        model: 'gpt-4-turbo-preview',
+        model: "gpt-4-turbo-preview",
         messages: [
           {
-            role: 'system',
-            content: 'You are an expert real estate market analyst. Generate detailed, professional market reports with specific insights and actionable recommendations.'
+            role: "system",
+            content:
+              "You are an expert real estate market analyst. Generate detailed, professional market reports with specific insights and actionable recommendations.",
           },
           {
-            role: 'user',
-            content: prompt
-          }
+            role: "user",
+            content: prompt,
+          },
         ],
         temperature: 0.5,
-        max_tokens: 3000
+        max_tokens: 3000,
       });
 
       const response = completion.choices[0].message.content;
-      const cost = this.estimateCost(completion.usage?.total_tokens || 0, 'gpt-4-turbo');
+      const cost = this.estimateCost(
+        completion.usage?.total_tokens || 0,
+        "gpt-4-turbo",
+      );
       this.trackUsage(cost);
 
-      return response || 'Market report generation failed.';
-
+      return response || "Market report generation failed.";
     } catch (error) {
-      console.error('OpenAI Market Report Error:', error);
-      return 'Market report generation failed due to technical issues.';
+      console.error("OpenAI Market Report Error:", error);
+      return "Market report generation failed due to technical issues.";
     }
   }
 
@@ -336,13 +389,13 @@ Property Details:
 - Square Footage: ${input.squareFootage}
 - Year Built: ${input.yearBuilt}
 - Property Type: ${input.propertyType}
-- Condition: ${input.condition || 'Unknown'}
-- Lot Size: ${input.lotSize || 'Unknown'}
-- Features: ${input.features?.join(', ') || 'None specified'}
+- Condition: ${input.condition || "Unknown"}
+- Lot Size: ${input.lotSize || "Unknown"}
+- Features: ${input.features?.join(", ") || "None specified"}
 
-${input.comparableProperties ? `Comparable Properties: ${JSON.stringify(input.comparableProperties, null, 2)}` : ''}
+${input.comparableProperties ? `Comparable Properties: ${JSON.stringify(input.comparableProperties, null, 2)}` : ""}
 
-${input.marketConditions ? `Market Conditions: ${JSON.stringify(input.marketConditions, null, 2)}` : ''}
+${input.marketConditions ? `Market Conditions: ${JSON.stringify(input.marketConditions, null, 2)}` : ""}
 
 Provide analysis in this exact JSON format:
 {
@@ -368,14 +421,14 @@ Provide analysis in this exact JSON format:
 Lead Information:
 - Name: ${input.leadData.name}
 - Email: ${input.leadData.email}
-- Phone: ${input.leadData.phone || 'Not provided'}
-- Property Interest: ${input.leadData.propertyInterest || 'General'}
-- Budget: ${input.leadData.budget ? '$' + input.leadData.budget.toLocaleString() : 'Not specified'}
-- Timeline: ${input.leadData.timeline || 'Not specified'}
+- Phone: ${input.leadData.phone || "Not provided"}
+- Property Interest: ${input.leadData.propertyInterest || "General"}
+- Budget: ${input.leadData.budget ? "$" + input.leadData.budget.toLocaleString() : "Not specified"}
+- Timeline: ${input.leadData.timeline || "Not specified"}
 
-${input.leadData.previousInteractions ? `Previous Interactions: ${JSON.stringify(input.leadData.previousInteractions, null, 2)}` : ''}
+${input.leadData.previousInteractions ? `Previous Interactions: ${JSON.stringify(input.leadData.previousInteractions, null, 2)}` : ""}
 
-${input.marketContext ? `Market Context: ${JSON.stringify(input.marketContext, null, 2)}` : ''}
+${input.marketContext ? `Market Context: ${JSON.stringify(input.marketContext, null, 2)}` : ""}
 
 Provide analysis in this exact JSON format:
 {
@@ -390,63 +443,84 @@ Provide analysis in this exact JSON format:
   /**
    * Fallback property analysis when AI is unavailable
    */
-  private generateFallbackPropertyAnalysis(input: PropertyAnalysisInput): PropertyAnalysisOutput {
+  private generateFallbackPropertyAnalysis(
+    input: PropertyAnalysisInput,
+  ): PropertyAnalysisOutput {
     const currentYear = new Date().getFullYear();
     const age = currentYear - input.yearBuilt;
     const pricePerSqFt = 400; // Average estimate
-    
+
     let opportunityScore = 50; // Base score
-    
+
     // Simple scoring logic
     if (age < 10) opportunityScore += 20;
     else if (age > 30) opportunityScore -= 10;
-    
+
     if (input.squareFootage > 2000) opportunityScore += 15;
-    if (input.condition === 'EXCELLENT') opportunityScore += 20;
-    else if (input.condition === 'POOR') opportunityScore -= 20;
-    
+    if (input.condition === "EXCELLENT") opportunityScore += 20;
+    else if (input.condition === "POOR") opportunityScore -= 20;
+
     return {
       opportunityScore: Math.min(100, Math.max(0, opportunityScore)),
-      investmentThesis: 'Analysis based on simplified model due to AI service limitations',
-      riskFactors: ['Limited market data available', 'Analysis based on simplified model'],
-      recommendedActions: ['Conduct detailed market research', 'Get professional appraisal'],
+      investmentThesis:
+        "Analysis based on simplified model due to AI service limitations",
+      riskFactors: [
+        "Limited market data available",
+        "Analysis based on simplified model",
+      ],
+      recommendedActions: [
+        "Conduct detailed market research",
+        "Get professional appraisal",
+      ],
       marketInsights: {
         priceEstimate: input.squareFootage * pricePerSqFt,
         confidenceLevel: 0.6,
-        marketTrend: 'STABLE',
-        competitivePosition: 'Market average'
-      }
+        marketTrend: "STABLE",
+        competitivePosition: "Market average",
+      },
     };
   }
 
   /**
    * Fallback lead analysis when AI is unavailable
    */
-  private generateFallbackLeadAnalysis(input: LeadAnalysisInput): LeadAnalysisOutput {
+  private generateFallbackLeadAnalysis(
+    input: LeadAnalysisInput,
+  ): LeadAnalysisOutput {
     let score = 50; // Base score
-    
+
     if (input.leadData.budget && input.leadData.budget > 500000) score += 20;
-    if (input.leadData.timeline === 'immediate') score += 25;
+    if (input.leadData.timeline === "immediate") score += 25;
     if (input.leadData.phone) score += 10;
-    if (input.leadData.previousInteractions && input.leadData.previousInteractions.length > 0) score += 15;
-    
+    if (
+      input.leadData.previousInteractions &&
+      input.leadData.previousInteractions.length > 0
+    )
+      score += 15;
+
     return {
       behavioralScore: Math.min(100, Math.max(0, score)),
       engagementPrediction: Math.min(100, Math.max(0, score - 10)),
-      personalizationRecommendations: ['Follow up via phone', 'Send market updates'],
-      nextBestActions: ['Schedule consultation', 'Send property recommendations'],
-      conversionProbability: Math.min(1, Math.max(0, score / 100))
+      personalizationRecommendations: [
+        "Follow up via phone",
+        "Send market updates",
+      ],
+      nextBestActions: [
+        "Schedule consultation",
+        "Send property recommendations",
+      ],
+      conversionProbability: Math.min(1, Math.max(0, score / 100)),
     };
   }
 
   /**
    * Validate market trend value
    */
-  private validateMarketTrend(trend: any): 'RISING' | 'STABLE' | 'DECLINING' {
-    if (['RISING', 'STABLE', 'DECLINING'].includes(trend)) {
+  private validateMarketTrend(trend: any): "RISING" | "STABLE" | "DECLINING" {
+    if (["RISING", "STABLE", "DECLINING"].includes(trend)) {
       return trend;
     }
-    return 'STABLE';
+    return "STABLE";
   }
 
   /**
@@ -454,12 +528,12 @@ Provide analysis in this exact JSON format:
    */
   private estimateCost(tokens: number, model: string): number {
     const rates: Record<string, { input: number; output: number }> = {
-      'gpt-4-turbo': { input: 0.01, output: 0.03 }, // per 1K tokens
-      'gpt-4-vision': { input: 0.01, output: 0.03 },
-      'gpt-3.5-turbo': { input: 0.0005, output: 0.0015 }
+      "gpt-4-turbo": { input: 0.01, output: 0.03 }, // per 1K tokens
+      "gpt-4-vision": { input: 0.01, output: 0.03 },
+      "gpt-3.5-turbo": { input: 0.0005, output: 0.0015 },
     };
-    
-    const rate = rates[model] || rates['gpt-4-turbo'];
+
+    const rate = rates[model] || rates["gpt-4-turbo"];
     return (tokens / 1000) * ((rate.input + rate.output) / 2); // Average rate approximation
   }
 
@@ -469,9 +543,11 @@ Provide analysis in this exact JSON format:
   private trackUsage(cost: number): void {
     this.requestCount++;
     this.dailySpent += cost;
-    
+
     if (this.dailySpent > this.dailyBudget * 0.8) {
-      console.warn(`⚠️  OpenAI daily budget 80% used: $${this.dailySpent.toFixed(2)}/$${this.dailyBudget}`);
+      console.warn(
+        `⚠️  OpenAI daily budget 80% used: $${this.dailySpent.toFixed(2)}/$${this.dailyBudget}`,
+      );
     }
   }
 
@@ -488,7 +564,7 @@ Provide analysis in this exact JSON format:
   private resetDailyBudgetIfNeeded(): void {
     const today = new Date().toDateString();
     const lastReset = global.openAILastReset;
-    
+
     if (lastReset !== today) {
       this.dailySpent = 0;
       this.requestCount = 0;
@@ -509,7 +585,7 @@ Provide analysis in this exact JSON format:
       requestCount: this.requestCount,
       dailySpent: this.dailySpent,
       budgetRemaining: this.dailyBudget - this.dailySpent,
-      budgetUtilization: (this.dailySpent / this.dailyBudget) * 100
+      budgetUtilization: (this.dailySpent / this.dailyBudget) * 100,
     };
   }
 }

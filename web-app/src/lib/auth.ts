@@ -2,17 +2,17 @@
  * Authentication utilities and API client
  */
 
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import axios from "axios";
+import Cookies from "js-cookie";
 
-// API Configuration - Use Next.js API routes instead of Express API
-const API_BASE_URL = '/api';
+// API Configuration - Use absolute URLs for production
+const API_BASE_URL = typeof window !== "undefined" ? `${window.location.origin}/api` : "/api";
 
 // Create axios instance with default config
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -27,7 +27,7 @@ apiClient.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Handle auth errors
@@ -37,24 +37,25 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       // Clear invalid token and redirect to login
       clearToken();
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
       }
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 // Token management
-const TOKEN_KEY = 'agentradar_token';
-const USER_KEY = 'agentradar_user';
+const TOKEN_KEY = "agentradar_token";
+const USER_KEY = "agentradar_user";
 
 export const setToken = (token: string) => {
-  Cookies.set(TOKEN_KEY, token, { 
-    expires: 30, 
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    domain: process.env.NODE_ENV === 'production' ? '.agentradar.app' : undefined
+  Cookies.set(TOKEN_KEY, token, {
+    expires: 30,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    domain:
+      process.env.NODE_ENV === "production" ? ".agentradar.app" : undefined,
   });
 };
 
@@ -88,18 +89,19 @@ export interface User {
 }
 
 export const setUser = (user: User) => {
-  Cookies.set(USER_KEY, JSON.stringify(user), { 
-    expires: 30, 
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    domain: process.env.NODE_ENV === 'production' ? '.agentradar.app' : undefined
+  Cookies.set(USER_KEY, JSON.stringify(user), {
+    expires: 30,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    domain:
+      process.env.NODE_ENV === "production" ? ".agentradar.app" : undefined,
   });
 };
 
 export const getUser = (): User | null => {
   const userStr = Cookies.get(USER_KEY);
   if (!userStr) return null;
-  
+
   try {
     return JSON.parse(userStr);
   } catch {
@@ -128,26 +130,30 @@ export interface RegisterData {
 
 export interface AuthResponse {
   success: boolean;
-  token: string;
-  user: User;
   message?: string;
+  data?: {
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: string;
+    user: User;
+  };
 }
 
 export const login = async (data: LoginData): Promise<AuthResponse> => {
-  const response = await apiClient.post('/auth/login', data);
+  const response = await apiClient.post("/auth/login", data);
   return response.data;
 };
 
 export const register = async (data: RegisterData): Promise<AuthResponse> => {
-  const response = await apiClient.post('/auth/register', data);
+  const response = await apiClient.post("/auth/register", data);
   return response.data;
 };
 
 export const logout = async (): Promise<void> => {
   try {
-    await apiClient.post('/auth/logout');
+    await apiClient.post("/auth/logout");
   } catch (error) {
-    console.error('Logout error:', error);
+    console.error("Logout error:", error);
   } finally {
     clearToken();
     clearUser();
@@ -156,7 +162,7 @@ export const logout = async (): Promise<void> => {
 
 export const refreshToken = async (): Promise<string | null> => {
   try {
-    const response = await apiClient.post('/auth/refresh');
+    const response = await apiClient.post("/auth/refresh");
     const { token } = response.data;
     setToken(token);
     return token;
@@ -169,7 +175,7 @@ export const refreshToken = async (): Promise<string | null> => {
 
 export const getCurrentUser = async (): Promise<User | null> => {
   try {
-    const response = await apiClient.get('/auth/me');
+    const response = await apiClient.get("/auth/me");
     const user = response.data.user;
     setUser(user);
     return user;
@@ -192,5 +198,5 @@ export const hasRole = (role: string): boolean => {
 
 export const hasValidSubscription = (): boolean => {
   const user = getUser();
-  return user?.subscription?.status === 'active';
+  return user?.subscription?.status === "active";
 };

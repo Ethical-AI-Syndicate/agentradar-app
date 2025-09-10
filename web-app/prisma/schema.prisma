@@ -54,6 +54,12 @@ model User {
   ticketMessages      SupportTicketMessage[] @relation("TicketMessages")
   adminActions        AdminAction[]        @relation("AdminActions")
   
+  // Content management relations
+  blogPosts           BlogPost[]           @relation("BlogPosts")
+  helpArticles        HelpArticle[]        @relation("HelpArticles")
+  assignedContacts    ContactSubmission[]  @relation("AssignedContacts")
+  assignedDemos       DemoRequest[]        @relation("AssignedDemos")
+  
   @@map("users")
 }
 
@@ -562,4 +568,216 @@ model SystemSetting {
   updatedAt DateTime @updatedAt
   
   @@map("system_settings")
+}
+
+// Contact Form Submissions
+model ContactSubmission {
+  id            String            @id @default(cuid())
+  name          String
+  email         String
+  company       String?
+  phone         String?
+  subject       String?
+  message       String
+  contactMethod String?           // preferred contact method
+  status        ContactStatus     @default(NEW)
+  assignedToId  String?
+  notes         String?
+  
+  // Timestamps
+  submittedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  assignedTo User? @relation("AssignedContacts", fields: [assignedToId], references: [id])
+  
+  @@map("contact_submissions")
+}
+
+// Blog Management System
+model BlogPost {
+  id              String        @id @default(cuid())
+  title           String
+  slug            String        @unique
+  content         String        // Rich text content
+  excerpt         String?       // Short description
+  authorId        String
+  status          BlogStatus    @default(DRAFT)
+  featuredImage   String?       // Image URL
+  seoTitle        String?       // SEO title (max 60 chars)
+  seoDescription  String?       // SEO description (max 160 chars)
+  tags            String[]      @default([])
+  category        String?
+  viewCount       Int           @default(0)
+  publishedAt     DateTime?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  author User @relation("BlogPosts", fields: [authorId], references: [id])
+  
+  @@map("blog_posts")
+}
+
+// Career/Job Management System
+model JobPosting {
+  id                String           @id @default(cuid())
+  title             String
+  department        String?
+  location          String
+  employmentType    EmploymentType
+  experienceLevel   ExperienceLevel
+  salaryRangeMin    Int?             // In cents
+  salaryRangeMax    Int?             // In cents
+  salaryCurrency    String           @default("CAD")
+  description       String           // Rich text job description
+  requirements      String?          // Rich text requirements
+  benefits          String?          // Rich text benefits
+  applicationDeadline DateTime?
+  status            JobPostingStatus @default(ACTIVE)
+  remoteWork        Boolean          @default(false)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  applications JobApplication[]
+  
+  @@map("job_postings")
+}
+
+model JobApplication {
+  id                String              @id @default(cuid())
+  jobPostingId      String
+  applicantName     String
+  applicantEmail    String
+  applicantPhone    String?
+  resumeUrl         String?             // File URL
+  coverLetter       String?
+  applicationStatus ApplicationStatus   @default(SUBMITTED)
+  notes             String?
+  
+  // Timestamps
+  appliedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  jobPosting JobPosting @relation(fields: [jobPostingId], references: [id], onDelete: Cascade)
+  
+  @@map("job_applications")
+}
+
+// Help Center System
+model HelpArticle {
+  id               String        @id @default(cuid())
+  title            String
+  slug             String        @unique
+  content          String        // Rich text content
+  category         String
+  subcategory      String?
+  orderIndex       Int           @default(0)
+  status           BlogStatus    @default(DRAFT)
+  authorId         String
+  viewCount        Int           @default(0)
+  helpfulVotes     Int           @default(0)
+  notHelpfulVotes  Int           @default(0)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  author User @relation("HelpArticles", fields: [authorId], references: [id])
+  
+  @@map("help_articles")
+}
+
+model HelpCategory {
+  id          String @id @default(cuid())
+  name        String @unique
+  description String?
+  icon        String? // Icon name or URL
+  orderIndex  Int    @default(0)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("help_categories")
+}
+
+// Demo Request System
+model DemoRequest {
+  id              String          @id @default(cuid())
+  name            String
+  email           String
+  company         String?
+  phone           String?
+  companySize     String?
+  useCase         String?
+  preferredTime   String?
+  status          DemoStatus      @default(REQUESTED)
+  scheduledAt     DateTime?
+  demoNotes       String?
+  assignedToId    String?
+  
+  // Timestamps
+  requestedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  assignedTo User? @relation("AssignedDemos", fields: [assignedToId], references: [id])
+  
+  @@map("demo_requests")
+}
+
+// Additional Enums
+enum ContactStatus {
+  NEW
+  CONTACTED
+  RESOLVED
+}
+
+enum BlogStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+}
+
+enum ExperienceLevel {
+  ENTRY
+  MID
+  SENIOR
+  EXECUTIVE
+}
+
+enum JobPostingStatus {
+  ACTIVE
+  PAUSED
+  CLOSED
+}
+
+enum ApplicationStatus {
+  SUBMITTED
+  REVIEWING
+  INTERVIEW
+  REJECTED
+  HIRED
+}
+
+enum DemoStatus {
+  REQUESTED
+  SCHEDULED
+  COMPLETED
+  CANCELLED
 }

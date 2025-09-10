@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Footer } from "@/components/footer"
+import { PageLayout } from "@/components/page-layout"
 import { 
   Mail, 
   Phone, 
@@ -108,8 +108,7 @@ export default function ContactPage() {
     setIsSubmitting(true)
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
-      const response = await fetch(`${apiUrl}/api/contact`, {
+      const response = await fetch(`${window.location.origin}/api/contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -147,22 +146,7 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation Header */}
-      <nav className="border-b bg-white/95 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded bg-gradient-to-r from-blue-500 to-orange-500" />
-              <span className="text-xl font-bold text-gray-900">AgentRadar</span>
-            </Link>
-            <div className="flex items-center gap-4">
-              <Link href="/" className="text-gray-600 hover:text-gray-900">Home</Link>
-              <Link href="/about" className="text-gray-600 hover:text-gray-900">About</Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <PageLayout>
 
       {/* Hero Section */}
       <section className="py-24 bg-gradient-to-br from-blue-50 to-orange-50">
@@ -476,7 +460,6 @@ export default function ContactPage() {
         </div>
       </section>
 
-      <Footer />
-    </div>
+    </PageLayout>
   )
 }

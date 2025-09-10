@@ -1,27 +1,33 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { 
+import { useState, useEffect, useCallback } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { 
+} from "@/components/ui/table";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { 
-  Users, 
+} from "@/components/ui/select";
+import {
+  Users,
   Search,
   UserPlus,
   Edit,
@@ -29,17 +35,17 @@ import {
   Ban,
   CheckCircle,
   Loader2,
-  AlertTriangle
-} from 'lucide-react';
-import { apiClient } from '@/lib/auth';
-import { formatRelativeTime } from '@/lib/api';
+  AlertTriangle,
+} from "lucide-react";
+import { apiClient } from "@/lib/auth";
+import { formatRelativeTime } from "@/lib/api";
 
 interface User {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
-  role: 'USER' | 'ADMIN';
+  role: "USER" | "ADMIN";
   subscriptionTier: string;
   isActive: boolean;
   company?: string;
@@ -72,54 +78,66 @@ export default function AdminUsers() {
     page: 1,
     limit: 25,
     total: 0,
-    pages: 0
+    pages: 0,
   });
-  
-  // Filters
-  const [searchQuery, setSearchQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState('all');
-  const [tierFilter, setTierFilter] = useState('all');
-  const [statusFilter] = useState('all');
 
-  const fetchUsers = async () => {
+  // Filters
+  const [searchQuery, setSearchQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [tierFilter, setTierFilter] = useState("all");
+  const [statusFilter] = useState("all");
+
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const params = new URLSearchParams({
         page: pagination.page.toString(),
         limit: pagination.limit.toString(),
       });
-      
-      if (searchQuery) params.append('search', searchQuery);
-      if (roleFilter && roleFilter !== 'all') params.append('role', roleFilter);
-      if (tierFilter && tierFilter !== 'all') params.append('subscriptionTier', tierFilter);
-      if (statusFilter && statusFilter !== 'all') params.append('isActive', statusFilter);
+
+      if (searchQuery) params.append("search", searchQuery);
+      if (roleFilter && roleFilter !== "all") params.append("role", roleFilter);
+      if (tierFilter && tierFilter !== "all")
+        params.append("subscriptionTier", tierFilter);
+      if (statusFilter && statusFilter !== "all")
+        params.append("isActive", statusFilter);
 
       const response = await apiClient.get(`/admin/users?${params}`);
       const data: UsersResponse = response.data;
-      
+
       setUsers(data.users);
       setPagination(data.pagination);
     } catch (err: unknown) {
-      console.error('Failed to fetch users:', err);
-      setError((err as { response?: { data?: { message?: string } } }).response?.data?.message || 'Failed to load users');
+      console.error("Failed to fetch users:", err);
+      setError(
+        (err as { response?: { data?: { message?: string } } }).response?.data
+          ?.message || "Failed to load users",
+      );
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    pagination.page,
+    pagination.limit,
+    searchQuery,
+    roleFilter,
+    tierFilter,
+    statusFilter,
+  ]);
 
   useEffect(() => {
     fetchUsers();
-  }, [pagination.page, pagination.limit]);
+  }, [fetchUsers]);
 
   const handleSearch = () => {
-    setPagination(prev => ({ ...prev, page: 1 }));
+    setPagination((prev) => ({ ...prev, page: 1 }));
     fetchUsers();
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSearch();
     }
   };
@@ -127,11 +145,11 @@ export default function AdminUsers() {
   const toggleUserStatus = async (userId: string, currentStatus: boolean) => {
     try {
       await apiClient.put(`/admin/users/${userId}`, {
-        isActive: !currentStatus
+        isActive: !currentStatus,
       });
       fetchUsers(); // Refresh the list
     } catch (err: unknown) {
-      console.error('Failed to update user status:', err);
+      console.error("Failed to update user status:", err);
     }
   };
 
@@ -139,7 +157,7 @@ export default function AdminUsers() {
     if (!user.isActive) {
       return <Badge variant="secondary">Inactive</Badge>;
     }
-    if (user.role === 'ADMIN') {
+    if (user.role === "ADMIN") {
       return <Badge variant="default">Admin</Badge>;
     }
     return <Badge variant="outline">Active</Badge>;
@@ -147,16 +165,16 @@ export default function AdminUsers() {
 
   const getTierBadge = (tier: string) => {
     const colors = {
-      FREE: 'secondary',
-      SOLO_AGENT: 'outline',
-      PROFESSIONAL: 'default',
-      TEAM_ENTERPRISE: 'default',
-      WHITE_LABEL: 'default'
+      FREE: "secondary",
+      SOLO_AGENT: "outline",
+      PROFESSIONAL: "default",
+      TEAM_ENTERPRISE: "default",
+      WHITE_LABEL: "default",
     } as const;
-    
+
     return (
-      <Badge variant={colors[tier as keyof typeof colors] || 'secondary'}>
-        {tier.replace('_', ' ')}
+      <Badge variant={colors[tier as keyof typeof colors] || "secondary"}>
+        {tier.replace("_", " ")}
       </Badge>
     );
   };
@@ -165,7 +183,9 @@ export default function AdminUsers() {
     return (
       <div className="text-center py-12">
         <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Failed to load users</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">
+          Failed to load users
+        </h3>
         <p className="text-sm text-gray-600 mb-4">{error}</p>
         <Button onClick={fetchUsers} variant="outline">
           Try Again
@@ -183,7 +203,9 @@ export default function AdminUsers() {
             <Users className="h-6 w-6 mr-2" />
             User Management
           </h1>
-          <p className="text-gray-600">Manage user accounts, roles, and subscriptions</p>
+          <p className="text-gray-600">
+            Manage user accounts, roles, and subscriptions
+          </p>
         </div>
         <Button>
           <UserPlus className="h-4 w-4 mr-2" />
@@ -210,7 +232,7 @@ export default function AdminUsers() {
                 />
               </div>
             </div>
-            
+
             <Select value={roleFilter} onValueChange={setRoleFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="All Roles" />
@@ -246,9 +268,7 @@ export default function AdminUsers() {
       {/* Users Table */}
       <Card>
         <CardHeader>
-          <CardTitle>
-            Users ({pagination.total.toLocaleString()})
-          </CardTitle>
+          <CardTitle>Users ({pagination.total.toLocaleString()})</CardTitle>
           <CardDescription>
             Manage user accounts and permissions
           </CardDescription>
@@ -279,17 +299,21 @@ export default function AdminUsers() {
                           <div className="font-medium text-gray-900">
                             {user.firstName} {user.lastName}
                           </div>
-                          <div className="text-sm text-gray-600">{user.email}</div>
+                          <div className="text-sm text-gray-600">
+                            {user.email}
+                          </div>
                           {user.company && (
-                            <div className="text-xs text-gray-500">{user.company}</div>
+                            <div className="text-xs text-gray-500">
+                              {user.company}
+                            </div>
                           )}
                         </div>
                       </TableCell>
-                      
+
                       <TableCell>
                         <div className="space-y-1">
                           {getStatusBadge(user)}
-                          {user.role === 'ADMIN' && (
+                          {user.role === "ADMIN" && (
                             <div className="flex items-center text-xs text-amber-600">
                               <Shield className="h-3 w-3 mr-1" />
                               Admin
@@ -297,7 +321,7 @@ export default function AdminUsers() {
                           )}
                         </div>
                       </TableCell>
-                      
+
                       <TableCell>
                         {getTierBadge(user.subscriptionTier)}
                         {user.subscriptionStatus && (
@@ -306,7 +330,7 @@ export default function AdminUsers() {
                           </div>
                         )}
                       </TableCell>
-                      
+
                       <TableCell>
                         <div className="text-sm">
                           <div>{user._count.userAlerts} alerts</div>
@@ -315,7 +339,7 @@ export default function AdminUsers() {
                           </div>
                         </div>
                       </TableCell>
-                      
+
                       <TableCell>
                         <div className="text-sm">
                           <div>{formatRelativeTime(user.createdAt)}</div>
@@ -326,13 +350,15 @@ export default function AdminUsers() {
                           )}
                         </div>
                       </TableCell>
-                      
+
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end space-x-2">
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => toggleUserStatus(user.id, user.isActive)}
+                            onClick={() =>
+                              toggleUserStatus(user.id, user.isActive)
+                            }
                           >
                             {user.isActive ? (
                               <Ban className="h-4 w-4" />
@@ -354,15 +380,23 @@ export default function AdminUsers() {
               {pagination.pages > 1 && (
                 <div className="flex items-center justify-between mt-4">
                   <div className="text-sm text-gray-600">
-                    Showing {((pagination.page - 1) * pagination.limit) + 1} to{' '}
-                    {Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
-                    {pagination.total} results
+                    Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
+                    {Math.min(
+                      pagination.page * pagination.limit,
+                      pagination.total,
+                    )}{" "}
+                    of {pagination.total} results
                   </div>
                   <div className="flex items-center space-x-2">
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+                      onClick={() =>
+                        setPagination((prev) => ({
+                          ...prev,
+                          page: prev.page - 1,
+                        }))
+                      }
                       disabled={pagination.page === 1}
                     >
                       Previous
@@ -373,7 +407,12 @@ export default function AdminUsers() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+                      onClick={() =>
+                        setPagination((prev) => ({
+                          ...prev,
+                          page: prev.page + 1,
+                        }))
+                      }
                       disabled={pagination.page === pagination.pages}
                     >
                       Next

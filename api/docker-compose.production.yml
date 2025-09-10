@@ -1,0 +1,90 @@
+version: "3.8"
+
+services:
+  agentradar-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    container_name: agentradar-api-prod
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env.production
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - agentradar-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: agentradar-postgres-prod
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=agentradar_production
+      - POSTGRES_USER=agentradar_user
+      - POSTGRES_PASSWORD=secure_prod_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./prisma/migrations:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - agentradar-network
+    healthcheck:
+      test:
+        ["CMD-SHELL", "pg_isready -U agentradar_user -d agentradar_production"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: agentradar-redis-prod
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass redis_prod_password
+    volumes:
+      - redis_data:/data
+    networks:
+      - agentradar-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  nginx:
+    image: nginx:alpine
+    container_name: agentradar-nginx-prod
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/ssl/certs:ro
+    depends_on:
+      - agentradar-api
+    networks:
+      - agentradar-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  agentradar-network:
+    driver: bridge

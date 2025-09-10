@@ -1,9 +1,15 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { AlertTriangle, Clock, Users, TrendingDown, Target } from "lucide-react"
+import { motion } from "framer-motion";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  AlertTriangle,
+  Clock,
+  Users,
+  TrendingDown,
+  Target,
+} from "lucide-react";
 
 export function ProblemSection() {
   const problems = [
@@ -13,7 +19,7 @@ export function ProblemSection() {
       description: "Every agent is fighting over the same MLS listings",
       stat: "20+ agents",
       statDescription: "competing per listing",
-      color: "text-red-500"
+      color: "text-red-500",
     },
     {
       icon: Clock,
@@ -21,7 +27,7 @@ export function ProblemSection() {
       description: "By the time it hits MLS, you're already behind",
       stat: "0 days",
       statDescription: "head start on MLS",
-      color: "text-orange-500"
+      color: "text-orange-500",
     },
     {
       icon: TrendingDown,
@@ -29,9 +35,9 @@ export function ProblemSection() {
       description: "Always responding to the market instead of predicting it",
       stat: "80%",
       statDescription: "of agents are reactive",
-      color: "text-yellow-500"
-    }
-  ]
+      color: "text-yellow-500",
+    },
+  ];
 
   return (
     <section className="py-20 bg-gray-50" id="problem">
@@ -42,8 +48,13 @@ export function ProblemSection() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
+            className="opacity-100"
+            style={{ opacity: 1 }}
           >
-            <Badge variant="destructive" className="mb-4 bg-red-100 text-red-800 border-red-200">
+            <Badge
+              variant="destructive"
+              className="mb-4 bg-red-100 text-red-800 border-red-200"
+            >
               <AlertTriangle className="w-4 h-4 mr-1" />
               The Problem Every Agent Faces
             </Badge>
@@ -52,8 +63,9 @@ export function ProblemSection() {
               <span className="text-red-600">Changed</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Traditional prospecting methods are failing. While you&apos;re competing for MLS scraps, 
-              smart agents are building relationships with sellers months before they list.
+              Traditional prospecting methods are failing. While you&apos;re
+              competing for MLS scraps, smart agents are building relationships
+              with sellers months before they list.
             </p>
           </motion.div>
         </div>
@@ -66,19 +78,23 @@ export function ProblemSection() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
+              className="opacity-100"
+              style={{ opacity: 1 }}
             >
               <Card className="p-8 h-full bg-white border-l-4 border-l-gray-200 hover:border-l-red-500 transition-colors duration-300 shadow-lg hover:shadow-xl">
                 <div className="flex items-center mb-4">
                   <div className={`p-3 rounded-full bg-gray-100 mr-4`}>
                     <problem.icon className={`w-6 h-6 ${problem.color}`} />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900">{problem.title}</h3>
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    {problem.title}
+                  </h3>
                 </div>
-                
+
                 <p className="text-gray-600 mb-6 leading-relaxed">
                   {problem.description}
                 </p>
-                
+
                 <div className="bg-gray-50 rounded-lg p-4">
                   <div className={`text-3xl font-bold mb-1 ${problem.color}`}>
                     {problem.stat}
@@ -98,26 +114,32 @@ export function ProblemSection() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl p-8 lg:p-12 border border-red-100"
+          className="bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl p-8 lg:p-12 border border-red-100 opacity-100"
+          style={{ opacity: 1 }}
         >
           <div className="max-w-4xl mx-auto text-center">
             <div className="text-6xl mb-6">😤</div>
             <h3 className="text-3xl font-bold text-gray-900 mb-6">
               Sound Familiar?
             </h3>
-            
+
             <div className="text-lg text-gray-700 space-y-4 text-left lg:text-center max-w-3xl mx-auto">
               <p className="italic">
-                &quot;I saw the listing hit MLS at 9 AM. By 9:30 AM, there were already 12 agents who had called the seller. 
-                By noon, there were showings booked for the entire weekend.&quot;
+                &quot;I saw the listing hit MLS at 9 AM. By 9:30 AM, there were
+                already 12 agents who had called the seller. By noon, there were
+                showings booked for the entire weekend.&quot;
               </p>
-              
+
               <p className="font-medium text-red-600">
-                The agents who win aren&apos;t the ones who respond fastest to MLS listings...
+                The agents who win aren&apos;t the ones who respond fastest to
+                MLS listings...
               </p>
-              
+
               <p className="text-xl font-semibold text-gray-900">
-                They&apos;re the ones who <span className="text-red-600">knew about the opportunity 6-12 months earlier</span> 
+                They&apos;re the ones who{" "}
+                <span className="text-red-600">
+                  knew about the opportunity 6-12 months earlier
+                </span>
                 through public records most agents never see.
               </p>
             </div>
@@ -142,5 +164,5 @@ export function ProblemSection() {
         </motion.div>
       </div>
     </section>
-  )
+  );
 }

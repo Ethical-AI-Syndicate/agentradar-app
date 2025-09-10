@@ -1,8 +1,8 @@
 // Service Initialization
 // Initializes and starts all background services
 
-import { createLogger } from '../utils/logger';
-import { createCacheManager } from './cache/cacheManager.js';
+import { createLogger } from "../utils/logger";
+// import { createCacheManager } from "./cache/cacheManager";
 
 const logger = createLogger();
 let cacheManager: any = null;
@@ -12,24 +12,23 @@ let cacheManager: any = null;
  */
 export async function initializeServices(): Promise<void> {
   try {
-    logger.info('Initializing AgentRadar services...');
-    
-    // Initialize cache manager
+    logger.info("Initializing AgentRadar services...");
+
+    // Initialize cache manager - temporarily disabled for testing
     try {
-      cacheManager = createCacheManager();
-      await cacheManager.initialize();
-      logger.info('✅ Cache Manager (Redis Cloud L1/L2/L3) initialized');
+      // cacheManager = createCacheManager();
+      // await cacheManager.initialize();
+      logger.info("✅ Cache Manager temporarily disabled for testing");
     } catch (cacheError) {
-      logger.error('❌ Failed to initialize Cache Manager:', cacheError);
+      logger.error("❌ Failed to initialize Cache Manager:", cacheError);
       // Continue without cache - non-blocking
     }
-    
-    // Court processing services temporarily disabled
-    logger.info('Court processing services are temporarily disabled');
-    logger.info('All services initialized successfully');
 
+    // Court processing services temporarily disabled
+    logger.info("Court processing services are temporarily disabled");
+    logger.info("All services initialized successfully");
   } catch (error) {
-    logger.error('Failed to initialize services:', error);
+    logger.error("Failed to initialize services:", error);
     throw error;
   }
 }
@@ -39,22 +38,21 @@ export async function initializeServices(): Promise<void> {
  */
 export async function shutdownServices(): Promise<void> {
   try {
-    logger.info('Shutting down AgentRadar services...');
-    
+    logger.info("Shutting down AgentRadar services...");
+
     // Shutdown cache manager
     if (cacheManager) {
       try {
         await cacheManager.shutdown();
-        logger.info('✅ Cache Manager shutdown complete');
+        logger.info("✅ Cache Manager shutdown complete");
       } catch (cacheError) {
-        logger.error('❌ Cache Manager shutdown error:', cacheError);
+        logger.error("❌ Cache Manager shutdown error:", cacheError);
       }
     }
-    
-    logger.info('All services shut down successfully');
 
+    logger.info("All services shut down successfully");
   } catch (error) {
-    logger.error('Error during service shutdown:', error);
+    logger.error("Error during service shutdown:", error);
     throw error;
   }
 }
