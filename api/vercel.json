@@ -1,7 +1,7 @@
 {
   "version": 2,
   "installCommand": "npm install",
-  "buildCommand": "npm run build",
+  "buildCommand": "echo 'Skipping monorepo build - API only'",
   "builds": [
     {
       "src": "index.js",

@@ -1,5 +1,5 @@
-// Vercel Serverless Function Handler
-export default function handler(req, res) {
+// Vercel Serverless Function Handler - Simple test version
+module.exports = async (req, res) => {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -21,8 +21,10 @@ export default function handler(req, res) {
         status: "operational",
         timestamp: new Date().toISOString(),
         deployment: "vercel_serverless_executing",
-        message: "🎉 API is now EXECUTING JavaScript instead of showing source!",
-        environment: process.env.NODE_ENV || 'production'
+        message: "🎉 SUCCESS! JavaScript is EXECUTING instead of showing source code!",
+        environment: process.env.NODE_ENV || 'production',
+        buildSkipped: true,
+        framework: "Express (configured)"
       });
     }
     
@@ -32,7 +34,7 @@ export default function handler(req, res) {
         timestamp: new Date().toISOString(), 
         environment: process.env.NODE_ENV || 'production',
         version: "1.0.0",
-        message: "AgentRadar API health check - EXECUTING!",
+        message: "✅ JavaScript execution confirmed!",
         deployment: "vercel_serverless_executing"
       });
     }
@@ -40,19 +42,21 @@ export default function handler(req, res) {
     if (url === '/test') {
       return res.status(200).json({
         status: "working",
-        message: "🚀 JavaScript execution confirmed!",
+        message: "🚀 API test endpoint - JavaScript executing properly!",
         timestamp: new Date().toISOString(),
         method,
-        url
+        url,
+        executionConfirmed: true
       });
     }
     
     // 404 for other routes
     res.status(404).json({
       error: "Endpoint not found",
-      message: `${method} ${url} is not available`,
+      message: `${method} ${url} is not available in this test version`,
       timestamp: new Date().toISOString(),
-      executionConfirmed: true
+      executionConfirmed: true,
+      note: "JavaScript is executing properly - ready for full API integration"
     });
     
   } catch (error) {
@@ -64,4 +68,4 @@ export default function handler(req, res) {
       details: error.message
     });
   }
-}
+};
