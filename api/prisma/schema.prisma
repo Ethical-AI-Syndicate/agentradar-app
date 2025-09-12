@@ -1054,3 +1054,128 @@ model PropertyAnalysis {
   
   @@map("property_analyses")
 }
+
+// AI Performance Monitoring Models
+model AiServiceMetrics {
+  id                  String    @id @default(cuid())
+  serviceName         String    // 'openai', 'anthropic', etc.
+  operationType       String    // 'property-valuation', 'investment-analysis', etc.
+  responseTime        Int       // Response time in milliseconds
+  success             Boolean   @default(true)
+  accuracy            Float?    // 0-1 accuracy score
+  confidence          Float?    // 0-1 confidence score
+  promptTokens        Int?
+  completionTokens    Int?
+  totalTokens         Int?
+  cost                Float?    // Cost in dollars
+  errorMessage        String?
+  validatedAccuracy   Float?    // Actual validated accuracy
+  validatedAt         DateTime?
+  timestamp           DateTime  @default(now())
+  
+  @@index([serviceName, operationType])
+  @@index([timestamp])
+  @@index([serviceName, timestamp])
+  @@index([operationType, timestamp])
+  @@map("ai_service_metrics")
+}
+
+model AiPerformanceSummary {
+  id                  String    @id @default(cuid())
+  serviceName         String
+  operationType       String
+  period              String    // '1h', '24h', '7d', '30d'
+  periodStart         DateTime
+  periodEnd           DateTime
+  totalRequests       Int       @default(0)
+  successfulRequests  Int       @default(0)
+  failedRequests      Int       @default(0)
+  successRate         Float     @default(0)
+  averageResponseTime Float     @default(0)
+  averageAccuracy     Float?
+  averageConfidence   Float?
+  totalTokensUsed     Int       @default(0)
+  totalCost           Float     @default(0)
+  p95ResponseTime     Int       @default(0)
+  p99ResponseTime     Int       @default(0)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  
+  @@unique([serviceName, operationType, period, periodStart])
+  @@index([serviceName, period])
+  @@index([operationType, period])
+  @@index([period, periodStart, periodEnd])
+  @@map("ai_performance_summary")
+}
+
+model PropertyValidationResults {
+  id                  String    @id @default(cuid())
+  requestId           String    @unique
+  propertyId          String?
+  predictedValue      Float?
+  actualValue         Float?
+  predictedCapRate    Float?
+  actualCapRate       Float?
+  predictedRentPerSqft Float?
+  actualRentPerSqft   Float?
+  accuracy            Float     // 0-1 accuracy score
+  confidence          Float?
+  validatedAt         DateTime  @default(now())
+  
+  @@index([propertyId])
+  @@index([validatedAt])
+  @@index([accuracy])
+  @@map("property_validation_results")
+}
+
+model MarketPredictionValidations {
+  id                  String    @id @default(cuid())
+  requestId           String    @unique
+  marketArea          String?
+  timeframe           String?   // '3m', '6m', '1y', '2y'
+  predictedGrowthRate Float?
+  actualGrowthRate    Float?
+  predictedMedianPrice Float?
+  actualMedianPrice   Float?
+  accuracy            Float     // 0-1 accuracy score
+  confidence          Float?
+  validatedAt         DateTime  @default(now())
+  
+  @@index([marketArea])
+  @@index([timeframe])
+  @@index([validatedAt])
+  @@map("market_prediction_validations")
+}
+
+model LeadScoringValidations {
+  id                  String    @id @default(cuid())
+  requestId           String    @unique
+  leadId              String?
+  predictedScore      Int?
+  predictedConversion Boolean?
+  actualConversion    Boolean?
+  conversionTime      DateTime?
+  accuracy            Float     // 0-1 accuracy score
+  confidence          Float?
+  validatedAt         DateTime  @default(now())
+  
+  @@index([leadId])
+  @@index([predictedScore])
+  @@index([actualConversion])
+  @@index([validatedAt])
+  @@map("lead_scoring_validations")
+}
+
+model SystemHealthMetrics {
+  id           String    @id @default(cuid())
+  metricName   String    // 'cpu_usage', 'memory_usage', 'api_response_time'
+  metricValue  Float
+  unit         String?   // '%', 'ms', 'bytes', etc.
+  tags         Json?     // Additional metadata tags
+  timestamp    DateTime  @default(now())
+  
+  @@index([metricName])
+  @@index([timestamp])
+  @@index([metricName, timestamp])
+  @@map("system_health_metrics")
+}

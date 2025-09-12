@@ -2,6 +2,7 @@ import { prisma } from "../lib/database";
 import { aiPropertyValuation } from "./aiPropertyValuation";
 import { aiMarketPrediction } from "./aiMarketPrediction";
 import { openAIService } from "./openaiService";
+import { trackAIMetric, aiMonitor } from '../lib/aiPerformanceMonitor';
 
 interface CMARequest {
   subjectProperty: {
@@ -256,6 +257,12 @@ export class AICMAGenerationEngine {
       },
     };
 
+    // Track CMA generation metrics
+    trackAIMetric('cma-generation', 'generation_time_ms', generationTime);
+    trackAIMetric('cma-generation', 'comparable_properties_count', enhancedComparables.length);
+    trackAIMetric('cma-generation', 'recommended_value', valuationResult.estimatedValue);
+    trackAIMetric('cma-generation', 'confidence_level', valuationResult.confidenceLevel * 100);
+    
     console.log(
       `✅ CMA Report generated in ${generationTime}ms (${Math.round(generationTime / 1000)} seconds)`,
     );

@@ -1,5 +1,6 @@
 import { prisma } from "../lib/database";
 import { leadQualificationService } from "./leadQualificationService";
+import { trackAIMetric, aiMonitor } from '../lib/aiPerformanceMonitor';
 
 interface LeadGenerationTarget {
   demographics: {
@@ -174,8 +175,19 @@ export class AILeadGenerationEngine {
     const enrichedLeads =
       await this.generatePersonalizedInsights(qualifiedLeads);
 
+    // Track lead generation metrics
+    const hotLeads = enrichedLeads.filter((l) => l.qualification.tier === "HOT").length;
+    const warmLeads = enrichedLeads.filter((l) => l.qualification.tier === "WARM").length;
+    const coldLeads = enrichedLeads.filter((l) => l.qualification.tier === "COLD").length;
+    
+    trackAIMetric('lead-generation', 'total_leads_generated', enrichedLeads.length);
+    trackAIMetric('lead-generation', 'hot_leads_count', hotLeads);
+    trackAIMetric('lead-generation', 'warm_leads_count', warmLeads);
+    trackAIMetric('lead-generation', 'cold_leads_count', coldLeads);
+    trackAIMetric('lead-generation', 'hot_lead_percentage', (hotLeads / enrichedLeads.length) * 100);
+    
     console.log(
-      `🎯 Generated ${enrichedLeads.length} qualified leads with ${enrichedLeads.filter((l) => l.qualification.tier === "HOT").length} HOT prospects`,
+      `🎯 Generated ${enrichedLeads.length} qualified leads with ${hotLeads} HOT prospects`,
     );
 
     return enrichedLeads.slice(0, quantity);

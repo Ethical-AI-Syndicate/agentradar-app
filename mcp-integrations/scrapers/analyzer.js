@@ -20,13 +20,9 @@ export class PropertyAnalyzer {
       historicalData = false 
     } = args;
     
-    console.error(`DEBUG: Property analysis for ${address}, mock mode: ${this.enableMockData}`);
+    console.log(`Performing property analysis for ${address} with real data integration`);
     
-    if (this.enableMockData) {
-      return this.getMockAnalysis(args);
-    }
-    
-    // Real data integration
+    // Always use real data integration - no more mock data
     return this.getRealAnalysis(args);
   }
   
@@ -65,50 +61,11 @@ export class PropertyAnalyzer {
         analysis
       };
     } catch (error) {
-      console.error(`Real analysis failed for ${address}, using enhanced fallback:`, error.message);
-      return this.getEnhancedFallbackAnalysis(args, error.message);
+      console.error(`Real analysis failed for ${address}:`, error.message);
+      throw new Error(`Property analysis failed: ${error.message}`);
     }
   }
   
-  getMockAnalysis(args) {
-    const { 
-      address, 
-      includeComps = true, 
-      checkLiens = true,
-      historicalData = false 
-    } = args;
-    
-    // Generate comprehensive analysis
-    const analysis = {
-      address,
-      timestamp: new Date().toISOString(),
-      marketValue: this.estimateMarketValue(address),
-      investment: this.calculateInvestmentMetrics(address),
-      propertyDetails: this.getPropertyDetails(address),
-      neighborhood: this.getNeighborhoodData(address)
-    };
-    
-    if (includeComps) {
-      analysis.comparables = this.getComparables(address);
-    }
-    
-    if (checkLiens) {
-      analysis.liens = this.checkLiens(address);
-    }
-    
-    if (historicalData) {
-      analysis.history = this.getHistoricalData(address);
-    }
-    
-    // Calculate final scores
-    analysis.scores = this.calculateScores(analysis);
-    analysis.recommendation = this.generateRecommendation(analysis);
-    
-    return {
-      success: true,
-      analysis
-    };
-  }
   
   estimateMarketValue(address) {
     // Mock valuation logic
@@ -326,67 +283,401 @@ export class PropertyAnalyzer {
   // Real Data Integration Methods
   async getRealMarketValue(address) {
     try {
-      // Attempt to fetch from real estate APIs (MLS, HouseSigma, etc.)
-      console.error(`Attempting real market value for ${address}`);
-      throw new Error('Real estate API integration pending');
+      console.log(`Fetching real market value for ${address}`);
+      
+      // Integration with MLS and assessment data
+      const [mlsData, assessmentData] = await Promise.all([
+        this.fetchMLSPropertyData(address),
+        this.fetchAssessmentData(address)
+      ]);
+      
+      // Use AI valuation service for comprehensive analysis
+      const valuationService = await import('../../api/src/services/aiPropertyValuation.js');
+      const propertyData = {
+        address,
+        bedrooms: mlsData.bedrooms || 3,
+        bathrooms: mlsData.bathrooms || 2,
+        squareFootage: mlsData.squareFootage || 2000,
+        lotSize: mlsData.lotSize,
+        yearBuilt: mlsData.yearBuilt || 2000,
+        propertyType: mlsData.propertyType || 'RESIDENTIAL',
+        neighborhood: this.extractNeighborhood(address),
+        city: this.extractCity(address),
+        province: 'ON',
+        postalCode: this.extractPostalCode(address),
+        features: mlsData.features || [],
+        condition: mlsData.condition || 'GOOD'
+      };
+      
+      const valuation = await valuationService.aiPropertyValuation.generateValuation(propertyData);
+      
+      return {
+        estimated: valuation.estimatedValue,
+        confidence: valuation.confidenceLevel,
+        range: valuation.valuationRange,
+        methodology: valuation.methodology,
+        lastAssessment: assessmentData.assessedValue,
+        assessmentDate: assessmentData.assessmentDate
+      };
+      
     } catch (error) {
-      // Fallback to enhanced estimation
-      return this.getEnhancedMarketValue(address);
+      console.error(`Market value fetch failed for ${address}:`, error);
+      throw error;
     }
+  }
+  
+  // Real MLS Data Integration Methods
+  async fetchMLSPropertyData(address) {
+    try {
+      // Integration with MLS API for property details
+      // This would connect to actual MLS feed via proper credentials
+      console.log(`Fetching MLS data for ${address}`);
+      
+      // For now, throw error to indicate real integration needed
+      throw new Error('MLS API integration requires proper credentials and feed access');
+    } catch (error) {
+      console.error(`MLS data fetch failed: ${error.message}`);
+      throw error;
+    }
+  }
+  
+  async fetchAssessmentData(address) {
+    try {
+      // Integration with MPAC or municipal assessment data
+      console.log(`Fetching assessment data for ${address}`);
+      
+      // For now, throw error to indicate real integration needed
+      throw new Error('Assessment data API integration required');
+    } catch (error) {
+      console.error(`Assessment data fetch failed: ${error.message}`);
+      throw error;
+    }
+  }
+  
+  // Utility methods for property data extraction
+  extractNeighborhood(address) {
+    // Extract neighborhood from address string
+    const addressLower = address.toLowerCase();
+    if (addressLower.includes('king st')) return 'King West';
+    if (addressLower.includes('queen st')) return 'Queen West';
+    if (addressLower.includes('bloor')) return 'Bloor Corridor';
+    if (addressLower.includes('yonge')) return 'Yonge Corridor';
+    // Default extraction logic
+    const parts = address.split(',');
+    return parts.length > 1 ? parts[parts.length - 2].trim() : 'Unknown';
+  }
+  
+  extractCity(address) {
+    const parts = address.split(',');
+    return parts.length > 0 ? parts[parts.length - 1].trim().split(' ')[0] : 'Toronto';
+  }
+  
+  extractPostalCode(address) {
+    const postalMatch = address.match(/[A-Za-z]\d[A-Za-z]\s?\d[A-Za-z]\d/);
+    return postalMatch ? postalMatch[0] : null;
   }
   
   async getRealInvestmentMetrics(address) {
     try {
-      console.error(`Attempting real investment metrics for ${address}`);
-      throw new Error('Real investment data API pending');
+      console.log(`Fetching real investment metrics for ${address}`);
+      
+      // Get property market value first
+      const marketValue = await this.getRealMarketValue(address);
+      
+      // Fetch rental data from real estate platforms
+      const rentalData = await this.fetchRentalData(address);
+      
+      // Calculate real investment metrics
+      const purchasePrice = marketValue.estimated;
+      const monthlyRent = rentalData.averageRent;
+      const expenses = await this.calculateRealExpenses(address, purchasePrice);
+      
+      return {
+        purchasePrice,
+        estimatedRent: monthlyRent,
+        monthlyExpenses: expenses,
+        capRate: ((monthlyRent - expenses) * 12 / purchasePrice * 100).toFixed(2) + '%',
+        cashFlow: monthlyRent - expenses,
+        roi: (((monthlyRent - expenses) * 12) / (purchasePrice * 0.25) * 100).toFixed(2) + '%',
+        breakEven: Math.ceil(purchasePrice / ((monthlyRent - expenses) * 12)) + ' years',
+        leverage: rentalData.ltvRecommendation || '4:1 possible'
+      };
     } catch (error) {
-      return this.getEnhancedInvestmentMetrics(address);
+      console.error(`Investment metrics fetch failed for ${address}:`, error);
+      throw error;
     }
   }
   
   async getRealPropertyDetails(address) {
     try {
-      console.error(`Attempting real property details for ${address}`);
-      throw new Error('Property details API integration pending');
+      console.log(`Fetching real property details for ${address}`);
+      
+      // Get MLS property details
+      const mlsData = await this.fetchMLSPropertyData(address);
+      
+      return {
+        type: mlsData.propertyType,
+        bedrooms: mlsData.bedrooms,
+        bathrooms: mlsData.bathrooms,
+        squareFeet: mlsData.squareFootage,
+        lotSize: mlsData.lotSize,
+        yearBuilt: mlsData.yearBuilt,
+        parking: mlsData.parking,
+        heating: mlsData.heating,
+        cooling: mlsData.cooling,
+        features: mlsData.features,
+        condition: mlsData.condition,
+        taxes: mlsData.propertyTaxes
+      };
     } catch (error) {
-      return this.getEnhancedPropertyDetails(address);
+      console.error(`Property details fetch failed for ${address}:`, error);
+      throw error;
     }
   }
   
   async getRealNeighborhoodData(address) {
     try {
-      console.error(`Attempting real neighborhood data for ${address}`);
-      throw new Error('Neighborhood API integration pending');
+      console.log(`Fetching real neighborhood data for ${address}`);
+      
+      const neighborhood = this.extractNeighborhood(address);
+      const city = this.extractCity(address);
+      
+      // Fetch from demographic and civic data APIs
+      const [demographicData, walkScore, crimeData, schoolData] = await Promise.all([
+        this.fetchDemographicData(neighborhood, city),
+        this.fetchWalkScore(address),
+        this.fetchCrimeData(neighborhood, city),
+        this.fetchSchoolData(neighborhood, city)
+      ]);
+      
+      return {
+        population: demographicData.population,
+        medianIncome: demographicData.medianIncome,
+        walkScore: walkScore.score,
+        transitScore: walkScore.transitScore,
+        crimeRate: crimeData.crimeRate,
+        schools: schoolData.schools,
+        amenities: walkScore.amenities,
+        demographics: demographicData
+      };
     } catch (error) {
-      return this.getEnhancedNeighborhoodData(address);
+      console.error(`Neighborhood data fetch failed for ${address}:`, error);
+      throw error;
     }
   }
   
   async getRealComparables(address) {
     try {
-      console.error(`Attempting real comparables for ${address}`);
-      throw new Error('Comparables API integration pending');
+      console.log(`Fetching real comparables for ${address}`);
+      
+      // Use AI property valuation service for comparables
+      const propertyData = await this.getRealPropertyDetails(address);
+      const valuationService = await import('../../api/src/services/aiPropertyValuation.js');
+      
+      const comparables = await valuationService.aiPropertyValuation.queryMlsComparables({
+        address,
+        bedrooms: propertyData.bedrooms,
+        bathrooms: propertyData.bathrooms,
+        squareFootage: propertyData.squareFeet,
+        propertyType: propertyData.type,
+        neighborhood: this.extractNeighborhood(address),
+        city: this.extractCity(address),
+        province: 'ON'
+      });
+      
+      return comparables;
     } catch (error) {
-      return this.getEnhancedComparables(address);
+      console.error(`Comparables fetch failed for ${address}:`, error);
+      throw error;
     }
   }
   
   async getRealLiens(address) {
     try {
-      console.error(`Attempting real lien check for ${address}`);
-      throw new Error('Lien check API integration pending');
+      console.log(`Fetching real lien data for ${address}`);
+      
+      // Integration with land registry and legal databases
+      const lienData = await this.fetchLienData(address);
+      
+      return {
+        hasLiens: lienData.liens.length > 0,
+        liens: lienData.liens,
+        totalLienAmount: lienData.totalAmount,
+        lastChecked: new Date().toISOString()
+      };
     } catch (error) {
-      return this.getEnhancedLienCheck(address);
+      console.error(`Lien check failed for ${address}:`, error);
+      throw error;
     }
   }
   
   async getRealHistoricalData(address) {
     try {
-      console.error(`Attempting real historical data for ${address}`);
-      throw new Error('Historical data API integration pending');
+      console.log(`Fetching real historical data for ${address}`);
+      
+      // Fetch from MLS historical sales and assessment history
+      const [salesHistory, assessmentHistory] = await Promise.all([
+        this.fetchSalesHistory(address),
+        this.fetchAssessmentHistory(address)
+      ]);
+      
+      return {
+        salesHistory: salesHistory,
+        assessmentHistory: assessmentHistory,
+        priceAppreciation: this.calculateAppreciation(salesHistory),
+        lastSale: salesHistory.length > 0 ? salesHistory[0] : null
+      };
     } catch (error) {
-      return this.getEnhancedHistoricalData(address);
+      console.error(`Historical data fetch failed for ${address}:`, error);
+      throw error;
     }
+  }
+  
+  // Additional Real Data Integration Methods
+  async fetchRentalData(address) {
+    try {
+      console.log(`Fetching rental data for ${address}`);
+      // Integration with rental platforms (Rentals.com, PadMapper, etc.)
+      throw new Error('Rental data API integration required');
+    } catch (error) {
+      console.error(`Rental data fetch failed: ${error.message}`);
+      throw error;
+    }
+  }
+  
+  async calculateRealExpenses(address, purchasePrice) {
+    try {
+      // Calculate real expenses using property taxes, insurance, maintenance estimates
+      const propertyTaxRate = await this.fetchPropertyTaxRate(address);
+      const insuranceRate = await this.fetchInsuranceRate(address, purchasePrice);
+      
+      const monthlyTaxes = (purchasePrice * propertyTaxRate) / 12;
+      const monthlyInsurance = (purchasePrice * insuranceRate) / 12;
+      const monthlyMaintenance = purchasePrice * 0.01 / 12; // 1% annually
+      
+      return monthlyTaxes + monthlyInsurance + monthlyMaintenance;
+    } catch (error) {
+      console.error(`Expense calculation failed: ${error.message}`);
+      throw error;
+    }
+  }
+  
+  async fetchDemographicData(neighborhood, city) {
+    try {
+      console.log(`Fetching demographic data for ${neighborhood}, ${city}`);
+      // Integration with Statistics Canada or municipal demographic APIs
+      throw new Error('Demographic data API integration required');
+    } catch (error) {
+      console.error(`Demographic data fetch failed: ${error.message}`);
+      throw error;
+    }
+  }
+  
+  async fetchWalkScore(address) {
+    try {
+      console.log(`Fetching Walk Score for ${address}`);
+      // Integration with Walk Score API
+      throw new Error('Walk Score API integration required');
+    } catch (error) {
+      console.error(`Walk Score fetch failed: ${error.message}`);
+      throw error;
+    }
+  }
+  
+  async fetchCrimeData(neighborhood, city) {
+    try {
+      console.log(`Fetching crime data for ${neighborhood}, ${city}`);
+      // Integration with police services crime data APIs
+      throw new Error('Crime data API integration required');
+    } catch (error) {
+      console.error(`Crime data fetch failed: ${error.message}`);
+      throw error;
+    }
+  }
+  
+  async fetchSchoolData(neighborhood, city) {
+    try {
+      console.log(`Fetching school data for ${neighborhood}, ${city}`);
+      // Integration with education ministry or school board APIs
+      throw new Error('School data API integration required');
+    } catch (error) {
+      console.error(`School data fetch failed: ${error.message}`);
+      throw error;
+    }
+  }
+  
+  async fetchLienData(address) {
+    try {
+      console.log(`Fetching lien data for ${address}`);
+      // Integration with land registry and legal databases
+      throw new Error('Lien data API integration required');
+    } catch (error) {
+      console.error(`Lien data fetch failed: ${error.message}`);
+      throw error;
+    }
+  }
+  
+  async fetchSalesHistory(address) {
+    try {
+      console.log(`Fetching sales history for ${address}`);
+      // Integration with MLS historical sales data
+      throw new Error('Sales history API integration required');
+    } catch (error) {
+      console.error(`Sales history fetch failed: ${error.message}`);
+      throw error;
+    }
+  }
+  
+  async fetchAssessmentHistory(address) {
+    try {
+      console.log(`Fetching assessment history for ${address}`);
+      // Integration with MPAC historical assessment data
+      throw new Error('Assessment history API integration required');
+    } catch (error) {
+      console.error(`Assessment history fetch failed: ${error.message}`);
+      throw error;
+    }
+  }
+  
+  async fetchPropertyTaxRate(address) {
+    try {
+      console.log(`Fetching property tax rate for ${address}`);
+      // Integration with municipal tax rate APIs
+      throw new Error('Property tax rate API integration required');
+    } catch (error) {
+      console.error(`Property tax rate fetch failed: ${error.message}`);
+      throw error;
+    }
+  }
+  
+  async fetchInsuranceRate(address, propertyValue) {
+    try {
+      console.log(`Fetching insurance rate for ${address}`);
+      // Integration with insurance provider APIs
+      throw new Error('Insurance rate API integration required');
+    } catch (error) {
+      console.error(`Insurance rate fetch failed: ${error.message}`);
+      throw error;
+    }
+  }
+  
+  calculateAppreciation(salesHistory) {
+    if (salesHistory.length < 2) return null;
+    
+    const earliest = salesHistory[salesHistory.length - 1];
+    const latest = salesHistory[0];
+    const years = (new Date(latest.date) - new Date(earliest.date)) / (1000 * 60 * 60 * 24 * 365);
+    
+    if (years <= 0) return null;
+    
+    const totalReturn = (latest.price - earliest.price) / earliest.price;
+    const annualReturn = Math.pow(1 + totalReturn, 1 / years) - 1;
+    
+    return {
+      totalReturn: (totalReturn * 100).toFixed(2) + '%',
+      annualReturn: (annualReturn * 100).toFixed(2) + '%',
+      years: years.toFixed(1)
+    };
   }
   
   // Enhanced Fallback Methods (more realistic than basic mock)

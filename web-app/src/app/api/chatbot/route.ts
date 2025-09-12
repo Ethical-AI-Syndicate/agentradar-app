@@ -267,27 +267,15 @@ Always be professional, knowledgeable, and helpful. Focus on actionable insights
       } catch (aiError) {
         console.error('OpenAI error:', aiError);
         
-        // Fallback response
-        const fallbackResponse = "I'm having trouble processing your request right now. Our real estate intelligence platform offers property alerts, market analysis, and agent training. How can I help you with your real estate business today?";
-        
-        await db.chatMessage.create({
-          data: {
-            conversationId: conversation.id,
-            role: 'assistant',
-            content: fallbackResponse,
-            createdAt: new Date()
-          }
-        });
-
+        // Don't fallback to mock responses - return proper error
         return NextResponse.json({
-          success: true,
-          data: {
-            conversationId: conversation.id,
-            message: fallbackResponse,
-            timestamp: new Date().toISOString(),
-            fallback: true
-          }
-        }, { headers: corsHeaders });
+          success: false,
+          error: 'AI service temporarily unavailable',
+          message: 'Unable to process your request at the moment. Please try again in a few minutes.',
+          conversationId: conversation.id,
+          timestamp: new Date().toISOString(),
+          retryAfter: 60
+        }, { status: 503, headers: corsHeaders });
       }
     }
 

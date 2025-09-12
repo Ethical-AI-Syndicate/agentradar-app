@@ -46,6 +46,7 @@ import lmsRoutes from "./routes/lms";
 import chatbotRoutes from "./routes/chatbot";
 import ssoRoutes from "./routes/sso";
 import courtProcessingRoutes from './routes/courtProcessing';
+import aiStatsRoutes from './routes/ai-stats';
 
 // Load environment variables
 dotenv.config();
@@ -179,6 +180,7 @@ app.use("/lms", lmsRoutes);
 app.use("/chatbot", chatbotRoutes);
 app.use("/sso", ssoRoutes);
 app.use('/court-processing', courtProcessingRoutes);
+app.use('/ai-stats', aiStatsRoutes);
 
 // API documentation endpoint
 app.get("/api", (req, res) => {
@@ -216,7 +218,8 @@ app.get("/api", (req, res) => {
       lms: "/api/lms",
       chatbot: "/api/chatbot",
       sso: "/api/sso",
-      courtProcessing: "/api/court-processing"
+      courtProcessing: "/api/court-processing",
+      aiStats: "/api/ai-stats"
     },
     health: "/health",
   });

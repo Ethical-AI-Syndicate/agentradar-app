@@ -1,4 +1,5 @@
 import { prisma } from '../lib/database';
+import { trackAIMetric, aiMonitor } from '../lib/aiPerformanceMonitor';
 
 interface MarketForecast {
   location: string;
@@ -104,6 +105,16 @@ export class AIMarketPredictionEngine {
     // Step 6: Generate recommendations
     const recommendations = await this.generateMarketRecommendations(location, timeframe, pricePrediction, marketMetrics);
     
+    // Track market prediction metrics
+    trackAIMetric('market-prediction', 'price_change_percent', pricePrediction.changePercent);
+    trackAIMetric('market-prediction', 'prediction_confidence', pricePrediction.confidence * 100);
+    trackAIMetric('market-prediction', 'investment_opportunities', investmentOpportunities.length);
+    trackAIMetric('market-prediction', 'market_health_score', 
+      marketMetrics.marketHealth === 'EXCELLENT' ? 100 : 
+      marketMetrics.marketHealth === 'GOOD' ? 75 : 
+      marketMetrics.marketHealth === 'FAIR' ? 50 : 25
+    );
+
     return {
       location,
       timeframe,

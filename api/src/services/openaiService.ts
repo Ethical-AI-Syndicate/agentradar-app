@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { withAIMonitoring, trackAIMetric } from '../lib/aiPerformanceMonitor';
 
 interface PropertyAnalysisInput {
   address: string;
@@ -65,6 +66,9 @@ export class OpenAIService {
   private requestCount: number = 0;
   private dailyBudget: number = 100; // $100 daily budget
   private dailySpent: number = 0;
+  private rateLimitWindow: Map<string, number[]> = new Map();
+  private maxRetries: number = 3;
+  private baseRetryDelay: number = 1000; // 1 second
 
   constructor() {
     const apiKey = process.env.OPENAI_API_KEY;
@@ -82,6 +86,119 @@ export class OpenAIService {
   }
 
   /**
+   * Execute OpenAI API call with retry logic and error handling
+   */
+  private async withRetry<T>(
+    operation: () => Promise<T>,
+    operationName: string
+  ): Promise<T> {
+    let lastError: Error;
+    
+    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+      try {
+        // Check rate limiting before attempt
+        this.checkRateLimit(operationName);
+        
+        // Execute the operation
+        const result = await operation();
+        
+        // Track successful call for rate limiting
+        this.trackRateLimitCall(operationName);
+        
+        return result;
+        
+      } catch (error: any) {
+        lastError = error;
+        
+        // Don't retry on certain error types
+        if (this.isNonRetryableError(error)) {
+          throw error;
+        }
+        
+        // Log the retry attempt
+        console.warn(`OpenAI ${operationName} attempt ${attempt} failed:`, error.message);
+        
+        // Wait before retry with exponential backoff
+        if (attempt < this.maxRetries) {
+          const delay = this.calculateRetryDelay(attempt, error);
+          await this.sleep(delay);
+        }
+      }
+    }
+    
+    // All retries exhausted
+    console.error(`OpenAI ${operationName} failed after ${this.maxRetries} attempts:`, lastError);
+    throw new Error(`OpenAI ${operationName} failed after multiple attempts: ${lastError.message}`);
+  }
+
+  /**
+   * Rate limiting and error handling helper methods
+   */
+  private checkRateLimit(operation: string): void {
+    const now = Date.now();
+    const windowSize = 60000; // 1 minute window
+    const maxCallsPerWindow = 60; // 60 calls per minute
+    
+    if (!this.rateLimitWindow.has(operation)) {
+      this.rateLimitWindow.set(operation, []);
+    }
+    
+    const calls = this.rateLimitWindow.get(operation)!;
+    
+    // Remove calls older than window
+    const recentCalls = calls.filter(timestamp => now - timestamp < windowSize);
+    this.rateLimitWindow.set(operation, recentCalls);
+    
+    if (recentCalls.length >= maxCallsPerWindow) {
+      throw new Error(`Rate limit exceeded for ${operation}. Please wait before retrying.`);
+    }
+  }
+  
+  private trackRateLimitCall(operation: string): void {
+    const now = Date.now();
+    if (!this.rateLimitWindow.has(operation)) {
+      this.rateLimitWindow.set(operation, []);
+    }
+    this.rateLimitWindow.get(operation)!.push(now);
+  }
+  
+  private isNonRetryableError(error: any): boolean {
+    // Don't retry on authentication, permission, or validation errors
+    if (error.status) {
+      const status = error.status;
+      return status === 401 || // Unauthorized
+             status === 403 || // Forbidden
+             status === 400 || // Bad Request
+             status === 422;   // Unprocessable Entity
+    }
+    
+    // Don't retry on budget exceeded errors
+    if (error.message?.includes('budget exceeded')) {
+      return true;
+    }
+    
+    return false;
+  }
+  
+  private calculateRetryDelay(attempt: number, error: any): number {
+    // Exponential backoff with jitter
+    let delay = this.baseRetryDelay * Math.pow(2, attempt - 1);
+    
+    // Add extra delay for rate limit errors
+    if (error.status === 429) {
+      delay *= 2;
+    }
+    
+    // Add jitter to prevent thundering herd
+    const jitter = Math.random() * 0.1 * delay;
+    return Math.floor(delay + jitter);
+  }
+  
+  private sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  /**
    * Analyze property opportunity with GPT-4
    */
   async analyzePropertyOpportunity(
@@ -96,25 +213,41 @@ export class OpenAIService {
     const prompt = this.buildPropertyAnalysisPrompt(input);
 
     try {
-      const completion = await this.client.chat.completions.create({
-        model: "gpt-4-turbo-preview",
-        messages: [
-          {
-            role: "system",
-            content: `You are an expert real estate investment analyst with 20+ years of experience. 
-                     Analyze properties for investment potential, market positioning, and opportunities.
-                     Always provide specific, actionable insights based on the data provided.
-                     Return responses in valid JSON format only.`,
-          },
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-        temperature: 0.3, // Lower temperature for more consistent analysis
-        max_tokens: 2000,
-        response_format: { type: "json_object" },
-      });
+      const completion = await withAIMonitoring(
+        'property-analysis',
+        {
+          operation: 'property-analysis',
+          model: 'gpt-4-turbo-preview',
+          temperature: 0.3,
+          maxTokens: 2000,
+          systemMessage: 'You are an expert real estate investment analyst...',
+          userPrompt: prompt.substring(0, 100) + '...', // Truncated for privacy
+          inputData: input
+        },
+        async () => {
+          return await this.withRetry(async () => {
+            return await this.client.chat.completions.create({
+              model: "gpt-4-turbo-preview",
+              messages: [
+                {
+                  role: "system",
+                  content: `You are an expert real estate investment analyst with 20+ years of experience. 
+                           Analyze properties for investment potential, market positioning, and opportunities.
+                           Always provide specific, actionable insights based on the data provided.
+                           Return responses in valid JSON format only.`,
+                },
+                {
+                  role: "user",
+                  content: prompt,
+                },
+              ],
+              temperature: 0.3, // Lower temperature for more consistent analysis
+              max_tokens: 2000,
+              response_format: { type: "json_object" },
+            });
+          }, 'property-analysis');
+        }
+      );
 
       const response = completion.choices[0].message.content;
       const cost = this.estimateCost(
@@ -157,9 +290,9 @@ export class OpenAIService {
       };
     } catch (error) {
       console.error("OpenAI Property Analysis Error:", error);
-
-      // Fallback to simplified analysis
-      return this.generateFallbackPropertyAnalysis(input);
+      
+      // Don't fallback to mock data - throw the error to be handled upstream
+      throw new Error(`Property analysis failed: ${error.message}`);
     }
   }
 
@@ -206,13 +339,26 @@ export class OpenAIService {
     }
 
     try {
-      const completion = await this.client.chat.completions.create({
-        model: input.imageUrl ? "gpt-4-vision-preview" : "gpt-4-turbo-preview",
-        messages,
-        temperature: 0.1, // Very low temperature for accuracy
-        max_tokens: 1500,
-        response_format: { type: "json_object" },
-      });
+      const model = input.imageUrl ? "gpt-4-vision-preview" : "gpt-4-turbo-preview";
+      const completion = await withAIMonitoring(
+        'document-extraction',
+        {
+          operation: 'document-extraction',
+          model,
+          temperature: 0.1,
+          maxTokens: 1500,
+          inputData: { documentType: input.documentType, hasImage: !!input.imageUrl }
+        },
+        async () => {
+          return await this.client.chat.completions.create({
+            model,
+            messages,
+            temperature: 0.1, // Very low temperature for accuracy
+            max_tokens: 1500,
+            response_format: { type: "json_object" },
+          });
+        }
+      );
 
       const response = completion.choices[0].message.content;
       const cost = this.estimateCost(
@@ -252,30 +398,44 @@ export class OpenAIService {
    */
   async analyzeLead(input: LeadAnalysisInput): Promise<LeadAnalysisOutput> {
     if (this.isDailyBudgetExceeded()) {
-      return this.generateFallbackLeadAnalysis(input);
+      throw new Error('Daily AI budget exceeded - upgrade plan or wait until tomorrow');
     }
 
     const prompt = this.buildLeadAnalysisPrompt(input);
 
     try {
-      const completion = await this.client.chat.completions.create({
-        model: "gpt-4-turbo-preview",
-        messages: [
-          {
-            role: "system",
-            content: `You are an expert sales analyst specializing in real estate lead qualification.
-                     Analyze leads for conversion potential and recommend personalized engagement strategies.
-                     Return responses in valid JSON format only.`,
-          },
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-        temperature: 0.4,
-        max_tokens: 1500,
-        response_format: { type: "json_object" },
-      });
+      const completion = await withAIMonitoring(
+        'lead-analysis',
+        {
+          operation: 'lead-analysis',
+          model: 'gpt-4-turbo-preview',
+          temperature: 0.4,
+          maxTokens: 1500,
+          systemMessage: 'You are an expert sales analyst...',
+          userPrompt: prompt.substring(0, 100) + '...', // Truncated for privacy
+          inputData: input
+        },
+        async () => {
+          return await this.client.chat.completions.create({
+            model: "gpt-4-turbo-preview",
+            messages: [
+              {
+                role: "system",
+                content: `You are an expert sales analyst specializing in real estate lead qualification.
+                         Analyze leads for conversion potential and recommend personalized engagement strategies.
+                         Return responses in valid JSON format only.`,
+              },
+              {
+                role: "user",
+                content: prompt,
+              },
+            ],
+            temperature: 0.4,
+            max_tokens: 1500,
+            response_format: { type: "json_object" },
+          });
+        }
+      );
 
       const response = completion.choices[0].message.content;
       const cost = this.estimateCost(
@@ -314,7 +474,9 @@ export class OpenAIService {
       };
     } catch (error) {
       console.error("OpenAI Lead Analysis Error:", error);
-      return this.generateFallbackLeadAnalysis(input);
+      
+      // Don't fallback to mock data - throw the error to be handled upstream
+      throw new Error(`Lead analysis failed: ${error.message}`);
     }
   }
 
@@ -345,22 +507,35 @@ Include:
 Write in professional tone suitable for real estate professionals.`;
 
     try {
-      const completion = await this.client.chat.completions.create({
-        model: "gpt-4-turbo-preview",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are an expert real estate market analyst. Generate detailed, professional market reports with specific insights and actionable recommendations.",
-          },
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-        temperature: 0.5,
-        max_tokens: 3000,
-      });
+      const completion = await withAIMonitoring(
+        'market-report',
+        {
+          operation: 'market-report',
+          model: 'gpt-4-turbo-preview',
+          temperature: 0.5,
+          maxTokens: 3000,
+          systemMessage: 'You are an expert real estate market analyst...',
+          inputData: { location, timeframe }
+        },
+        async () => {
+          return await this.client.chat.completions.create({
+            model: "gpt-4-turbo-preview",
+            messages: [
+              {
+                role: "system",
+                content:
+                  "You are an expert real estate market analyst. Generate detailed, professional market reports with specific insights and actionable recommendations.",
+              },
+              {
+                role: "user",
+                content: prompt,
+              },
+            ],
+            temperature: 0.5,
+            max_tokens: 3000,
+          });
+        }
+      );
 
       const response = completion.choices[0].message.content;
       const cost = this.estimateCost(
@@ -374,6 +549,71 @@ Write in professional tone suitable for real estate professionals.`;
       console.error("OpenAI Market Report Error:", error);
       return "Market report generation failed due to technical issues.";
     }
+  }
+
+  /**
+   * General completion method with retry logic
+   */
+  async generateCompletion(
+    prompt: string,
+    options: {
+      model?: string;
+      temperature?: number;
+      maxTokens?: number;
+      systemMessage?: string;
+    } = {}
+  ): Promise<string> {
+    const {
+      model = 'gpt-4o-mini',
+      temperature = 0.7,
+      maxTokens = 1000,
+      systemMessage = 'You are a helpful AI assistant.'
+    } = options;
+
+    const completion = await withAIMonitoring(
+      'general-completion',
+      {
+        operation: 'general-completion',
+        model,
+        temperature,
+        maxTokens,
+        systemMessage: systemMessage.substring(0, 100) + '...',
+        userPrompt: prompt.substring(0, 100) + '...'
+      },
+      async () => {
+        return await this.withRetry(async () => {
+          return await this.client.chat.completions.create({
+            model,
+            messages: [
+              {
+                role: 'system',
+                content: systemMessage
+              },
+              {
+                role: 'user',
+                content: prompt
+              }
+            ],
+            temperature,
+            max_tokens: maxTokens
+          });
+        }, 'general-completion');
+      }
+    );
+
+    const response = completion.choices[0].message.content;
+    if (!response) {
+      throw new Error('No response from OpenAI');
+    }
+
+    // Track usage
+    const cost = this.estimateCost(
+      completion.usage?.total_tokens || 0,
+      model.includes('gpt-4') ? 'gpt-4' : 'gpt-3.5'
+    );
+    this.trackUsage(cost);
+
+    return response;
   }
 
   /**
@@ -440,78 +680,7 @@ Provide analysis in this exact JSON format:
 }`;
   }
 
-  /**
-   * Fallback property analysis when AI is unavailable
-   */
-  private generateFallbackPropertyAnalysis(
-    input: PropertyAnalysisInput,
-  ): PropertyAnalysisOutput {
-    const currentYear = new Date().getFullYear();
-    const age = currentYear - input.yearBuilt;
-    const pricePerSqFt = 400; // Average estimate
 
-    let opportunityScore = 50; // Base score
-
-    // Simple scoring logic
-    if (age < 10) opportunityScore += 20;
-    else if (age > 30) opportunityScore -= 10;
-
-    if (input.squareFootage > 2000) opportunityScore += 15;
-    if (input.condition === "EXCELLENT") opportunityScore += 20;
-    else if (input.condition === "POOR") opportunityScore -= 20;
-
-    return {
-      opportunityScore: Math.min(100, Math.max(0, opportunityScore)),
-      investmentThesis:
-        "Analysis based on simplified model due to AI service limitations",
-      riskFactors: [
-        "Limited market data available",
-        "Analysis based on simplified model",
-      ],
-      recommendedActions: [
-        "Conduct detailed market research",
-        "Get professional appraisal",
-      ],
-      marketInsights: {
-        priceEstimate: input.squareFootage * pricePerSqFt,
-        confidenceLevel: 0.6,
-        marketTrend: "STABLE",
-        competitivePosition: "Market average",
-      },
-    };
-  }
-
-  /**
-   * Fallback lead analysis when AI is unavailable
-   */
-  private generateFallbackLeadAnalysis(
-    input: LeadAnalysisInput,
-  ): LeadAnalysisOutput {
-    let score = 50; // Base score
-
-    if (input.leadData.budget && input.leadData.budget > 500000) score += 20;
-    if (input.leadData.timeline === "immediate") score += 25;
-    if (input.leadData.phone) score += 10;
-    if (
-      input.leadData.previousInteractions &&
-      input.leadData.previousInteractions.length > 0
-    )
-      score += 15;
-
-    return {
-      behavioralScore: Math.min(100, Math.max(0, score)),
-      engagementPrediction: Math.min(100, Math.max(0, score - 10)),
-      personalizationRecommendations: [
-        "Follow up via phone",
-        "Send market updates",
-      ],
-      nextBestActions: [
-        "Schedule consultation",
-        "Send property recommendations",
-      ],
-      conversionProbability: Math.min(1, Math.max(0, score / 100)),
-    };
-  }
 
   /**
    * Validate market trend value

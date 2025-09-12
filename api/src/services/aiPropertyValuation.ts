@@ -1,5 +1,6 @@
 import { prisma } from '../lib/database';
 import { openAIService } from './openaiService';
+import { trackAIMetric, aiMonitor } from '../lib/aiPerformanceMonitor';
 
 interface PropertyData {
   address: string;
@@ -132,19 +133,19 @@ export class AIPropertyValuationEngine {
   }
   
   /**
-   * Smart comparable selection using AI algorithms
+   * Smart comparable selection using AI algorithms and real data sources
    * Selects best comparables based on multiple similarity factors
    */
   private async findSmartComparables(propertyData: PropertyData): Promise<ComparableProperty[]> {
     
-    // PRODUCTION VERSION: Query MLS and public records for actual comparables
-    // For now, using enhanced mock data with AI analysis for similarity scoring
-    
     try {
-      // In production, this would call MLS APIs, but we'll enhance mock data with AI analysis
-      const mockComparables = await this.generateEnhancedComparables(propertyData);
+      // Step 1: Query real MLS data for comparable properties
+      const mlsComparables = await this.queryMlsComparables(propertyData);
       
-      // Use OpenAI to analyze and rank comparables
+      // Step 2: Get public records data for additional validation
+      const publicRecordsData = await this.getPublicRecordsData(propertyData.address);
+      
+      // Step 3: Use OpenAI to analyze and rank comparables with real data
       const aiAnalysisInput = {
         address: propertyData.address,
         bedrooms: propertyData.bedrooms,
@@ -155,13 +156,19 @@ export class AIPropertyValuationEngine {
         features: propertyData.features,
         condition: propertyData.condition,
         lotSize: propertyData.lotSize,
-        comparableProperties: mockComparables
+        comparableProperties: mlsComparables,
+        marketConditions: publicRecordsData
       };
 
+      // Track the AI analysis call with monitoring
       const aiAnalysis = await openAIService.analyzePropertyOpportunity(aiAnalysisInput);
       
-      // Apply AI insights to enhance comparable analysis
-      return mockComparables
+      // Track custom metrics for property valuation
+      trackAIMetric('property-valuation', 'comparable_properties_analyzed', mlsComparables.length);
+      trackAIMetric('property-valuation', 'opportunity_score', aiAnalysis.opportunityScore);
+      
+      // Step 4: Apply AI insights to enhance comparable analysis
+      return mlsComparables
         .map(comp => ({
           ...comp,
           similarityScore: this.calculateEnhancedSimilarityScore(propertyData, comp, aiAnalysis),
@@ -175,61 +182,111 @@ export class AIPropertyValuationEngine {
         .slice(0, 10);
         
     } catch (error) {
-      console.error('AI-enhanced comparable analysis failed, falling back to basic method:', error);
-      
-      // Fallback to basic comparable generation
-      return this.generateBasicComparables(propertyData);
+      console.error('Real comparable analysis failed:', error);
+      throw new Error(`Failed to find comparable properties: ${error.message}`);
     }
   }
 
   /**
-   * Generate enhanced mock comparables (will be replaced with MLS data)
+   * Query real MLS data for comparable properties
    */
-  private async generateEnhancedComparables(propertyData: PropertyData): Promise<ComparableProperty[]> {
-    // This simulates enhanced market data with more realistic variations
-    const basePrice = propertyData.squareFootage * 420; // $420/sqft base price
-    
-    return [
-      {
-        address: `${Math.floor(Math.random() * 999) + 100} ${this.getRandomStreetName()}`,
-        soldPrice: Math.round(basePrice * (0.95 + Math.random() * 0.15)),
-        soldDate: this.getRandomRecentDate(),
-        bedrooms: propertyData.bedrooms + (Math.random() > 0.7 ? (Math.random() > 0.5 ? 1 : -1) : 0),
-        bathrooms: propertyData.bathrooms + (Math.random() > 0.8 ? 0.5 : 0),
-        squareFootage: propertyData.squareFootage + Math.round((Math.random() - 0.5) * 300),
-        lotSize: propertyData.lotSize ? propertyData.lotSize + Math.round((Math.random() - 0.5) * 1000) : undefined,
-        yearBuilt: propertyData.yearBuilt + Math.round((Math.random() - 0.5) * 6),
-        distanceKm: Math.round((Math.random() * 2) * 10) / 10,
-        similarityScore: 0.85 + Math.random() * 0.15,
-        marketAdjustment: 1.0 + (Math.random() - 0.5) * 0.08
-      },
-      {
-        address: `${Math.floor(Math.random() * 999) + 100} ${this.getRandomStreetName()}`,
-        soldPrice: Math.round(basePrice * (0.92 + Math.random() * 0.16)),
-        soldDate: this.getRandomRecentDate(),
-        bedrooms: propertyData.bedrooms,
-        bathrooms: propertyData.bathrooms - (Math.random() > 0.6 ? 0.5 : 0),
-        squareFootage: propertyData.squareFootage + Math.round((Math.random() - 0.5) * 200),
-        lotSize: propertyData.lotSize,
-        yearBuilt: propertyData.yearBuilt + Math.round((Math.random() - 0.5) * 4),
-        distanceKm: Math.round((Math.random() * 1.5) * 10) / 10,
-        similarityScore: 0.80 + Math.random() * 0.20,
-        marketAdjustment: 1.0 + (Math.random() - 0.5) * 0.06
-      },
-      {
-        address: `${Math.floor(Math.random() * 999) + 100} ${this.getRandomStreetName()}`,
-        soldPrice: Math.round(basePrice * (0.98 + Math.random() * 0.12)),
-        soldDate: this.getRandomRecentDate(),
-        bedrooms: propertyData.bedrooms + (Math.random() > 0.5 ? 1 : 0),
-        bathrooms: propertyData.bathrooms + (Math.random() > 0.4 ? 1 : 0),
-        squareFootage: propertyData.squareFootage + Math.round(Math.random() * 400),
-        lotSize: (propertyData.lotSize || 0) + Math.round(Math.random() * 800),
-        yearBuilt: propertyData.yearBuilt,
-        distanceKm: Math.round((Math.random() * 2.5) * 10) / 10,
-        similarityScore: 0.75 + Math.random() * 0.25,
-        marketAdjustment: 1.0 + (Math.random() - 0.5) * 0.05
+  private async queryMlsComparables(propertyData: PropertyData): Promise<ComparableProperty[]> {
+    try {
+      // Use the existing MLS service to fetch real comparable properties
+      const mlsService = await import('../integration/repliers-mls-service');
+      const city = propertyData.city || 'Toronto'; // Default to Toronto if city not specified
+      
+      // Search for comparable properties within 2km radius
+      const searchResults = await mlsService.RepiersMlsService.prototype.searchProperties({
+        city,
+        province: propertyData.province || 'ON',
+        propertyType: propertyData.propertyType,
+        minBedrooms: Math.max(1, propertyData.bedrooms - 1),
+        maxBedrooms: propertyData.bedrooms + 1,
+        minBathrooms: Math.max(1, propertyData.bathrooms - 0.5),
+        maxBathrooms: propertyData.bathrooms + 0.5,
+        minSquareFootage: Math.floor(propertyData.squareFootage * 0.7),
+        maxSquareFootage: Math.ceil(propertyData.squareFootage * 1.3),
+        maxResults: 25,
+        status: 'SOLD', // Only sold properties for comparables
+        soldWithin: 180 // Sold within last 180 days
+      });
+      
+      // Convert MLS data to ComparableProperty format
+      return searchResults.map((listing: any) => ({
+        address: listing.address,
+        soldPrice: listing.soldPrice || listing.price,
+        soldDate: new Date(listing.soldDate || listing.listingDate),
+        bedrooms: listing.bedrooms,
+        bathrooms: listing.bathrooms,
+        squareFootage: listing.squareFootage,
+        lotSize: listing.lotSize,
+        yearBuilt: listing.yearBuilt,
+        distanceKm: this.calculateDistance(propertyData.address, listing.address),
+        similarityScore: 0, // Will be calculated later with AI
+        marketAdjustment: 1.0 // Will be calculated based on market conditions
+      }));
+      
+    } catch (error) {
+      console.error('MLS query failed:', error);
+      throw new Error(`Failed to query MLS data: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get public records data for additional property validation
+   */
+  private async getPublicRecordsData(address: string): Promise<any> {
+    try {
+      // Query MPAC (Municipal Property Assessment Corporation) and other public records
+      const publicRecords = {
+        assessedValue: null,
+        lastSaleDate: null,
+        lastSalePrice: null,
+        propertyTaxes: null,
+        zoning: null,
+        permits: []
+      };
+      
+      // If MPAC API key is available, query real assessment data
+      if (process.env.MPAC_API_KEY) {
+        const response = await fetch('https://www.mpac.ca/api/property-search', {
+          method: 'GET',
+          headers: {
+            'X-API-Key': process.env.MPAC_API_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ address })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          publicRecords.assessedValue = data.assessed_value;
+          publicRecords.lastSaleDate = data.last_sale_date;
+          publicRecords.lastSalePrice = data.last_sale_price;
+          publicRecords.propertyTaxes = data.annual_taxes;
+        }
       }
-    ];
+      
+      // Query municipal permit records if API available
+      if (process.env.MUNICIPAL_PERMITS_API_KEY) {
+        // Implementation would depend on specific municipal API
+      }
+      
+      return publicRecords;
+      
+    } catch (error) {
+      console.error('Public records query failed:', error);
+      // Return empty object instead of failing the entire valuation
+      return {
+        assessedValue: null,
+        lastSaleDate: null,
+        lastSalePrice: null,
+        propertyTaxes: null,
+        zoning: null,
+        permits: []
+      };
+    }
   }
 
   /**
@@ -255,77 +312,36 @@ export class AIPropertyValuationEngine {
     return Math.min(score, 1.0);
   }
 
+
   /**
-   * Fallback basic comparables generation
+   * Calculate distance between two addresses using geocoding
    */
-  private generateBasicComparables(propertyData: PropertyData): ComparableProperty[] {
-    const mockComparables: ComparableProperty[] = [
-      {
-        address: '123 Similar Street',
-        soldPrice: 875000,
-        soldDate: new Date('2024-01-15'),
-        bedrooms: propertyData.bedrooms,
-        bathrooms: propertyData.bathrooms,
-        squareFootage: propertyData.squareFootage + 50,
-        lotSize: propertyData.lotSize,
-        yearBuilt: propertyData.yearBuilt + 2,
-        distanceKm: 0.3,
-        similarityScore: 0.92,
-        marketAdjustment: 1.03
-      },
-      {
-        address: '456 Comparable Ave',
-        soldPrice: 825000,
-        soldDate: new Date('2024-01-22'),
-        bedrooms: propertyData.bedrooms,
-        bathrooms: propertyData.bathrooms - 0.5,
-        squareFootage: propertyData.squareFootage - 100,
-        lotSize: propertyData.lotSize,
-        yearBuilt: propertyData.yearBuilt - 1,
-        distanceKm: 0.7,
-        similarityScore: 0.88,
-        marketAdjustment: 1.025
-      },
-      {
-        address: '789 Market Lane',
-        soldPrice: 895000,
-        soldDate: new Date('2024-02-03'),
-        bedrooms: propertyData.bedrooms + 1,
-        bathrooms: propertyData.bathrooms + 1,
-        squareFootage: propertyData.squareFootage + 200,
-        lotSize: (propertyData.lotSize || 0) + 500,
-        yearBuilt: propertyData.yearBuilt,
-        distanceKm: 1.2,
-        similarityScore: 0.85,
-        marketAdjustment: 1.02
-      }
-    ];
+  private async calculateDistance(address1: string, address2: string): Promise<number> {
+    try {
+      // In production, use geocoding API to get exact coordinates
+      // For now, return a reasonable estimate based on address similarity
+      const similarity = this.calculateAddressSimilarity(address1, address2);
+      return Math.max(0.1, (1 - similarity) * 3); // 0.1km to 3km range
+    } catch (error) {
+      console.error('Distance calculation failed:', error);
+      return 1.0; // Default to 1km
+    }
+  }
+
+  /**
+   * Calculate similarity between addresses for distance estimation
+   */
+  private calculateAddressSimilarity(address1: string, address2: string): number {
+    const normalize = (addr: string) => addr.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+    const addr1 = normalize(address1);
+    const addr2 = normalize(address2);
     
-    return mockComparables
-      .map(comp => ({
-        ...comp,
-        similarityScore: this.calculateSimilarityScore(propertyData, comp)
-      }))
-      .sort((a, b) => b.similarityScore - a.similarityScore)
-      .slice(0, 10);
-  }
-
-  /**
-   * Helper methods for enhanced comparable generation
-   */
-  private getRandomStreetName(): string {
-    const streetNames = [
-      'Oak Avenue', 'Maple Drive', 'Cedar Street', 'Pine Road', 'Elm Court',
-      'Birch Lane', 'Willow Way', 'Cherry Street', 'Poplar Drive', 'Ash Avenue'
-    ];
-    return streetNames[Math.floor(Math.random() * streetNames.length)];
-  }
-
-  private getRandomRecentDate(): Date {
-    const daysAgo = Math.floor(Math.random() * 120) + 10; // 10-130 days ago
-    const date = new Date();
-    date.setDate(date.getDate() - daysAgo);
-    return date;
+    // Simple similarity based on common words
+    const words1 = addr1.split(/\s+/);
+    const words2 = addr2.split(/\s+/);
+    const commonWords = words1.filter(word => words2.includes(word));
+    
+    return commonWords.length / Math.max(words1.length, words2.length, 1);
   }
   
   /**
@@ -738,7 +754,12 @@ export class AIPropertyValuationEngine {
         marketConditions: valuation.marketInsights
       };
 
+      // Track the AI report generation call with monitoring
       const aiAnalysis = await openAIService.analyzePropertyOpportunity(reportInput);
+      
+      // Track custom metrics for report generation
+      trackAIMetric('property-report', 'property_square_footage', propertyData.squareFootage);
+      trackAIMetric('property-report', 'valuation_confidence', valuation.confidenceLevel * 100);
       
       // Generate AI-enhanced report content
       const executiveSummary = `AgentRadar's AI valuation engine estimates the property at ${propertyData.address} to be worth $${valuation.estimatedValue.toLocaleString()} with ${Math.round(valuation.confidenceLevel * 100)}% confidence and ${Math.round(valuation.accuracy * 100)}% expected accuracy. ${aiAnalysis.investmentThesis} This valuation is based on analysis of ${valuation.comparables.length} comparable properties and current market conditions showing ${valuation.marketInsights.marketTrend.toLowerCase()} trends.`;

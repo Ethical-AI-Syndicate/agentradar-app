@@ -55,3 +55,32 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Admin cards */
+.admin-card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+}
+
+.admin-card-header {
+  @apply mb-6 pb-4 border-b border-gray-200;
+}
+
+/* Stats styling */
+.stat-label {
+  @apply text-sm font-medium text-gray-600 uppercase tracking-wide;
+}
+
+.stat-value {
+  @apply text-2xl font-bold text-gray-900 mt-1;
+}
+
+/* Responsive grid improvements */
+@media (max-width: 640px) {
+  .admin-card {
+    @apply p-4;
+  }
+  
+  .stat-value {
+    @apply text-xl;
+  }
+}

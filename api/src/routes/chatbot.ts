@@ -168,17 +168,13 @@ Always provide helpful, accurate information while being professional and concis
     } catch (openaiError: any) {
       console.error('OpenAI API error:', openaiError);
       
-      // Fallback response if OpenAI fails
-      const fallbackResponse = generateFallbackResponse(message);
-      
-      res.json({
-        success: true,
-        data: {
-          response: fallbackResponse,
-          conversationId: conversationId || `conv-${Date.now()}`,
-          fallback: true,
-          error: "AI service temporarily unavailable"
-        }
+      // Don't fallback to mock responses - return proper error
+      res.status(503).json({
+        success: false,
+        message: 'AI chatbot service temporarily unavailable',
+        error: 'OpenAI service error',
+        conversationId: conversationId || `conv-${Date.now()}`,
+        retryAfter: 60 // seconds
       });
     }
 
@@ -265,33 +261,6 @@ router.get('/status', authenticateToken, async (req, res) => {
 // HELPER FUNCTIONS
 // ============================================================================
 
-/**
- * Generate fallback response when AI is unavailable
- */
-function generateFallbackResponse(message: string): string {
-  const lowerMessage = message.toLowerCase();
-  
-  if (lowerMessage.includes('power of sale') || lowerMessage.includes('pos')) {
-    return "Power of sale is a legal process where lenders can sell properties to recover debt. For current opportunities, check our alerts section or speak with a legal professional.";
-  }
-  
-  if (lowerMessage.includes('foreclosure')) {
-    return "Foreclosure is a court-supervised process for property repossession. These properties often present investment opportunities but require careful legal and financial analysis.";
-  }
-  
-  if (lowerMessage.includes('estate sale')) {
-    return "Estate sales occur when properties are sold as part of settling an estate. These can offer below-market opportunities but may require patience and due diligence.";
-  }
-  
-  if (lowerMessage.includes('investment') || lowerMessage.includes('roi')) {
-    return "Real estate investment requires careful analysis of location, market trends, cash flow, and potential returns. Consider factors like rental yield, appreciation potential, and carrying costs.";
-  }
-  
-  if (lowerMessage.includes('market') || lowerMessage.includes('trend')) {
-    return "Market analysis involves studying pricing trends, inventory levels, economic indicators, and local factors. Our platform provides market intelligence to help identify opportunities.";
-  }
-  
-  return "I'm currently operating with limited functionality. For specific real estate questions, please consult our knowledge base or speak with a qualified professional. You can also try rephrasing your question.";
-}
+// Fallback response function removed - now using proper error handling instead of mock responses
 
 export default router;
