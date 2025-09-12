@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRequireAuth } from '@/hooks/useAuth';
 import AdminLayout from '@/components/AdminLayout';
 import { apiClient } from '@/lib/auth';
+import AIPerformanceCharts from '@/components/AIPerformanceCharts';
 
 interface AIStats {
   daily: {
@@ -377,6 +378,9 @@ export default function AIMonitoringPage() {
             </div>
           </div>
         )}
+
+        {/* Performance Charts */}
+        <AIPerformanceCharts period={30} />
 
         {/* AI Operations Guide */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

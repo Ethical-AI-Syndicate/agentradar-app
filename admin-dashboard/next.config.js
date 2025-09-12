@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    appDir: true,
-  },
+  outputFileTracingRoot: __dirname,
   images: {
     domains: ['api.agentradar.app', 'images.unsplash.com'],
   },
