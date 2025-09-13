@@ -1,20 +1,20 @@
-# AgentRadar Vercel Deployment Guide
+# AgentRadar AWS Deployment Guide
 
 ## Quick Deployment Steps
 
-### 1. Create New Vercel Project
+### 1. AWS Infrastructure Setup
 
-1. Go to [vercel.com](https://vercel.com) and log in
-2. Click "New Project" 
-3. Import from GitHub: `Ethical-AI-Syndicate/agentradar-app`
-4. **Framework Preset**: Next.js
-5. **Root Directory**: `web-app`
-6. **Build Command**: `npm run build`
-7. **Output Directory**: `.next` (default)
+1. **Create AWS Account** and configure AWS CLI
+2. **Create ECS Cluster** for containerized deployment
+3. **Set up Application Load Balancer (ALB)** for traffic routing
+4. **Configure Route 53** for DNS management (optional)
+5. **Set up RDS** for PostgreSQL database
+6. **Configure ElastiCache** for Redis caching
+7. **Create ECR repositories** for Docker images
 
 ### 2. Environment Variables
 
-Add these environment variables in Vercel dashboard:
+Add these environment variables in AWS ECS Task Definition or via AWS Systems Manager Parameter Store:
 
 ```bash
 # Database
@@ -22,7 +22,7 @@ DATABASE_URL=postgresql://neondb_owner:npg_MkmTsgf5hRL6@ep-damp-band-ado7eaqx-po
 REDIS_URL=redis://:@redis-16816.c98.us-east-1-4.ec2.redns.redis-cloud.com:16816
 
 # API Configuration  
-NEXT_PUBLIC_API_URL=https://agentradar-app.vercel.app/api
+NEXT_PUBLIC_API_URL=https://api.agentradar.app
 
 # Authentication
 JWT_SECRET=d07a1f569eee07e08043877dfea4517bc9e50d69153d68da1072b00adcdcbfc6c80add92a6092b3a956dc767621a77f5599bdd7852430252336b3fb06fa7b368
@@ -68,46 +68,75 @@ NODE_ENV=production
 
 ### 3. Domain Configuration
 
-1. In Vercel project settings → Domains
-2. Add custom domain: `agentradar.app`
-3. Add www redirect: `www.agentradar.app` → `agentradar.app`
+1. Configure DNS records in Cloudflare (see cloudflare-dns-setup.md)
+2. Set up AWS Application Load Balancer with SSL certificate
+3. Configure Route 53 hosted zone (if using AWS DNS)
+4. Add all required subdomains:
+   - `agentradar.app` (main site)
+   - `api.agentradar.app` (API)
+   - `admin.agentradar.app` (admin dashboard)
+   - `dash.agentradar.app` (customer dashboard)
+   - `support.agentradar.app` (support portal)
+   - `docs.agentradar.app` (documentation)
+   - `blog.agentradar.app` (blog)
+   - `community.agentradar.app` (community hub)
+   - `status.agentradar.app` (status monitor)
+   - `careers.agentradar.app` (careers portal)
 
-### 4. Build Configuration
+### 4. Docker Container Build
 
-Ensure these settings in Vercel:
-- **Framework**: Next.js
-- **Node.js Version**: 18.x or 20.x
-- **Install Command**: `npm install`
-- **Build Command**: `npm run build`
-- **Root Directory**: `web-app`
+The platform uses Docker containers for deployment:
+- **Build Process**: `docker-compose -f docker-compose.production.yml build`
+- **Node.js Version**: 20.x (specified in Dockerfile)
+- **Multi-stage builds**: Development, production, and testing stages
+- **Container orchestration**: AWS ECS with Docker Compose
+- **Image registry**: AWS ECR
 
-## Serverless Functions Setup
+## Container Architecture
 
-For API routes to work properly in Vercel, the API structure will be:
-- Web app: `agentradar.app`
-- API routes: `agentradar.app/api/*`
-
-The Next.js app router will handle API routes automatically.
+The AWS deployment uses a multi-container architecture:
+- **Web App**: `agentradar.app` (Next.js frontend)
+- **API Server**: `api.agentradar.app` (Express.js backend)
+- **Database**: PostgreSQL on AWS RDS
+- **Cache**: Redis on AWS ElastiCache
+- **Load Balancer**: AWS ALB with SSL termination
+- **Service Discovery**: AWS ECS Service Connect
 
 ## Post-Deployment Steps
 
-1. **Database Migration**: Run `npx prisma migrate deploy` in Vercel Functions
-2. **Test API Health**: Check `https://agentradar.app/api/health`
-3. **Court Processing**: Verify court data polling starts automatically
-4. **SSL Certificate**: Should auto-provision via Vercel + Cloudflare
+1. **Database Migration**: Run `./scripts/deploy.sh --migration-only`
+2. **Test API Health**: Check `https://api.agentradar.app/health`
+3. **Verify All Services**: Check all subdomain health endpoints
+4. **Court Processing**: Verify court data polling starts automatically
+5. **SSL Certificate**: Configure in AWS ALB + Cloudflare
 
 ## Database Migration for Production
 
 After deployment, run migrations:
 
 ```bash
-# In Vercel Functions Console or local with production DB
-npx prisma migrate deploy
-npx prisma generate
+# Using the deployment script
+./scripts/deploy.sh --environment production --migration-only
+
+# Or manually via Docker
+docker-compose -f docker-compose.production.yml exec api npx prisma migrate deploy
+docker-compose -f docker-compose.production.yml exec api npx prisma generate
 ```
 
 ## Monitoring & Health Checks
 
-- Health endpoint: `https://agentradar.app/api/health`
-- Court processing stats: `https://agentradar.app/api/court-processing/stats`
-- API documentation: `https://agentradar.app/api`
+- API Health: `https://api.agentradar.app/health`
+- Court processing stats: `https://api.agentradar.app/court-processing/stats`
+- API documentation: `https://api.agentradar.app/api`
+- Grafana Dashboard: `http://localhost:3001` (or configured domain)
+- Prometheus Metrics: `http://localhost:9090` (or configured domain)
+- All service endpoints:
+  - Main site: `https://agentradar.app`
+  - Admin: `https://admin.agentradar.app`
+  - Customer Dashboard: `https://dash.agentradar.app`
+  - Support: `https://support.agentradar.app`
+  - Docs: `https://docs.agentradar.app`
+  - Blog: `https://blog.agentradar.app`
+  - Community: `https://community.agentradar.app`
+  - Status: `https://status.agentradar.app`
+  - Careers: `https://careers.agentradar.app`

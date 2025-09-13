@@ -69,8 +69,7 @@ app.use(
       "https://agentradar.app",
       "https://api.agentradar.app",
       "https://dash.agentradar.app",
-      "https://admin.agentradar.app",
-      /vercel\.app$/
+      "https://admin.agentradar.app"
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Origin", "Accept"],
@@ -250,13 +249,13 @@ process.on("SIGINT", async () => {
   process.exit(0);
 });
 
-// Initialize database connection for serverless - but don't wait
+// Initialize database connection
 connectDatabase().catch(error => {
   logger.error("❌ Failed to connect database:", error);
 });
 
-// Start server only if not in test environment AND not in serverless (Vercel)
-if (process.env.NODE_ENV !== "test" && !process.env.VERCEL) {
+// Start server only if not in test environment
+if (process.env.NODE_ENV !== "test") {
   const server = httpServer.listen(PORT, async () => {
     logger.info(`🚀 AgentRadar API Server running on port ${PORT}`);
     logger.info(`🌍 Environment: ${process.env.NODE_ENV}`);

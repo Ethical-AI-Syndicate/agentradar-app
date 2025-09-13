@@ -60,11 +60,11 @@ function addSecurityHeaders(response: NextResponse) {
   // Content Security Policy: Comprehensive content security
   const cspPolicy = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://cdn.jsdelivr.net https://unpkg.com https://www.googletagmanager.com https://www.google-analytics.com https://static.cloudflareinsights.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://www.googletagmanager.com https://www.google-analytics.com https://static.cloudflareinsights.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
     "font-src 'self' https://fonts.gstatic.com data:",
     "img-src 'self' data: blob: https: http:",
-    "connect-src 'self' https://va.vercel-scripts.com https://vitals.vercel-insights.com https://api.agentradar.app https://cloudflareinsights.com wss:",
+    "connect-src 'self' https://api.agentradar.app https://cloudflareinsights.com https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://region1.analytics.google.com wss:",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'"

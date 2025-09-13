@@ -185,7 +185,6 @@ mcp-server.log
 .terraform/
 
 # Cloud deployment
-.vercel
 
 # Local development
 *.local

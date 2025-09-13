@@ -18,6 +18,19 @@ import {
 } from "lucide-react";
 import { EarlyAdopterForm } from "./early-adopter-form";
 
+// Google Analytics event tracking function
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+  }
+}
+
+const trackEvent = (eventName: string, parameters?: Record<string, any>) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', eventName, parameters);
+  }
+};
+
 export function CTASection() {
   const [showForm, setShowForm] = useState(false);
 
@@ -132,7 +145,17 @@ export function CTASection() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
             <Button
               size="lg"
-              onClick={() => setShowForm(true)}
+              onClick={() => {
+                // Track early adopter benefits button click
+                trackEvent('early_adopter_benefits_clicked', {
+                  button_location: 'cta_section',
+                  button_text: 'Claim My Early Adopter Benefits',
+                  event_category: 'conversion',
+                  event_label: 'main_cta',
+                  urgency_context: 'limited_spots'
+                });
+                setShowForm(true);
+              }}
               className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0 text-xl px-12 py-8 h-auto font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105"
               data-early-adopter-trigger
             >

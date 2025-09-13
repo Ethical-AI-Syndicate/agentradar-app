@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +26,19 @@ import {
   Zap,
 } from "lucide-react";
 import { motion } from "framer-motion";
+
+// Google Analytics event tracking function
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+  }
+}
+
+const trackEvent = (eventName: string, parameters?: Record<string, any>) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', eventName, parameters);
+  }
+};
 
 interface EarlyAdopterFormProps {
   open: boolean;
@@ -74,6 +87,26 @@ export function EarlyAdopterForm({
     agreeToTerms: false,
   });
 
+  // Track form open/close events
+  useEffect(() => {
+    if (open) {
+      trackEvent('form_opened', {
+        event_category: 'form_interaction',
+        event_label: 'early_adopter_form_opened',
+        form_type: 'early_adopter_registration'
+      });
+    } else if (!open && !isSubmitted && step > 1) {
+      // Track form abandonment if user was in progress
+      trackEvent('form_abandoned', {
+        event_category: 'form_interaction',
+        event_label: 'early_adopter_form_abandoned',
+        form_step: step,
+        form_type: 'early_adopter_registration',
+        form_completion_percentage: Math.round((step / 3) * 100)
+      });
+    }
+  }, [open, step, isSubmitted]);
+
   const updateFormData = (
     field: keyof FormData,
     value: string | string[] | boolean,
@@ -83,6 +116,14 @@ export function EarlyAdopterForm({
 
   const handleNext = () => {
     if (step < 3) {
+      // Track form step progression
+      trackEvent('form_step_completed', {
+        step_number: step,
+        next_step: step + 1,
+        event_category: 'form_progression',
+        event_label: `step_${step}_to_${step + 1}`,
+        form_type: 'early_adopter_registration'
+      });
       setStep(step + 1);
       setError(null); // Clear error when navigating
     }
@@ -90,6 +131,14 @@ export function EarlyAdopterForm({
 
   const handleBack = () => {
     if (step > 1) {
+      // Track backward navigation
+      trackEvent('form_step_back', {
+        from_step: step,
+        to_step: step - 1,
+        event_category: 'form_navigation',
+        event_label: `step_${step}_back_to_${step - 1}`,
+        form_type: 'early_adopter_registration'
+      });
       setStep(step - 1);
       setError(null); // Clear error when navigating
     }
@@ -98,6 +147,15 @@ export function EarlyAdopterForm({
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setError(null);
+
+    // Track form submission attempt
+    trackEvent('form_submission_started', {
+      event_category: 'form_submission',
+      event_label: 'early_adopter_registration',
+      form_step: step,
+      user_type: formData.businessType || 'unknown',
+      years_experience: formData.yearsExperience || 'unknown'
+    });
 
     try {
       // Call the Next.js API route
@@ -117,6 +175,19 @@ export function EarlyAdopterForm({
       const result = await response.json();
       console.log("Registration successful:", result);
 
+      // Track successful form submission
+      trackEvent('form_submission_success', {
+        event_category: 'conversion',
+        event_label: 'early_adopter_registered',
+        form_step: step,
+        user_type: formData.businessType || 'unknown',
+        years_experience: formData.yearsExperience || 'unknown',
+        brokerage_provided: !!formData.brokerageName,
+        phone_provided: !!formData.phone,
+        target_markets_count: formData.targetMarkets.length,
+        challenges_count: formData.currentChallenges.length
+      });
+
       setIsSubmitted(true);
     } catch (error) {
       console.error("Registration failed:", error);
@@ -124,6 +195,16 @@ export function EarlyAdopterForm({
         error instanceof Error
           ? error.message
           : "Registration failed. Please try again.";
+      
+      // Track form submission error
+      trackEvent('form_submission_error', {
+        event_category: 'form_error',
+        event_label: 'early_adopter_registration_failed',
+        error_message: errorMessage,
+        form_step: step,
+        user_type: formData.businessType || 'unknown'
+      });
+      
       setError(errorMessage);
     } finally {
       setIsSubmitting(false);

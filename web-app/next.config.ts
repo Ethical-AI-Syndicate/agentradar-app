@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   // These were identified as HIGH SECURITY RISK in Phase 1 assessment
   // Now enforcing proper linting and type checking in builds
   
-  // Remove outputFileTracingRoot to fix Vercel deployment path issues
+  // AWS deployment configuration
   
   experimental: {
     // Enable modern optimizations for performance
@@ -45,7 +45,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://vercel.live https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: *.stripe.com; connect-src 'self' https://api.agentradar.app https://admin.agentradar.app https://api.stripe.com; frame-src https://js.stripe.com https://hooks.stripe.com; object-src 'none'; base-uri 'self'; form-action 'self'",
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: *.stripe.com https://www.google-analytics.com https://www.googletagmanager.com; connect-src 'self' https://api.agentradar.app https://admin.agentradar.app https://api.stripe.com https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://region1.analytics.google.com; frame-src https://js.stripe.com https://hooks.stripe.com; object-src 'none'; base-uri 'self'; form-action 'self'",
           },
           {
             key: 'Permissions-Policy',

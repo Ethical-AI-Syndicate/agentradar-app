@@ -9,6 +9,19 @@ import { ArrowRight, Star, Users, MapPin, Clock } from "lucide-react";
 import { EarlyAdopterForm } from "./early-adopter-form";
 import { Navigation } from "./navigation";
 
+// Google Analytics event tracking function
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+  }
+}
+
+const trackEvent = (eventName: string, parameters?: Record<string, any>) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', eventName, parameters);
+  }
+};
+
 export function HeroSection() {
   const [showForm, setShowForm] = useState(false);
 
@@ -117,7 +130,16 @@ export function HeroSection() {
               <Button
                 size="lg"
                 className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0 text-lg px-8 py-6 h-auto font-semibold shadow-xl hover:shadow-2xl transition-all duration-300"
-                onClick={() => setShowForm(true)}
+                onClick={() => {
+                  // Track early access button click
+                  trackEvent('early_access_clicked', {
+                    button_location: 'hero_section',
+                    button_text: 'Get Early Access (50% Off Lifetime)',
+                    event_category: 'engagement',
+                    event_label: 'primary_cta'
+                  });
+                  setShowForm(true);
+                }}
               >
                 Get Early Access (50% Off Lifetime)
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -127,11 +149,18 @@ export function HeroSection() {
                 size="lg"
                 variant="outline"
                 className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white text-lg px-8 py-6 h-auto font-semibold"
-                onClick={() =>
+                onClick={() => {
+                  // Track demo button click
+                  trackEvent('demo_clicked', {
+                    button_location: 'hero_section',
+                    button_text: 'Watch Demo',
+                    event_category: 'engagement',
+                    event_label: 'secondary_cta'
+                  });
                   document
                     .getElementById("demo")
-                    ?.scrollIntoView({ behavior: "smooth" })
-                }
+                    ?.scrollIntoView({ behavior: "smooth" });
+                }}
               >
                 Watch Demo
               </Button>
